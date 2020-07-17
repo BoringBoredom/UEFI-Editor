@@ -1,4 +1,4 @@
-import re, winsound
+import re
 
 a = open("a.txt", "r")
 b = open("b.txt", "w")
@@ -25,4 +25,3 @@ c.write(f"Total settings: {int(i / 2)}")
 a.close()
 b.close()
 c.close()
-winsound.PlaySound('sound' , winsound.SND_FILENAME)

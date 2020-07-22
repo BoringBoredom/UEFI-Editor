@@ -1,1 +1,1 @@
-after converting with IRFExtractor, rename the file into a.txt and move it into the folder containing extractsettings.exe, then run extractsettings.exe
+After converting with LongSoft's Universal IFR Extractor, rename the output to a.txt, move it to the folder containing this script and run it.

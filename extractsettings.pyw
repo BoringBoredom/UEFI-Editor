@@ -8,7 +8,8 @@ total_settings = 0
 for line in a:
     category = re.search(r"Form: (.+), FormId:", line)
     setting = re.search(r"One Of: (.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore:", line)
-    option = re.search(r"One Of Option:(.+), Value \(\d{1,2} bit\): (.+) {", line)
+    option = re.search(r"One Of Option:(.+), Value \(.+ bit\): (.+) {", line)
+    numeric_setting = re.search(r"Numeric: (.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: .+ Min: (.+), Max (.+), Step: (.+) {", line)
     end_of_options = re.search(r"End One Of", line)
     end_of_category = re.search(r"End Form", line)
     if category:
@@ -21,6 +22,10 @@ for line in a:
         total_settings += 1
     if option:
         b.write(f"         {option.group(1)}: {option.group(2)}\n")
+    if numeric_setting:
+        b.write(f"     {numeric_setting.group(1)}: {numeric_setting.group(2)}\n         Min: {numeric_setting.group(3)}, Max: {numeric_setting.group(4)}, Step: {numeric_setting.group(5)}\n\n")
+        c.write(f"     {numeric_setting.group(1)}\n")
+        total_settings += 1
     if end_of_options:
         b.write(" " * 120 + current_category + "\n")
     if end_of_category:

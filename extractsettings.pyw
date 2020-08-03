@@ -10,6 +10,7 @@ for line in a:
     setting = re.search(r"One Of: (.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore:", line)
     option = re.search(r"One Of Option:(.+), Value \(.+ bit\): (.+) {", line)
     numeric_setting = re.search(r"Numeric: (.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: .+ Min: (.+), Max (.+), Step: (.+) {", line)
+    string_setting = re.search(r"String: (.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore:", line)
     end_of_options = re.search(r"End One Of", line)
     end_of_category = re.search(r"End Form", line)
     if category:
@@ -26,6 +27,11 @@ for line in a:
         b.write(f"     {numeric_setting.group(1)}: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(3)}, Max: {numeric_setting.group(4)}, Step: {numeric_setting.group(5)}\n")
         b.write(" " * 120 + current_category + "\n")
         c.write(f"     {numeric_setting.group(1)}\n")
+        total_settings += 1
+    if string_setting:
+        b.write(f"     {string_setting.group(1)}: {string_setting.group(2)}\n")
+        b.write(" " * 120 + current_category + "\n")
+        c.write(f"     {string_setting.group(1)}\n")
         total_settings += 1
     if end_of_options:
         b.write(" " * 120 + current_category + "\n")

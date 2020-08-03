@@ -23,7 +23,8 @@ for line in a:
     if option:
         b.write(f"         {option.group(1)}: {option.group(2)}\n")
     if numeric_setting:
-        b.write(f"     {numeric_setting.group(1)}: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(3)}, Max: {numeric_setting.group(4)}, Step: {numeric_setting.group(5)}\n\n")
+        b.write(f"     {numeric_setting.group(1)}: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(3)}, Max: {numeric_setting.group(4)}, Step: {numeric_setting.group(5)}\n")
+        b.write(" " * 120 + current_category + "\n")
         c.write(f"     {numeric_setting.group(1)}\n")
         total_settings += 1
     if end_of_options:

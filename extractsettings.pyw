@@ -14,9 +14,9 @@ for line in a:
     end_of_options = re.search(r"End One Of", line)
     end_of_category = re.search(r"End Form", line)
     if category:
-        b.write(f"{category.group(1)}\n\n")
-        c.write(f"{category.group(1)}\n\n")
         current_category = category.group(1)
+        b.write(f"{current_category}\n\n")
+        c.write(f"{current_category}\n\n")
     if setting:
         b.write(f"    {setting.group(1)}: {setting.group(2)}\n")
         if setting.group(1) != " ":

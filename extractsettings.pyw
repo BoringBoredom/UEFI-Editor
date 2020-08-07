@@ -5,6 +5,7 @@ b = open("b.txt", "w")
 c = open("c.txt", "w")
 
 total_settings = 0
+options = False
 for line in a:
     category = re.search(r"Form:(.+), FormId:", line)
     setting = re.search(r"One Of:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore:", line)
@@ -15,45 +16,49 @@ for line in a:
     end_of_category = re.search(r"End Form", line)
     if category:
         if category.group(1) == " ":
-            current_category = " ?"
+            current_category = "?"
         else:
-            current_category = category.group(1)
-        b.write(f"{current_category[1:]}\n\n")
-        c.write(f"{current_category[1:]}\n\n")
+            current_category = category.group(1)[1:]
+        b.write(f"{current_category}\n\n")
+        c.write(f"{current_category}\n\n")
     if setting:
         if setting.group(1) == " ":
-            current_setting = " ?"
+            current_setting = "?"
         else:
-            current_setting = setting.group(1)
-        b.write(f"    {current_setting}: {setting.group(2)}\n")
-        c.write(f"    {current_setting}\n")
+            current_setting = setting.group(1)[1:]
+        b.write(f"     {current_setting}: {setting.group(2)}\n")
+        c.write(f"     {current_setting}\n")
         total_settings += 1
+        options = True
     if option:
         if option.group(1) == " ":
-            current_option = " ?"
+            current_option = "?"
         else:
-            current_option = option.group(1)
-        b.write(f"         {current_option}: {option.group(2)}\n")
+            current_option = option.group(1)[1:]
+        b.write(f"          {current_option}: {option.group(2)}\n")
+        if options == False:
+            b.write("\n")
     if numeric_setting:
         if numeric_setting.group(1) == " ":
-            current_numeric_setting = " ?"
+            current_numeric_setting = "?"
         else:
-            current_numeric_setting = numeric_setting.group(1)
-        b.write(f"    {current_numeric_setting}: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(3)}, Max: {numeric_setting.group(4)}, Step: {numeric_setting.group(5)}\n")
+            current_numeric_setting = numeric_setting.group(1)[1:]
+        b.write(f"     {current_numeric_setting}: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(3)}, Max: {numeric_setting.group(4)}, Step: {numeric_setting.group(5)}\n")
         b.write(" " * 120 + current_category + "\n")
-        c.write(f"    {current_numeric_setting}\n")
+        c.write(f"     {current_numeric_setting}\n")
         total_settings += 1
     if string_setting:
         if string_setting.group(1) == " ":
-            current_string_setting = " ?"
+            current_string_setting = "?"
         else:
-            current_string_setting = string_setting.group(1)
-        b.write(f"    {current_string_setting}: {string_setting.group(2)}\n")
+            current_string_setting = string_setting.group(1)[1:]
+        b.write(f"     {current_string_setting}: {string_setting.group(2)}\n")
         b.write(" " * 120 + current_category + "\n")
-        c.write(f"    {current_string_setting}\n")
+        c.write(f"     {current_string_setting}\n")
         total_settings += 1
     if end_of_options:
         b.write(" " * 120 + current_category + "\n")
+        options = False
     if end_of_category:
         b.write("\n")
         c.write("\n")

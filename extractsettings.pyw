@@ -32,9 +32,9 @@ for line in a:
         b.write(f"{current_category}\n\n")
         c.write(f"{current_category}\n\n")
     if single_choice_setting:
-        current_setting = check_if_empty_string(single_choice_setting.group(1))
-        b.write(f"     {current_setting}: {single_choice_setting.group(2)}\n")
-        c.write(f"     {current_setting}\n")
+        current_single_choice_setting = check_if_empty_string(single_choice_setting.group(1))
+        b.write(f"     {current_single_choice_setting}: {single_choice_setting.group(2)}\n")
+        c.write(f"     {current_single_choice_setting}\n")
         total_single_choice_settings += 1
         has_options = True
     if option:

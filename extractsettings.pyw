@@ -5,7 +5,7 @@ total_single_choice_settings = 0
 total_numeric_settings = 0
 total_string_settings = 0
 total_unknown_settings = 0
-are_options = False
+has_options = False
 
 def check_if_empty_string(string):
     global total_unknown_settings
@@ -36,11 +36,11 @@ for line in a:
         b.write(f"     {current_setting}: {single_choice_setting.group(2)}\n")
         c.write(f"     {current_setting}\n")
         total_single_choice_settings += 1
-        are_options = True
+        has_options = True
     if option:
         current_option = check_if_empty_string(option.group(1))
         b.write(f"          {current_option}: {option.group(2)}\n")
-        if are_options == False:
+        if has_options == False:
             b.write("\n")
     if numeric_setting:
         current_numeric_setting = check_if_empty_string(numeric_setting.group(1))
@@ -56,7 +56,7 @@ for line in a:
         total_string_settings += 1
     if end_of_options:
         b.write(" " * 120 + current_category + "\n")
-        are_options = False
+        has_options = False
     if end_of_category:
         b.write("\n")
         c.write("\n")

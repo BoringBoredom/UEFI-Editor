@@ -31,33 +31,33 @@ for line in a:
         current_category = check_if_empty_string(category.group(1))
         b.write(f"{current_category}\n\n")
         c.write(f"{current_category}\n\n")
-    if single_choice_setting:
+    elif single_choice_setting:
         current_single_choice_setting = check_if_empty_string(single_choice_setting.group(1))
         b.write(f"     {current_single_choice_setting}: {single_choice_setting.group(2)}\n")
         c.write(f"     {current_single_choice_setting}\n")
         total_single_choice_settings += 1
         has_options = True
-    if option:
+    elif option:
         current_option = check_if_empty_string(option.group(1))
         b.write(f"          {current_option}: {option.group(2)}\n")
         if has_options == False:
             b.write("\n")
-    if numeric_setting:
+    elif numeric_setting:
         current_numeric_setting = check_if_empty_string(numeric_setting.group(1))
         b.write(f"     {current_numeric_setting}: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(3)}, Max: {numeric_setting.group(4)}, Step: {numeric_setting.group(5)}\n")
         b.write(" " * 120 + current_category + "\n")
         c.write(f"     {current_numeric_setting}\n")
         total_numeric_settings += 1
-    if string_setting:
+    elif string_setting:
         current_string_setting = check_if_empty_string(string_setting.group(1))
         b.write(f"     {current_string_setting}: {string_setting.group(2)}\n")
         b.write(" " * 120 + current_category + "\n")
         c.write(f"     {current_string_setting}\n")
         total_string_settings += 1
-    if end_of_options:
+    elif end_of_options:
         b.write(" " * 120 + current_category + "\n")
         has_options = False
-    if end_of_category:
+    elif end_of_category:
         b.write("\n")
         c.write("\n")
 

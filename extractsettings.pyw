@@ -96,9 +96,8 @@ for offset, settings in offsets.items():
                 b.write(" | ")
                 entry_count += 1
         if are_unknown == True:
-            b.write(f" | 1 or more unknown settings\n")
-        else:
-            b.write("\n")
+            b.write(f" | 1 or more unknown settings")
+        b.write("\n")
 
 total_settings = total_single_choice_settings + total_numeric_settings + total_string_settings
 

@@ -8,6 +8,7 @@ total_unknown_settings = 0
 total_shared_offsets = 0
 has_options = False
 offsets = {}
+varstores = {}
 
 def check_for_unknown_setting(string):
     global total_unknown_settings
@@ -28,24 +29,27 @@ a = open("a.txt", "r")
 b = open("b.txt", "w")
 c = open("c.txt", "w")
 
-b.write("WARNING: CHECK THE BOTTOM OF THE TEXT FILE FOR SHARED OFFSETS!!!!!!!!!!\n\n\n\n\n")
+b.write("WARNING: IF USING A SHELL THAT ONLY USES OFFSETS IN COMMANDS CHECK THE BOTTOM OF THE TEXT FILE FOR SHARED OFFSETS!!!!!!!!!!\n\n\n\n\n")
 
 for line in a:
+    varstore = re.search(r"VarStoreId: (.+) \[.+ Name: (.+) {", line)
     category = re.search(r"Form:(.+), FormId:", line)
-    single_choice_setting = re.search(r"One Of:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore:", line)
+    single_choice_setting = re.search(r"One Of:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: (.+), QuestionId:", line)
     option = re.search(r"One Of Option:(.+), Value \(.+ bit\): (.+) {", line)
-    numeric_setting = re.search(r"Numeric:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: .+ Min: (.+), Max (.+), Step: (.+) {", line)
-    string_setting = re.search(r"String:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore:", line)
+    numeric_setting = re.search(r"Numeric:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: (.+), QuestionId: .+ Min: (.+), Max (.+), Step: (.+) {", line)
+    string_setting = re.search(r"String:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: (.+), QuestionId:", line)
     end_of_options = re.search(r"End One Of", line)
     end_of_category = re.search(r"End Form", line)
-    if category:
+    if varstore:
+        varstores[varstore.group(1)] = varstore.group(2)
+    elif category:
         current_category = check_for_unknown_setting(category.group(1))
         b.write(f"{current_category}\n\n")
         c.write(f"{current_category}\n\n")
     elif single_choice_setting:
         current_single_choice_setting = check_for_unknown_setting(single_choice_setting.group(1))
         gather_offsets(current_single_choice_setting, single_choice_setting.group(2))
-        b.write(f"     {current_single_choice_setting}: {single_choice_setting.group(2)}\n")
+        b.write(f"     {current_single_choice_setting} - VarStore: {varstores[single_choice_setting.group(3)]} ({single_choice_setting.group(3)}), VarOffset: {single_choice_setting.group(2)}\n")
         c.write(f"     {current_single_choice_setting}\n")
         total_single_choice_settings += 1
         has_options = True
@@ -57,14 +61,14 @@ for line in a:
     elif numeric_setting:
         current_numeric_setting = check_for_unknown_setting(numeric_setting.group(1))
         gather_offsets(current_numeric_setting, numeric_setting.group(2))
-        b.write(f"     {current_numeric_setting}: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(3)}, Max: {numeric_setting.group(4)}, Step: {numeric_setting.group(5)}\n")
+        b.write(f"     {current_numeric_setting} - VarStore: {varstores[numeric_setting.group(3)]} ({numeric_setting.group(3)}), VarOffset: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(4)}, Max: {numeric_setting.group(5)}, Step: {numeric_setting.group(6)}\n")
         b.write(" " * 120 + current_category + "\n")
         c.write(f"     {current_numeric_setting}\n")
         total_numeric_settings += 1
     elif string_setting:
         current_string_setting = check_for_unknown_setting(string_setting.group(1))
         gather_offsets(current_string_setting, string_setting.group(2))
-        b.write(f"     {current_string_setting}: {string_setting.group(2)}\n")
+        b.write(f"     {current_string_setting} - Varstore: {varstores[string_setting.group(3)]} ({string_setting.group(3)}), VarOffset: {string_setting.group(2)}\n")
         b.write(" " * 120 + current_category + "\n")
         c.write(f"     {current_string_setting}\n")
         total_string_settings += 1

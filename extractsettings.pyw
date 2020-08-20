@@ -49,7 +49,7 @@ for line in a:
     elif single_choice_setting:
         current_single_choice_setting = check_for_unknown_setting(single_choice_setting.group(1))
         gather_offsets(current_single_choice_setting, single_choice_setting.group(2))
-        b.write(f"     {current_single_choice_setting} - VarStore: {varstores[single_choice_setting.group(3)]} ({single_choice_setting.group(3)}), VarOffset: {single_choice_setting.group(2)}\n")
+        b.write(f"     {current_single_choice_setting} | VarStore: {varstores[single_choice_setting.group(3)]} ({single_choice_setting.group(3)}), VarOffset: {single_choice_setting.group(2)}\n")
         c.write(f"     {current_single_choice_setting}\n")
         total_single_choice_settings += 1
         has_options = True
@@ -61,14 +61,14 @@ for line in a:
     elif numeric_setting:
         current_numeric_setting = check_for_unknown_setting(numeric_setting.group(1))
         gather_offsets(current_numeric_setting, numeric_setting.group(2))
-        b.write(f"     {current_numeric_setting} - VarStore: {varstores[numeric_setting.group(3)]} ({numeric_setting.group(3)}), VarOffset: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(4)}, Max: {numeric_setting.group(5)}, Step: {numeric_setting.group(6)}\n")
+        b.write(f"     {current_numeric_setting} | VarStore: {varstores[numeric_setting.group(3)]} ({numeric_setting.group(3)}), VarOffset: {numeric_setting.group(2)}\n          Min: {numeric_setting.group(4)}, Max: {numeric_setting.group(5)}, Step: {numeric_setting.group(6)}\n")
         b.write(" " * 120 + current_category + "\n")
         c.write(f"     {current_numeric_setting}\n")
         total_numeric_settings += 1
     elif string_setting:
         current_string_setting = check_for_unknown_setting(string_setting.group(1))
         gather_offsets(current_string_setting, string_setting.group(2))
-        b.write(f"     {current_string_setting} - Varstore: {varstores[string_setting.group(3)]} ({string_setting.group(3)}), VarOffset: {string_setting.group(2)}\n")
+        b.write(f"     {current_string_setting} | Varstore: {varstores[string_setting.group(3)]} ({string_setting.group(3)}), VarOffset: {string_setting.group(2)}\n")
         b.write(" " * 120 + current_category + "\n")
         c.write(f"     {current_string_setting}\n")
         total_string_settings += 1

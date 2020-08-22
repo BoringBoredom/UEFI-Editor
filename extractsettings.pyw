@@ -19,7 +19,6 @@ def check_for_unknown_setting(string):
         return string[1:]
 
 def gather_offsets(setting, offset):
-    global offsets
     if offsets.get(offset, False) == False:
         offsets[offset] = []
     offsets[offset].append(setting)

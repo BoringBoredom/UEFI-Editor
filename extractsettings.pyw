@@ -15,8 +15,7 @@ def check_for_unknown_setting(string):
     if string == " " or string == " N/A":
         total_unknown_settings += 1
         return "?"
-    else:
-        return string[1:]
+    return string[1:]
 
 def gather_offsets(setting, offset):
     if offsets.get(offset, False) == False:

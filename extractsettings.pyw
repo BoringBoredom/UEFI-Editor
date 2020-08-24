@@ -47,7 +47,7 @@ for line in a:
     elif single_choice_setting:
         current_single_choice_setting = check_for_unknown_setting(single_choice_setting.group(1))
         gather_offsets(current_single_choice_setting, single_choice_setting.group(2))
-        b.write(f"     {current_single_choice_setting} | VarStore: {varstores[single_choice_setting.group(3)]} ({single_choice_setting.group(3)}), VarOffset: {single_choice_setting.group(2)}\n")
+        b.write(f"     {current_single_choice_setting} | VarOffset: {single_choice_setting.group(2)}, VarStore: {varstores[single_choice_setting.group(3)]} ({single_choice_setting.group(3)})\n")
         c.write(f"     {current_single_choice_setting}\n")
         total_single_choice_settings += 1
         has_options = True

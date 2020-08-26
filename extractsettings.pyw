@@ -1,7 +1,7 @@
 import re
 
 
-total_single_choice_settings = 0
+total_oneof_settings = 0
 total_numeric_settings = 0
 total_string_settings = 0
 total_checkbox_settings = 0
@@ -31,12 +31,12 @@ a = open("a.txt", "r")
 b = open("b.txt", "w")
 c = open("c.txt", "w")
 
-b.write("WARNING: IF USING A SHELL THAT ONLY USES OFFSETS IN COMMANDS CHECK THE BOTTOM OF THE TEXT FILE FOR SHARED OFFSETS!!!!!!!!!!\n\n\n\n\n")
+b.write("WARNING: USE A SHELL ALLOWING YOU TO SPECIFIY VARSTORE OTHERWISE YOU RISK BRICKING YOUR SYSTEM DUE TO SHARED OFFSETS!\nWARNING: USE A SHELL ALLOWING YOU TO SPECIFIY VARSTORE OTHERWISE YOU RISK BRICKING YOUR SYSTEM DUE TO SHARED OFFSETS!\nWARNING: USE A SHELL ALLOWING YOU TO SPECIFIY VARSTORE OTHERWISE YOU RISK BRICKING YOUR SYSTEM DUE TO SHARED OFFSETS!\n\n")
 
 for line in a:
     varstore = re.search(r"VarStoreId: (.+) \[.+ Name: (.+) {", line)
     category = re.search(r"Form:(.+), FormId:", line)
-    single_choice_setting = re.search(r"One Of:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: (.+), QuestionId:", line)
+    oneof_setting = re.search(r"One Of:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: (.+), QuestionId:", line)
     option = re.search(r"One Of Option:(.+), Value \(.+ bit\): (.+) {", line)
     numeric_setting = re.search(r"Numeric:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: (.+), QuestionId: .+ Min: (.+), Max (.+), Step: (.+) {", line)
     string_setting = re.search(r"String:(.+), VarStoreInfo \(VarOffset/VarName\): (.+), VarStore: (.+), QuestionId:", line)
@@ -49,12 +49,12 @@ for line in a:
         current_category = check_for_unknown_setting(category.group(1))
         b.write(f"{current_category}\n\n")
         c.write(f"{current_category}\n\n")
-    elif single_choice_setting:
-        current_single_choice_setting = check_for_unknown_setting(single_choice_setting.group(1))
-        gather_offsets(current_single_choice_setting, single_choice_setting.group(2))
-        b.write(f"     {current_single_choice_setting} | VarOffset: {single_choice_setting.group(2)}, VarStore: {varstores[single_choice_setting.group(3)]} ({single_choice_setting.group(3)})\n")
-        c.write(f"     {current_single_choice_setting}\n")
-        total_single_choice_settings += 1
+    elif oneof_setting:
+        current_oneof_setting = check_for_unknown_setting(oneof_setting.group(1))
+        gather_offsets(current_oneof_setting, oneof_setting.group(2))
+        b.write(f"     {current_oneof_setting} | VarOffset: {oneof_setting.group(2)}, VarStore: {varstores[oneof_setting.group(3)]} ({oneof_setting.group(3)})\n")
+        c.write(f"     {current_oneof_setting}\n")
+        total_oneof_settings += 1
         has_options = True
     elif option:
         current_option = check_for_unknown_setting(option.group(1))
@@ -110,10 +110,10 @@ for offset, settings in offsets.items():
             b.write(f" | 1 or more unknown settings")
         b.write("\n")
 
-total_settings = total_single_choice_settings + total_numeric_settings + total_string_settings + total_checkbox_settings
+total_settings = total_oneof_settings + total_numeric_settings + total_string_settings + total_checkbox_settings
 
-b.write(f"\n\nTotal settings: {total_settings}\nTotal single choice settings: {total_single_choice_settings}\nTotal numeric settings: {total_numeric_settings}\nTotal string settings: {total_string_settings}\nTotal checkbox settings: {total_checkbox_settings}\nTotal unknown settings: {total_unknown_settings}\nTotal shared offsets: {total_shared_offsets}\n")
-c.write(f"\n\nTotal settings: {total_settings}\nTotal single choice settings: {total_single_choice_settings}\nTotal numeric settings: {total_numeric_settings}\nTotal string settings: {total_string_settings}\nTotal checkbox settings: {total_checkbox_settings}\nTotal unknown settings: {total_unknown_settings}\nTotal shared offsets: {total_shared_offsets}\n")
+b.write(f"\n\nTotal settings: {total_settings}\nTotal one of settings: {total_oneof_settings}\nTotal numeric settings: {total_numeric_settings}\nTotal string settings: {total_string_settings}\nTotal checkbox settings: {total_checkbox_settings}\nTotal unknown settings: {total_unknown_settings}\nTotal shared offsets: {total_shared_offsets}\n")
+c.write(f"\n\nTotal settings: {total_settings}\nTotal one of settings: {total_oneof_settings}\nTotal numeric settings: {total_numeric_settings}\nTotal string settings: {total_string_settings}\nTotal checkbox settings: {total_checkbox_settings}\nTotal unknown settings: {total_unknown_settings}\nTotal shared offsets: {total_shared_offsets}\n")
 
 a.close()
 b.close()

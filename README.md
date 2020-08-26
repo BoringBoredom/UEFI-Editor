@@ -6,5 +6,5 @@ After converting with LongSoft's Universal IFR Extractor, rename the output to a
 Compatible with:
 > https://github.com/LongSoft/UEFITool/releases  
 > https://github.com/LongSoft/Universal-IFR-Extractor/releases  
-> https://github.com/datasone/grub-mod-setup_var/issues/5#issuecomment-612967491  
+> https://github.com/datasone/grub-mod-setup_var/issues/5#issuecomment-612967491 (variable name = VarStore)  
 > https://ftp.gnu.org/gnu/grub/  

@@ -15,11 +15,11 @@ varstores = {}
 
 def check_for_updates():
     try:
-        r = requests.get("https://api.github.com/repos/BoringBoredom/extractsettings/releases")
-        new_version = float(r.json()[0]["tag_name"])
+        r = requests.get("https://api.github.com/repos/BoringBoredom/extractsettings/releases/latest")
+        new_version = float(r.json()["tag_name"])
         if new_version > current_version:
             with open("NEW VERSION AVAILABLE.txt", "w") as d:
-                d.write(f"{new_version} available at https://github.com/BoringBoredom/extractsettings/releases. Your current version is {current_version}")
+                d.write(f"{new_version} available at https://github.com/BoringBoredom/extractsettings/releases/latest. Your current version is {current_version}")
     except:
         pass
 

@@ -1,12 +1,12 @@
 After converting with LongSoft's Universal IFR Extractor, rename the output to a.txt, move it to the folder containing this script and run the script.
 
-
 Compatible with:
 > https://github.com/LongSoft/UEFITool/releases  
 > https://github.com/LongSoft/Universal-IFR-Extractor/releases  
 > https://github.com/datasone/grub-mod-setup_var/issues/5#issuecomment-612967491 (variable name = VarStore)  
 > https://ftp.gnu.org/gnu/grub/  
 
+Make sure to use datasone's updated shell: https://github.com/datasone/grub-mod-setup_var/files/4470388/modGRUBShellCustomVarName.zip
 
 Download your current BIOS version from the motherboard vendor’s site.
 

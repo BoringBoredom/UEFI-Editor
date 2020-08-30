@@ -33,3 +33,6 @@ Then type:
 To obtain the current value without changing it, replace it with “read” (e.g. *setup_var 0x1241 read Setup*).
 
 If *setup_var* doesn’t work, try with *setup_var_3*.
+
+Alternative modded shell:
+> https://github.com/XDleader555/grub_setup_var/issues/4#issuecomment-615953345

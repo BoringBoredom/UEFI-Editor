@@ -17,7 +17,7 @@ Convert the extracted file with IRFExtractor. Convert it further with my script.
 
 Search for the setting you want to change and write down the VarOffset, Value and VarStore name.
 
-Download GRUB for Windows. Format an USB stick as FAT32. E is the drive letter of the FAT32 formatted USB drive (change if necessary). Open CMD in the GRUB directory and type:  
+Download GRUB for Windows. Format an USB stick as FAT32. *E* is the drive letter of the FAT32 formatted USB drive (change if necessary). Open CMD in the GRUB directory and type:  
 *grub-install.exe --boot-directory=E:\ --efi-directory=E: --removable --target=x86_64-efi*
 
 Download the modded GRUB. Rename it to *BOOTX64.EFI* and replace the original file on the USB drive.

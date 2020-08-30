@@ -1,4 +1,4 @@
-After converting with LongSoft's Universal IFR Extractor, rename the output to a.txt, move it to the folder containing this script and run the script.
+After converting with LongSoft's Universal IFR Extractor, rename the output to *a.txt*, move it to the folder containing this script and run the script.
 
 Compatible with:
 > https://github.com/LongSoft/UEFITool/releases  
@@ -13,7 +13,7 @@ Download your current BIOS version from the motherboard vendor’s site.
 
 Import it with the non-A branch of UEFITool. If the file is not detected due to missing file extension, drag it into UEFItool or add .rom to the end. Press CTRL + F and perform a text search for the desired setting. Double-click the reference to the section at the bottom, right-click the section and press “Extract as is...”.
 
-Convert the extracted file with IRFExtractor. Convert it further with my script.
+Convert the extracted file with IRFExtractor. Convert it further with my script (instructions are at the top).
 
 Search for the setting you want to change and write down the VarOffset, Value and VarStore name.
 

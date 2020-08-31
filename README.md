@@ -22,7 +22,7 @@ Download GRUB for Windows. Format an USB stick as FAT32. *E* is the drive letter
 
 Download the modded GRUB. Rename it to *BOOTX64.EFI* and replace the original file on the USB drive.
 
-Disable Secure Boot and boot into GRUB in UEFI mode (CSM disabled).
+Disable Secure Boot and boot into GRUB in UEFI mode (CSM disabled). You can enable CSM again after you're done.
 
 Using datasone’s shell, in the GRUB command interface, type:  
 *setup_var VarOffset Value VarStoreName* (e.g. *setup_var 0x1241 0x1 Setup*)

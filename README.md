@@ -34,5 +34,5 @@ To obtain the current value without changing it, replace it with “read” (e.g
 
 If *setup_var* doesn’t work, try with *setup_var_3*.
 
-Alternative modded shell:
+Alternative modded shell (uses different syntax):
 > https://github.com/XDleader555/grub_setup_var/issues/4#issuecomment-615953345

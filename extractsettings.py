@@ -1,7 +1,15 @@
 import re, requests
 
+current_version = 0.11
 
-current_version = 0.1
+try:
+    r = requests.get("https://api.github.com/repos/BoringBoredom/extractsettings/releases/latest")
+    new_version = float(r.json()["tag_name"])
+    if new_version > current_version:
+        with open("NEW VERSION AVAILABLE.txt", "w") as d:
+            d.write(f"{new_version} available at https://github.com/BoringBoredom/extractsettings/releases/latest. Your current version is {current_version}")
+except:
+    pass
 
 total_oneof_settings = 0
 total_numeric_settings = 0
@@ -12,16 +20,6 @@ total_shared_offsets = 0
 has_options = False
 offsets = {}
 varstores = {}
-
-def check_for_updates():
-    try:
-        r = requests.get("https://api.github.com/repos/BoringBoredom/extractsettings/releases/latest")
-        new_version = float(r.json()["tag_name"])
-        if new_version > current_version:
-            with open("NEW VERSION AVAILABLE.txt", "w") as d:
-                d.write(f"{new_version} available at https://github.com/BoringBoredom/extractsettings/releases/latest. Your current version is {current_version}")
-    except:
-        pass
 
 def check_for_unknown_setting(string):
     global total_unknown_settings
@@ -39,9 +37,9 @@ def appendix(setting):
     b.write(" " * 120 + current_category + "\n")
     c.write(f"     {setting}\n")
 
-a = open("a.txt", "r")
-b = open("b.txt", "w")
-c = open("c.txt", "w")
+a = open("a.txt", "r", errors="ignore")
+b = open("b.txt", "w", errors="ignore")
+c = open("c.txt", "w", errors="ignore")
 
 b.write("WARNING: USE A SHELL ALLOWING YOU TO SPECIFY VARSTORE OTHERWISE YOU RISK BRICKING YOUR SYSTEM DUE TO SHARED OFFSETS!\nWARNING: USE A SHELL ALLOWING YOU TO SPECIFY VARSTORE OTHERWISE YOU RISK BRICKING YOUR SYSTEM DUE TO SHARED OFFSETS!\nWARNING: USE A SHELL ALLOWING YOU TO SPECIFY VARSTORE OTHERWISE YOU RISK BRICKING YOUR SYSTEM DUE TO SHARED OFFSETS!\n\n")
 
@@ -130,5 +128,3 @@ c.write(f"\n\nTotal settings: {total_settings}\nTotal one of settings: {total_on
 a.close()
 b.close()
 c.close()
-
-check_for_updates()

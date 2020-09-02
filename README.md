@@ -6,7 +6,7 @@ Compatible with:
 > https://github.com/datasone/grub-mod-setup_var/issues/5#issuecomment-612967491 (variable name = VarStore)  
 > https://ftp.gnu.org/gnu/grub/  
 
-Make sure to use datasone's updated shell:
+**Make sure to use datasone's updated shell:**
 > https://github.com/datasone/grub-mod-setup_var/files/4470388/modGRUBShellCustomVarName.zip  
 
 Download your current BIOS version from the motherboard vendor’s site.
@@ -32,7 +32,7 @@ Then type:
 
 To obtain the current value without changing it, replace it with “read” (e.g. *setup_var 0x1241 read Setup*).
 
-If *setup_var* doesn’t work, try with *setup_var_3*.
+If *setup_var* doesn’t work, try *setup_var_3*.
 
-Alternative modded shell (uses different syntax):
+Alternative modded shell (**uses different syntax**):
 > https://github.com/XDleader555/grub_setup_var/issues/4#issuecomment-615953345

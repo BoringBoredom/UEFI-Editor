@@ -26,10 +26,10 @@ Disable Secure Boot and boot into GRUB in UEFI mode (CSM disabled). You can enab
 Using datasone’s shell, in the GRUB command interface, type:  
 *setup_var VarOffset Value VarStoreName* (e.g. *setup_var 0x1241 0x1 Setup*)
 
-To obtain the current value without changing it, replace "Value" with “read” (e.g. *setup_var 0x1241 read Setup*).
+To obtain the current value without changing it, replace "Value" with “read” (e.g. *setup_var 0x1241 read Setup*).  
 If *setup_var* doesn’t work, try *setup_var_3*.
 
-To exit and reboot type:  
+To exit and reboot, type:  
 *reboot*
 
 Alternative modded shell (**uses different syntax**):

@@ -17,7 +17,7 @@ Download your current BIOS version from the motherboard vendor’s site.
 
 Drag and drop it into [UEFItool](https://github.com/LongSoft/UEFITool/releases). Press CTRL + F and perform a text search for any setting. Double-click the reference to the section at the bottom, right-click the section and press “Extract as is...”.
 
-Convert the extracted file with [IRFExtractor](https://github.com/LongSoft/Universal-IFR-Extractor/releases). Rename the output to *a.txt*, move it to the folder containing this script and run the script.
+Convert the extracted file with [IRFExtractor](https://github.com/LongSoft/Universal-IFR-Extractor/releases). Rename the output to *a.txt*, move it to the folder containing [this script](https://github.com/BoringBoredom/IFR-Formatter/releases) and run it.
 
 Search for the settings you want to change and write down the VarOffsets, Values and VarStore names.
 

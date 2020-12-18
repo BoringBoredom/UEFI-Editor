@@ -1,12 +1,12 @@
 # How to change hidden settings without flashing a modded BIOS
 Compatible with:
-> https://github.com/LongSoft/UEFITool/releases
-> https://github.com/LongSoft/Universal-IFR-Extractor/releases
-> https://github.com/datasone/grub-mod-setup_var/issues/5#issuecomment-612967491 (variable name = VarStore)
-> https://ftp.gnu.org/gnu/grub/
+> https://github.com/LongSoft/UEFITool/releases  
+> https://github.com/LongSoft/Universal-IFR-Extractor/releases  
+> https://github.com/datasone/grub-mod-setup_var/issues/5#issuecomment-612967491 (variable name = VarStore)  
+> https://ftp.gnu.org/gnu/grub/  
 
 **Make sure to use datasone's updated shell:**
-> https://github.com/datasone/grub-mod-setup_var/files/4470388/modGRUBShellCustomVarName.zip
+> https://github.com/datasone/grub-mod-setup_var/files/4470388/modGRUBShellCustomVarName.zip  
 
 Download [GRUB for Windows](https://ftp.gnu.org/gnu/grub/). Format a USB drive as FAT32. *E* is the drive letter of the FAT32 formatted USB drive (change if necessary). Open CMD in the GRUB directory and paste:  
 *grub-install.exe --boot-directory=E:\ --efi-directory=E: --removable --target=x86_64-efi*

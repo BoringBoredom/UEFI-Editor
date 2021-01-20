@@ -10,7 +10,7 @@ https://ftp.gnu.org/gnu/grub/
 Download [GRUB for Windows](https://ftp.gnu.org/gnu/grub/). Format a USB drive as FAT32. ***E*** is the drive letter of the FAT32 formatted USB drive (**change if necessary**). Open CMD in the GRUB directory and paste:  
 ***grub-install.exe --boot-directory=E:\ --efi-directory=E: --removable --target=x86_64-efi***
 
-Download [datasone's](https://github.com/datasone/grub-mod-setup_var/files/4470388/modGRUBShellCustomVarName.zip) or [XDleader555's](https://github.com/XDleader555/grub_setup_var/releases) modded shell. Rename it to ***BOOTX64.EFI*** and replace the original file on the USB drive.
+Download [datasone's](https://github.com/datasone/grub-mod-setup_var/files/4470388/modGRUBShellCustomVarName.zip) or [XDleader555's](https://github.com/XDleader555/grub_setup_var/releases) modded shell. Rename it to ***BOOTX64.EFI*** and replace the original file (***\EFI\BOOT\BOOTX64.EFI***) on the USB drive.
 
 Download your current BIOS version from the motherboard vendor’s site.
 

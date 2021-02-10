@@ -2,7 +2,7 @@
 ## Prerequisites
 https://github.com/LongSoft/UEFITool/releases  
 https://github.com/LongSoft/Universal-IFR-Extractor/releases  
-https://github.com/datasone/grub-mod-setup_var/issues/5#issuecomment-612967491 (variable name = VarStore)  
+https://github.com/datasone/grub-mod-setup_var/issues/5#issuecomment-612967491 (variable name = VarStore name)  
 https://github.com/XDleader555/grub_setup_var/releases + https://github.com/XDleader555/grub_setup_var/issues/4#issuecomment-615953345  
 
 ## Preparation

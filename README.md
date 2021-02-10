@@ -20,22 +20,39 @@ Open ***b.txt***, search for the settings you want to change and write down the 
 
 Disable Secure Boot and boot from the USB drive in UEFI mode (CSM disabled). You can enable CSM again after you're done.
 
-## Using datasone’s shell
+## Example
+### Inside *a.txt*
+```
+VarStore: VarStoreId: 0x7 [4570B7F1-ADE8-4943-8DC3-406472842384], Size: 0x6BF, Name: PchSetup {24 1F F1 B7 70 45 E8 AD 43 49 8D C3 40 64 72 84 23 84 07 00 BF 06 50 63 68 53 65 74 75 70 00}
+```
+```
+One Of: High Precision Timer, VarStoreInfo (VarOffset/VarName): 0x20, VarStore: 0x7, QuestionId: 0x954, Size: 1, Min: 0x0, Max 0x1, Step: 0x0 {05 91 0C 0E 0D 0E 54 09 07 00 20 00 10 10 00 01 00}
+        One Of Option: Disabled, Value (8 bit): 0x0 {09 07 04 00 00 00 00}
+        One Of Option: Enabled, Value (8 bit): 0x1 (default) {09 07 03 00 30 00 01}
+End One Of {29 02}
+```
+### Inside *b.txt*
+```
+High Precision Timer | VarOffset: 0x20, VarStore: PchSetup (0x7)
+     Disabled: 0x0
+     Enabled: 0x1 (default)
+```
+### Using datasone’s shell
 In the GRUB command interface, type:  
-***setup_var VarOffset Value VarStoreName*** (e.g. ***setup_var 0x1241 0x1 Setup***)
+***setup_var VarOffset Value VarStoreName*** (e.g. ***setup_var 0x20 0x0 PchSetup***)
 
-To obtain the current value without changing it, replace ***Value*** with ***read*** (e.g. ***setup_var 0x1241 read Setup***).
+To obtain the current value without changing it, replace ***Value*** with ***read*** (e.g. ***setup_var 0x20 read PchSetup***).
 
 If you encounter [this issue](https://github.com/datasone/grub-mod-setup_var/blob/master/README.md#the-problem), use ***setup_var_3***.
 
 To exit and reboot, type:  
 ***reboot***
 
-## Using XDleader555's shell
+### Using XDleader555's shell
 In the GRUB command interface, type:  
-***setup_var VarStoreName VarOffset Value*** (e.g. ***setup_var Setup 0x1241 0x1***)
+***setup_var VarStoreName VarOffset Value*** (e.g. ***setup_var PchSetup 0x20 0x0***)
 
-To obtain the current value without changing it, omit ***Value*** (e.g. ***setup_var Setup 0x1241***).
+To obtain the current value without changing it, omit ***Value*** (e.g. ***setup_var PchSetup 0x20***).
 
 To exit and reboot, type:  
 ***reboot***

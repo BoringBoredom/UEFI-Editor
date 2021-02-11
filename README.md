@@ -10,7 +10,7 @@ Download [datasone's](https://github.com/datasone/grub-mod-setup_var/files/44703
 
 Format a USB drive as FAT32 and put ***BOOTX64.EFI*** in ***USB:\EFI\BOOT\\*** (create the folders ***EFI*** and ***BOOT*** manually). The final path of the shell will be ***USB:\EFI\BOOT\BOOTX64.EFI***.
 
-Download your current BIOS version from the motherboard vendor’s site.
+Download your **current** BIOS version from the motherboard vendor's site. Offsets change across different versions, so make sure you have the **same** BIOS.
 
 Drag and drop it into [UEFITool](https://github.com/LongSoft/UEFITool/releases). Press CTRL + F and perform a ***Text*** search for any setting. Double-click the reference to the section at the bottom, right-click the section (usually under ***Setup***) and press ***Extract as is...***.
 

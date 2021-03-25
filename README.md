@@ -36,7 +36,7 @@ High Precision Timer | VarStore: PchSetup, VarOffset: 0x20, Size: 0x1
 ```
 ### [Syntax](https://github.com/datasone/grub-mod-setup_var#setup_var_cv) (<- read this)
 In the GRUB command interface, type:  
-***setup_var_cv VarStore VarOffset Size Value *** (e.g. ***setup_var_cv PchSetup 0x20 0x1 0x0***)
+***setup_var_cv VarStore VarOffset Size Value*** (e.g. ***setup_var_cv PchSetup 0x20 0x1 0x0***)
 
 To obtain the current value without changing it, omit ***Value*** (e.g. ***setup_var_cv PchSetup 0x20 0x1***).
 

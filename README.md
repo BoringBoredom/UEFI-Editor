@@ -1,11 +1,6 @@
 # How to change hidden settings without flashing a modded BIOS
-## Prerequisites
-https://github.com/LongSoft/UEFITool/releases  
-https://github.com/LongSoft/Universal-IFR-Extractor/releases  
-https://github.com/datasone/grub-mod-setup_var/releases  
-
 ## Preparation
-Download [datasone's modded shell](https://github.com/datasone/grub-mod-setup_var/releases) and rename it to ***BOOTX64.EFI***.
+Download [XDleader555's](https://github.com/XDleader555/grub_setup_var/releases) or [datasone's](https://github.com/datasone/grub-mod-setup_var/releases) modded shell and rename it to ***BOOTX64.EFI***.
 
 Format a USB drive as FAT32 and put ***BOOTX64.EFI*** in ***USB:\EFI\BOOT\\*** (create the folders ***EFI*** and ***BOOT*** manually). The final path of the shell will be ***USB:\EFI\BOOT\BOOTX64.EFI***.
 
@@ -34,13 +29,40 @@ High Precision Timer | VarStore: PchSetup, VarOffset: 0x20, Size: 0x1
      Disabled: 0x0
      Enabled: 0x1 (default)
 ```
-### [Syntax](https://github.com/datasone/grub-mod-setup_var#setup_var_cv) (<- read this)
-In the GRUB command interface, type:  
-***setup_var_cv VarStore VarOffset Size Value*** (e.g. ***setup_var_cv PchSetup 0x20 0x1 0x0***)
-
-To obtain the current value without changing it, omit ***Value*** (e.g. ***setup_var_cv PchSetup 0x20 0x1***).
-
+### [XDleader555's syntax](https://github.com/XDleader555/grub_setup_var#usage) (READ THIS)
+#### Writing
+```
+setup_var VarStore VarOffset Value
+```
+```
+setup_var PchSetup 0x20 0x0
+```
+#### Reading
+```
+setup_var VarStore VarOffset
+```
+```
+setup_var PchSetup 0x20
+```
+### [datasone's syntax](https://github.com/datasone/grub-mod-setup_var#setup_var_cv) (READ THIS)
+#### Writing
+```
+setup_var_cv VarStore VarOffset Size Value
+```
+```
+setup_var_cv PchSetup 0x20 0x1 0x0
+```
+#### Reading
+```
+setup_var_cv VarStore VarOffset Size
+```
+```
+setup_var_cv PchSetup 0x20 0x1
+```
+### Miscellaneous
 To exit and reboot, type:  
-***reboot***
+```
+reboot
+```
 
 If something unexpected happens, force shutdown and reset CMOS.

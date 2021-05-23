@@ -64,5 +64,8 @@ To exit and reboot, type:
 ```
 reboot
 ```
+---
+Workarounds for various issues (e.g. multiple Setup VarStores): [datasone's legacy commands](https://github.com/datasone/grub-mod-setup_var#legacy-commands)
 
+---
 If something unexpected happens, force shutdown and reset CMOS.

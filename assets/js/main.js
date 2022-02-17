@@ -16,19 +16,10 @@ document.addEventListener('drop', async ev => {
             const content = await file.text()
             const result = processFile(content)
 
-            const download = new Blob([JSON.stringify(result, null, 4)], { type: 'text/html' })
-            const link = document.createElement('a')
-            const uri = URL.createObjectURL(download)
-            if (typeof(link.download) === 'string') {
-                link.href = uri
-                link.download = fileName.slice(0, -4) + '.json'
-                document.body.appendChild(link)
-                link.click()
-                document.body.removeChild(link)
-            }
-            else {
-                window.open(uri)
-            }
+            saveAs(
+                new Blob([JSON.stringify(result, null, 4)], { type: 'text/plain;charset=utf-8' }),
+                fileName.slice(0, -4) + '.json'
+            )
         }
     }
 })

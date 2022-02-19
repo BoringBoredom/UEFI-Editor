@@ -24,12 +24,9 @@ document.addEventListener('drop', async ev => {
     }
 })
 
-function checkConditions(item, suppressedBy, grayedOutBy) {
+function checkConditions(item, suppressedBy) {
     if (suppressedBy.length !== 0) {
         item['Suppressed By'] = [...suppressedBy]
-    }
-    if (grayedOutBy.length !== 0) {
-        item['Grayed Out By'] = [...grayedOutBy]
     }
 }
 
@@ -37,7 +34,6 @@ function processFile(content) {
     const varStores = []
     const forms = []
     const suppressedBy = []
-    const grayedOutBy = []
     const currentIf = []
     let currentForm
     let currentOneOf
@@ -78,15 +74,11 @@ function processFile(content) {
             currentIf.push('suppress')
         }
         if (grayOutIf) {
-            grayedOutBy.push(line.split(' ')[0])
             currentIf.push('grayout')
         }
         if (endIf) {
             if (currentIf[currentIf.length - 1] === 'suppress') {
                 suppressedBy.pop()
-            }
-            else {
-                grayedOutBy.pop()
             }
             currentIf.pop()
         }
@@ -98,7 +90,7 @@ function processFile(content) {
                 'FormId': form[2]
             }
 
-            checkConditions(currentForm, suppressedBy, grayedOutBy)
+            checkConditions(currentForm, suppressedBy)
             currentForm['Children'] = []
         }
         if (endForm) {
@@ -115,7 +107,7 @@ function processFile(content) {
                 'FormId': reference[5]
             }
 
-            checkConditions(currentReference, suppressedBy, grayedOutBy)
+            checkConditions(currentReference, suppressedBy)
             currentForm['Children'].push(currentReference)
         }
 
@@ -133,7 +125,7 @@ function processFile(content) {
                 'Step': oneOf[8]
             }
 
-            checkConditions(currentOneOf, suppressedBy, grayedOutBy)
+            checkConditions(currentOneOf, suppressedBy)
             currentOneOf['Options'] = []
         }
         if (oneOfOption) {
@@ -157,7 +149,7 @@ function processFile(content) {
                 'Step': numeric[8]
             }
 
-            checkConditions(currentNumeric, suppressedBy, grayedOutBy)
+            checkConditions(currentNumeric, suppressedBy)
             currentForm['Children'].push(currentNumeric)
         }
 
@@ -173,7 +165,7 @@ function processFile(content) {
                 'MaxSize': string[6]
             }
 
-            checkConditions(currentString, suppressedBy, grayedOutBy)
+            checkConditions(currentString, suppressedBy)
             currentForm['Children'].push(currentString)
         }
 
@@ -187,13 +179,13 @@ function processFile(content) {
                 'QuestionId': checkbox[4]
             }
 
-            checkConditions(currentCheckbox, suppressedBy, grayedOutBy)
+            checkConditions(currentCheckbox, suppressedBy)
             currentForm['Children'].push(currentCheckbox)
         }
     }
 
     return {
-        'VarStores': varStores,
-        'Forms': forms
+        'Forms': forms,
+        'VarStores': varStores
     }
 }

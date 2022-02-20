@@ -10,7 +10,7 @@ document.addEventListener('drop', async ev => {
     ev.stopPropagation()
     ev.preventDefault()
 
-    let PE32Image, SetupData
+    let PE32Image, SetupData, formattedJson
     for (const file of ev.dataTransfer.files) {
         const fileName = file.name
         if (fileName.endsWith('.txt')) {
@@ -19,12 +19,24 @@ document.addEventListener('drop', async ev => {
         else if (fileName.endsWith('.bin')) {
             SetupData = [...new Uint8Array(await file.arrayBuffer())].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase()
         }
+        else if (fileName.endsWith('.json')) {
+            formattedJson = JSON.parse(await file.text())
+        }
     }
 
     if (PE32Image && SetupData) {
-        const result = processFile(PE32Image, SetupData)
-
+        const result = formatData(PE32Image, SetupData)
         saveAs(new Blob([JSON.stringify(result, null, 4)], { type: 'text/plain;charset=utf-8' }), 'data.json')
+    }
+    else if (SetupData && formattedJson) {
+        const result = modifySetupData(SetupData, formattedJson)
+        const binaryArray = []
+        const length = result.length / 2
+        for (let index = 0; index < length; index++) {
+            const newIndex = index * 2
+            binaryArray[index] = parseInt(result.substring(newIndex, newIndex + 2), 16)
+        }
+        saveAs(new Blob([new Uint8Array(binaryArray)], { type: 'application/octet-stream' }), 'modded body.bin')
     }
 })
 
@@ -44,7 +56,32 @@ function checkAccessLevels(item, bytes, SetupData) {
     item['Optimal'] = accessLevels[3]
 }
 
-function processFile(PE32Image, SetupData) {
+function modifySetupData(SetupData, formattedJson) {
+    for (const form of formattedJson['Forms']) {
+        for (const child of form['Children']) {
+            const bytes = child['Bytes'].split(' ')
+            const regex = new RegExp(bytes[6] + bytes[7] + '.{28}(..).{6}' + bytes[4] + bytes[5] + '.{52}' + bytes[2] + bytes[3] + '.{4}(..)(..)')
+            const accessLevels = SetupData.match(regex)
+
+            if (
+                accessLevels[1] !== child['Access Level'] ||
+                accessLevels[2] !== child['Failsafe'] ||
+                accessLevels[3] !== child['Optimal']
+            ) {
+                const original = accessLevels[0]
+                const replacement = original.substring(0, 32) + child['Access Level'] + original.substring(34, 104) + child['Failsafe'] + child['Optimal']
+                SetupData = SetupData.replace(original, replacement)
+                console.log(original)
+                console.log('replaced with')
+                console.log(replacement)
+            }
+        }
+    }
+
+    return SetupData
+}
+
+function formatData(PE32Image, SetupData) {
     const varStores = []
     const forms = []
     const suppressedBy = []

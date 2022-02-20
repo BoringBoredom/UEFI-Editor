@@ -10,27 +10,41 @@ document.addEventListener('drop', async ev => {
     ev.stopPropagation()
     ev.preventDefault()
 
+    let PE32Image, SetupData
     for (const file of ev.dataTransfer.files) {
         const fileName = file.name
         if (fileName.endsWith('.txt')) {
-            const content = await file.text()
-            const result = processFile(content)
-
-            saveAs(
-                new Blob([JSON.stringify(result, null, 4)], { type: 'text/plain;charset=utf-8' }),
-                fileName.slice(0, -4) + '.json'
-            )
+            PE32Image = await file.text()
         }
+        else if (fileName.endsWith('.bin')) {
+            SetupData = [...new Uint8Array(await file.arrayBuffer())].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase()
+        }
+    }
+
+    if (PE32Image && SetupData) {
+        const result = processFile(PE32Image, SetupData)
+
+        saveAs(new Blob([JSON.stringify(result, null, 4)], { type: 'text/plain;charset=utf-8' }), 'data.json')
     }
 })
 
-function checkConditions(item, suppressedBy) {
+function checkSuppress(item, suppressedBy) {
     if (suppressedBy.length !== 0) {
         item['Suppressed By'] = [...suppressedBy]
     }
 }
 
-function processFile(content) {
+function checkAccessLevels(item, bytes, SetupData) {
+    bytes = bytes.split(' ')
+    const regex = new RegExp(bytes[6] + bytes[7] + '............................(..)......' + bytes[4] + bytes[5] + '....................................................' + bytes[2] + bytes[3] + '....(..)(..)')
+    const accessLevels = SetupData.match(regex)
+
+    item['Access Level'] = accessLevels[1]
+    item['Failsafe'] = accessLevels[2]
+    item['Optimal'] = accessLevels[3]
+}
+
+function processFile(PE32Image, SetupData) {
     const varStores = []
     const forms = []
     const suppressedBy = []
@@ -38,27 +52,27 @@ function processFile(content) {
     let currentForm
     let currentOneOf
 
-    content = content.split('\n')
+    PE32Image = PE32Image.split('\n')
 
-    for (const line of content) {
+    for (const line of PE32Image) {
         const varStore = line.match(/VarStoreId: (.*) \[.*], Size: (.*), Name: (.*) {/)
 
         const suppressIf = line.match(/Suppress If {0A 82}/)
         const grayOutIf = line.match(/Gray Out If {19 82}/)
         const endIf = line.match(/End If {29 02}/)
 
-        const reference = line.match(/Ref: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*), FormId: (.*) {/)
+        const reference = line.match(/Ref: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*), FormId: (.*) {(.*)}/)
 
         const form = line.match(/Form: (.*), FormId: (.*) {/)
         const endForm = line.match(/End Form {29 02}/)
 
-        const oneOf = line.match(/One Of: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*), Size: (.*), Min: (.*), Max (.*), Step: (.*) {/)
+        const oneOf = line.match(/One Of: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*), Size: (.*), Min: (.*), Max (.*), Step: (.*) {(.*)}/)
         const oneOfOption = line.match(/One Of Option: (.*), Value \(.*bit\): (.*) {/)
         const endOneOf = line.match(/End One Of {29 02}/)
 
-        const numeric = line.match(/Numeric: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*), Size: (.*), Min: (.*), Max (.*), Step: (.*) {/)
-        const string = line.match(/String: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*), MinSize: (.*), MaxSize: (.*) {/)
-        const checkbox = line.match(/Checkbox: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*) {/)
+        const numeric = line.match(/Numeric: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*), Size: (.*), Min: (.*), Max (.*), Step: (.*) {(.*)}/)
+        const string = line.match(/String: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*), MinSize: (.*), MaxSize: (.*) {(.*)}/)
+        const checkbox = line.match(/Checkbox: (.*), VarStoreInfo \(VarOffset\/VarName\): (.*), VarStore: (.*), QuestionId: (.*) {(.*)}/)
 
 
         if (varStore) {
@@ -90,7 +104,6 @@ function processFile(content) {
                 'FormId': form[2]
             }
 
-            checkConditions(currentForm, suppressedBy)
             currentForm['Children'] = []
         }
         if (endForm) {
@@ -107,7 +120,8 @@ function processFile(content) {
                 'FormId': reference[5]
             }
 
-            checkConditions(currentReference, suppressedBy)
+            checkAccessLevels(currentReference, reference[6], SetupData)
+            checkSuppress(currentReference, suppressedBy)
             currentForm['Children'].push(currentReference)
         }
 
@@ -125,7 +139,8 @@ function processFile(content) {
                 'Step': oneOf[8]
             }
 
-            checkConditions(currentOneOf, suppressedBy)
+            checkAccessLevels(currentOneOf, oneOf[9], SetupData)
+            checkSuppress(currentOneOf, suppressedBy)
             currentOneOf['Options'] = []
         }
         if (oneOfOption) {
@@ -149,7 +164,8 @@ function processFile(content) {
                 'Step': numeric[8]
             }
 
-            checkConditions(currentNumeric, suppressedBy)
+            checkAccessLevels(currentNumeric, numeric[9], SetupData)
+            checkSuppress(currentNumeric, suppressedBy)
             currentForm['Children'].push(currentNumeric)
         }
 
@@ -165,7 +181,8 @@ function processFile(content) {
                 'MaxSize': string[6]
             }
 
-            checkConditions(currentString, suppressedBy)
+            checkAccessLevels(currentString, string[7], SetupData)
+            checkSuppress(currentString, suppressedBy)
             currentForm['Children'].push(currentString)
         }
 
@@ -179,7 +196,8 @@ function processFile(content) {
                 'QuestionId': checkbox[4]
             }
 
-            checkConditions(currentCheckbox, suppressedBy)
+            checkAccessLevels(currentCheckbox, checkbox[5], SetupData)
+            checkSuppress(currentCheckbox, suppressedBy)
             currentForm['Children'].push(currentCheckbox)
         }
     }

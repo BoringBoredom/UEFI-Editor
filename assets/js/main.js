@@ -114,10 +114,12 @@ function processFile(PE32Image, SetupData) {
             const currentReference = {
                 'Name': reference[1],
                 'Type': 'Reference',
+                'Parent Form': `${currentForm['Name']}`,
                 'VarOffSet': reference[2],
                 'VarStoreId': `${reference[3]} (${varStores.find(varStore => varStore['VarStoreId'] === reference[3])?.['Name']})`,
                 'QuestionId': reference[4],
-                'FormId': reference[5]
+                'FormId': reference[5],
+                'Bytes': reference[6]
             }
 
             checkAccessLevels(currentReference, reference[6], SetupData)
@@ -129,19 +131,20 @@ function processFile(PE32Image, SetupData) {
             currentOneOf = {
                 'Name': oneOf[1],
                 'Type': 'One Of Setting',
-                'FormId': `${currentForm['FormId']} (${currentForm['Name']})`,
+                'Parent Form': `${currentForm['Name']}`,
                 'VarOffset': oneOf[2],
                 'VarStoreId': `${oneOf[3]} (${varStores.find(varStore => varStore['VarStoreId'] === oneOf[3])?.['Name']})`,
                 'QuestionId': oneOf[4],
                 'Size': oneOf[5],
                 'Min': oneOf[6],
                 'Max': oneOf[7],
-                'Step': oneOf[8]
+                'Step': oneOf[8],
+                'Options': [],
+                'Bytes': oneOf[9]
             }
 
             checkAccessLevels(currentOneOf, oneOf[9], SetupData)
             checkSuppress(currentOneOf, suppressedBy)
-            currentOneOf['Options'] = []
         }
         if (oneOfOption) {
             currentOneOf['Options'].push(`${oneOfOption[1]}: ${oneOfOption[2]}`)
@@ -154,14 +157,15 @@ function processFile(PE32Image, SetupData) {
             const currentNumeric = {
                 'Name': numeric[1],
                 'Type': 'Numeric Setting',
-                'FormId': `${currentForm['FormId']} (${currentForm['Name']})`,
+                'Parent Form': `${currentForm['Name']}`,
                 'VarOffset': numeric[2],
                 'VarStoreId': `${numeric[3]} (${varStores.find(varStore => varStore['VarStoreId'] === numeric[3])?.['Name']})`,
                 'QuestionId': numeric[4],
                 'Size': numeric[5],
                 'Min': numeric[6],
                 'Max': numeric[7],
-                'Step': numeric[8]
+                'Step': numeric[8],
+                'Bytes': numeric[9]
             }
 
             checkAccessLevels(currentNumeric, numeric[9], SetupData)
@@ -173,12 +177,13 @@ function processFile(PE32Image, SetupData) {
             const currentString = {
                 'Name': string[1],
                 'Type': 'String Setting',
-                'FormId': `${currentForm['FormId']} (${currentForm['Name']})`,
+                'Parent Form': `${currentForm['Name']}`,
                 'VarOffset': string[2],
                 'VarStoreId': `${string[3]} (${varStores.find(varStore => varStore['VarStoreId'] === string[3])?.['Name']})`,
                 'QuestionId': string[4],
                 'MinSize': string[5],
-                'MaxSize': string[6]
+                'MaxSize': string[6],
+                'Bytes': string[7]
             }
 
             checkAccessLevels(currentString, string[7], SetupData)
@@ -190,10 +195,11 @@ function processFile(PE32Image, SetupData) {
             const currentCheckbox = {
                 'Name': checkbox[1],
                 'Type': 'Checkbox Setting',
-                'FormId': `${currentForm['FormId']} (${currentForm['Name']})`,
+                'Parent Form': `${currentForm['Name']}`,
                 'VarOffset': checkbox[2],
                 'VarStoreId': `${checkbox[3]} (${varStores.find(varStore => varStore['VarStoreId'] === checkbox[3])?.['Name']})`,
-                'QuestionId': checkbox[4]
+                'QuestionId': checkbox[4],
+                'Bytes': checkbox[5]
             }
 
             checkAccessLevels(currentCheckbox, checkbox[5], SetupData)

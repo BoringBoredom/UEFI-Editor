@@ -36,7 +36,7 @@ function checkSuppress(item, suppressedBy) {
 
 function checkAccessLevels(item, bytes, SetupData) {
     bytes = bytes.split(' ')
-    const regex = new RegExp(bytes[6] + bytes[7] + '............................(..)......' + bytes[4] + bytes[5] + '....................................................' + bytes[2] + bytes[3] + '....(..)(..)')
+    const regex = new RegExp(bytes[6] + bytes[7] + '.{28}(..).{6}' + bytes[4] + bytes[5] + '.{52}' + bytes[2] + bytes[3] + '.{4}(..)(..)')
     const accessLevels = SetupData.match(regex)
 
     item['Access Level'] = accessLevels[1]

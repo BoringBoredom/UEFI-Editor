@@ -4,17 +4,23 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>IFR Formatter</title>
-    <meta name="twitter:title" content="IFR Formatter">
-    <meta property="og:title" content="IFR Formatter">
+    <title>UEFI Editor</title>
+    <meta name="twitter:title" content="UEFI Editor">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
+    <meta property="og:title" content="UEFI Editor">
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
 </head>
 
 <body>
-    <div class="text-center d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-        <h1>Drag and drop<br><br>PE32 Image (TXT)<br>and<br>SetupData (BIN)<br><br>or<br><br>modded data (JSON)<br>and<br>SetupData (BIN)</h1>
+    <div style="min-height: 100vh;">
+        <div class="d-flex justify-content-center align-items-center" style="height: 48vh;">
+            <p style="margin: 0;"><strong>PE32 Image (TXT) + AMITSE&nbsp;Setup Data (BIN) </strong>creates a formatted JSON of the UEFI<br></p>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-center align-items-center" style="height: 48vh;">
+            <p style="margin: 0;"><strong>modified data (JSON) + AMITSE Setup Data (BIN) </strong>creates a modified AMITSE Setup Data<br><br>Modifiable fields:<br>- Access Level<br>- Failsafe<br>- Optimal</p>
+        </div>
     </div>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/FileSaver.js"></script>

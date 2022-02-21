@@ -71,8 +71,8 @@ function modifySetupData(SetupData, formattedJson) {
                 const original = accessLevels[0]
                 const replacement = original.substring(0, 32) + child['Access Level'] + original.substring(34, 104) + child['Failsafe'] + child['Optimal']
                 SetupData = SetupData.replace(original, replacement)
+                console.log(`Modified: ${child['QuestionId']} | ${child['Name']}`)
                 console.log(original)
-                console.log('replaced with')
                 console.log(replacement)
             }
         }

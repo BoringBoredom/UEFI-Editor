@@ -132,7 +132,7 @@ export function FormUi({
   currentFormIndex,
   setCurrentFormIndex,
 }: FormUiProps) {
-  const [search, setSearch] = useDebouncedState("", 300);
+  const [search, setSearch] = useDebouncedState("", 200);
 
   function handleRefClick(formId: string) {
     const formIndex = data.forms.findIndex(
@@ -150,13 +150,19 @@ export function FormUi({
     const found: Array<{
       type: "Form" | "Setting";
       formId: string;
+      formName: string;
       name: string;
     }> = [];
 
     if (search.length >= 2) {
       for (const form of data.forms) {
         if (form.name.toLowerCase().includes(search)) {
-          found.push({ type: "Form", formId: form.formId, name: form.name });
+          found.push({
+            type: "Form",
+            formId: form.formId,
+            formName: form.name,
+            name: form.name,
+          });
         }
 
         for (const setting of form.children) {
@@ -164,6 +170,7 @@ export function FormUi({
             found.push({
               type: "Setting",
               formId: form.formId,
+              formName: form.name,
               name: setting.name,
             });
           }
@@ -184,19 +191,21 @@ export function FormUi({
             <tr>
               <th>Name</th>
               <th>Type</th>
-              <th>Form</th>
+              <th>Form Name</th>
+              <th>Form Id</th>
             </tr>
           </thead>
           <tbody>
             {found.map((entry, index) => (
               <tr key={index.toString() + entry.formId}>
+                <td>{entry.name}</td>
+                <td>{entry.type}</td>
                 <td
                   className={s.pointer}
                   onClick={() => handleRefClick(entry.formId)}
                 >
-                  {entry.name}
+                  {entry.formName}
                 </td>
-                <td>{entry.type}</td>
                 <td>{entry.formId}</td>
               </tr>
             ))}

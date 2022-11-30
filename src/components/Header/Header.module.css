@@ -1,0 +1,20 @@
+.root {
+  width: 100%;
+  padding: 12px;
+}
+.forms {
+  font-size: 2rem;
+}
+.mismatch {
+  font-size: 5rem;
+  text-align: center;
+}
+.pointer {
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+.verticalCenter {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}

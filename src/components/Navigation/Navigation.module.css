@@ -1,0 +1,17 @@
+.navElement {
+  padding: 1rem;
+  cursor: pointer;
+}
+.navElement:hover {
+  background-color: #25262b;
+}
+.selected {
+  background-color: rgba(28, 126, 214, 0.25);
+  color: #a5d8ff;
+}
+.menu {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.search {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,15 @@
+.width {
+  width: 5rem;
+  min-width: 5rem;
+}
+.pointer {
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+.formIdWidth {
+  width: 50%;
+}
+.formIdChildWidth {
+  width: 7rem;
+  min-width: 7rem;
+}

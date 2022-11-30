@@ -1,0 +1,56 @@
+{
+  "name": "uefi-editor",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://boringboredom.github.io/UEFI-Editor",
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@mantine/core": "^5.7.1",
+    "@mantine/hooks": "^5.7.1",
+    "@tabler/icons": "^1.110.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.3",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.8",
+    "crypto-js": "^4.1.1",
+    "file-saver": "^2.0.5",
+    "immer": "^9.0.16",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.8.4",
+    "use-immer": "^0.8.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/file-saver": "^2.0.5",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "eslint": "^8.27.0",
+    "eslint-plugin-react": "^7.31.10",
+    "gh-pages": "^4.0.0"
+  }
+}

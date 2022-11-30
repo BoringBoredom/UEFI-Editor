@@ -1,0 +1,13 @@
+.root {
+  width: 100%;
+  padding: 12px;
+}
+.verticalCenter {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.textInput {
+  width: 3rem;
+  min-width: 3rem;
+}

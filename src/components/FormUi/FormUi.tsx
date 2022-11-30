@@ -5,7 +5,7 @@ import { Table, TextInput, Select, Spoiler, Stack } from "@mantine/core";
 import { Data, FormChildren } from "../scripts";
 import { useDebouncedState } from "@mantine/hooks";
 
-function validateInput(value: string) {
+export function validateInput(value: string) {
   return (
     value.length <= 2 &&
     (value.length === 0 ||

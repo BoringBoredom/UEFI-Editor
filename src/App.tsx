@@ -6,6 +6,7 @@ import { Files, FileUploads } from "./components/FileUploads";
 import { FormUi } from "./components/FormUi";
 import { Navigation } from "./components/Navigation";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 
 export default function App() {
   const [files, setFiles] = useImmer<Files>({
@@ -38,6 +39,9 @@ export default function App() {
               currentFormIndex={currentFormIndex}
               setCurrentFormIndex={setCurrentFormIndex}
             />
+          }
+          footer={
+            <Footer currentFormIndex={currentFormIndex} setData={setData} />
           }
         >
           <FormUi

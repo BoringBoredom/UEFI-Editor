@@ -1,9 +1,8 @@
 import React from "react";
 import { Updater } from "use-immer";
-import s from "./FileUploads.module.css";
-import setupSctPng from "./images/setupSct.png";
-import amitseSctPng from "./images/amitseSct.png";
-import setupdataBinPng from "./images/setupdataBin.png";
+import setupSctPng from "../images/setupSct.png";
+import amitseSctPng from "../images/amitseSct.png";
+import setupdataBinPng from "../images/setupdataBin.png";
 import { Tooltip, FileInput, Image, Stack, Group, Button } from "@mantine/core";
 import { IconDownload, IconUpload } from "@tabler/icons";
 import { Data, parseData } from "../scripts";
@@ -65,7 +64,7 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
   }, [files, setFiles, setData]);
 
   return (
-    <Stack className={s.padding}>
+    <Stack>
       <Group grow>
         <Button
           variant="default"

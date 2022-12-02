@@ -36,7 +36,7 @@ export function Footer({ currentFormIndex, setData }: FooterProps) {
                   })
                 }
               >
-                Change all Access Levels to
+                Change all Access Levels in this Form to
               </Button>
               <TextInput
                 className={s.textInput}

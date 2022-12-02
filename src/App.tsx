@@ -1,4 +1,5 @@
 import React from "react";
+import s from "./App.module.css";
 import { useImmer } from "use-immer";
 import { AppShell } from "@mantine/core";
 import { Data } from "./components/scripts";
@@ -7,6 +8,7 @@ import { FormUi } from "./components/FormUi";
 import { Navigation } from "./components/Navigation";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
+import { Readme } from "./components/Readme";
 
 export default function App() {
   const [files, setFiles] = useImmer<Files>({
@@ -52,7 +54,10 @@ export default function App() {
           />
         </AppShell>
       ) : (
-        <FileUploads files={files} setFiles={setFiles} setData={setData} />
+        <div className={s.padding}>
+          <FileUploads files={files} setFiles={setFiles} setData={setData} />
+          <Readme />
+        </div>
       )}
     </>
   );

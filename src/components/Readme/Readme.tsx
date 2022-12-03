@@ -11,6 +11,13 @@ export function Readme() {
   return (
     <Stack className={s.margin}>
       <div>
+        <h3>
+          Note: Only the linked version of IFR-Extractor-RS works. You need a
+          Github account to download it until the latest artifact is published
+          as regular release.
+        </h3>
+      </div>
+      <div>
         <h2>Extracting files</h2>
         <List>
           <List.Item>Drag the BIOS file into UEFITool.</List.Item>

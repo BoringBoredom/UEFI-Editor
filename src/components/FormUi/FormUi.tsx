@@ -44,7 +44,9 @@ const TableRow = React.memo(
         </td>
         <td>{child.type}</td>
         <td>{child.type !== "Ref" && child.varStoreId}</td>
-        <td>{child.type !== "Ref" && child.varStoreOffset}</td>
+        <td>
+          {child.type !== "Ref" && child.type !== "String" && child.varOffset}
+        </td>
         <td>
           {(child.type === "Numeric" || child.type === "OneOf") && child.size}
         </td>
@@ -148,7 +150,7 @@ export function FormUi({
 
   if (currentFormIndex === -2) {
     const found: Array<{
-      type: "Form" | "Setting";
+      type: string;
       formId: string;
       formName: string;
       name: string;
@@ -168,7 +170,7 @@ export function FormUi({
         for (const setting of form.children) {
           if (setting.name.toLowerCase().includes(search)) {
             found.push({
-              type: "Setting",
+              type: setting.type,
               formId: form.formId,
               formName: form.name,
               name: setting.name,
@@ -263,8 +265,8 @@ export function FormUi({
         <tr>
           <th>Name</th>
           <th>Type</th>
-          <th>VarStore Id</th>
-          <th>VarStore Offset</th>
+          <th>VarStoreId</th>
+          <th>VarOffset</th>
           <th>Size (Bit)</th>
           <th>Access Level</th>
           <th>Failsafe</th>

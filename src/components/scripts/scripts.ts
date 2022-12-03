@@ -14,9 +14,16 @@ import {
   Menu,
   Offsets,
   FormChildren,
+  StringPrompt,
 } from "./types";
 
-export const version = "0.0.1";
+export const version = "0.0.2";
+
+function hasScope(hexString: string) {
+  const header = hexString.split(" ")[1];
+
+  return parseInt(header, 16).toString(2).padStart(8, "0")[0] === "1";
+}
 
 export function calculateJsonChecksum(menu: Menu, forms: Forms) {
   let offsetChecksum = "";
@@ -213,6 +220,7 @@ export async function parseData(files: Files) {
   const forms: Forms = [];
   const scopes: Scopes = [];
   let currentForm: Form = {} as Form;
+  let currentString: StringPrompt = {} as StringPrompt;
   let currentOneOf: OneOfPrompt = {} as OneOfPrompt;
   let currentNumeric: NumericPrompt = {} as NumericPrompt;
   let currentCheckBox: CheckBoxPrompt = {} as CheckBoxPrompt;
@@ -226,10 +234,13 @@ export async function parseData(files: Files) {
     const varStore = line.match(
       /VarStore Guid: (.*), VarStoreId: (.*), Size: (.*), Name: "(.*)" \{/
     );
-    const form = line.match(/Form FormId: (.*), Title: "(.*)" \{/);
+    const form = line.match(/Form FormId: (.*), Title: "(.*)" \{ (.*) \}/);
     const suppressIf = line.match(/\{ 0A 82 \}/);
     const ref = line.match(
       /Ref Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), FormId: (.*) \{ (.*) \}/
+    );
+    const string = line.match(
+      /String Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), MinSize: (.*), MaxSize: (.*), Flags: (.*) \{ (.*) \}/
     );
     const numeric = line.match(
       /Numeric Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
@@ -266,7 +277,9 @@ export async function parseData(files: Files) {
         children: [],
       };
 
-      scopes.push({ type: "Form", indentations });
+      if (hasScope(form[3])) {
+        scopes.push({ type: "Form", indentations });
+      }
     }
 
     if (suppressIf) {
@@ -309,6 +322,31 @@ export async function parseData(files: Files) {
       }
     }
 
+    if (string) {
+      const [accessLevel, failsafe, optimal, offsets] = getAccessLevels(
+        string[10],
+        setupdataBin
+      );
+
+      currentString = {
+        name: string[1],
+        description: string[2],
+        type: "String",
+        questionId: string[4],
+        varStoreId: string[5],
+        accessLevel,
+        failsafe,
+        optimal,
+        offsets,
+      };
+
+      checkSuppressions(scopes, currentString);
+
+      if (hasScope(string[10])) {
+        scopes.push({ type: "String", indentations });
+      }
+    }
+
     if (numeric) {
       const [accessLevel, failsafe, optimal, offsets] = getAccessLevels(
         numeric[12],
@@ -319,9 +357,9 @@ export async function parseData(files: Files) {
         name: numeric[1],
         description: numeric[2],
         type: "Numeric",
-        varStoreOffset: numeric[6],
-        varStoreId: numeric[5],
         questionId: numeric[4],
+        varStoreId: numeric[5],
+        varOffset: numeric[6],
         size: numeric[8],
         min: numeric[9],
         max: numeric[10],
@@ -334,7 +372,9 @@ export async function parseData(files: Files) {
 
       checkSuppressions(scopes, currentNumeric);
 
-      scopes.push({ type: "Numeric", indentations });
+      if (hasScope(numeric[12])) {
+        scopes.push({ type: "Numeric", indentations });
+      }
     }
 
     if (checkBox) {
@@ -347,9 +387,9 @@ export async function parseData(files: Files) {
         name: checkBox[1],
         description: checkBox[2],
         type: "CheckBox",
-        varStoreOffset: checkBox[6],
-        varStoreId: checkBox[5],
         questionId: checkBox[4],
+        varStoreId: checkBox[5],
+        varOffset: checkBox[6],
         accessLevel,
         failsafe,
         optimal,
@@ -358,7 +398,9 @@ export async function parseData(files: Files) {
 
       checkSuppressions(scopes, currentCheckBox);
 
-      scopes.push({ type: "CheckBox", indentations });
+      if (hasScope(checkBox[8])) {
+        scopes.push({ type: "CheckBox", indentations });
+      }
     }
 
     if (oneOf) {
@@ -371,9 +413,9 @@ export async function parseData(files: Files) {
         name: oneOf[1],
         description: oneOf[2],
         type: "OneOf",
-        varStoreOffset: oneOf[6],
-        varStoreId: oneOf[5],
         questionId: oneOf[4],
+        varStoreId: oneOf[5],
+        varOffset: oneOf[6],
         size: oneOf[8],
         options: [],
         accessLevel,
@@ -384,7 +426,9 @@ export async function parseData(files: Files) {
 
       checkSuppressions(scopes, currentOneOf);
 
-      scopes.push({ type: "OneOf", indentations });
+      if (hasScope(oneOf[12])) {
+        scopes.push({ type: "OneOf", indentations });
+      }
     }
 
     if (oneOfOption) {
@@ -429,11 +473,13 @@ export async function parseData(files: Files) {
           currentForm.children.push(currentCheckBox);
         } else if (scopeType === "OneOf") {
           currentForm.children.push(currentOneOf);
+        } else if (scopeType === "String") {
+          currentForm.children.push(currentString);
         }
 
         // debug
         if (scopes.length === 0) {
-          console.log("About to pop 0 length Scopes.");
+          alert("Something went wrong. Please file a bug report on Github.");
         }
 
         scopes.pop();
@@ -443,7 +489,7 @@ export async function parseData(files: Files) {
 
   // debug
   if (scopes.length !== 0) {
-    console.log("Scopes length is not 0: " + scopes);
+    alert("Something went wrong. Please file a bug report on Github.");
   }
 
   const matches = [

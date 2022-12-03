@@ -46,7 +46,8 @@ export type FormChildren =
   | RefPrompt
   | NumericPrompt
   | CheckBoxPrompt
-  | OneOfPrompt;
+  | OneOfPrompt
+  | StringPrompt;
 
 export interface RefPrompt extends FormChild {
   type: "Ref";
@@ -55,7 +56,7 @@ export interface RefPrompt extends FormChild {
 
 export interface NumericPrompt extends FormChild {
   type: "Numeric";
-  varStoreOffset: string;
+  varOffset: string;
   size: string;
   min: string;
   max: string;
@@ -65,16 +66,20 @@ export interface NumericPrompt extends FormChild {
 
 export interface CheckBoxPrompt extends FormChild {
   type: "CheckBox";
-  varStoreOffset: string;
+  varOffset: string;
   defaults?: Array<Default>;
 }
 
 export interface OneOfPrompt extends FormChild {
   type: "OneOf";
-  varStoreOffset: string;
+  varOffset: string;
   size: string;
   options: Array<string>;
   defaults?: Array<Default>;
+}
+
+export interface StringPrompt extends FormChild {
+  type: "String";
 }
 
 export type VarStores = Array<{
@@ -89,7 +94,7 @@ export interface Default {
 }
 
 export type Scopes = Array<{
-  type: "Form" | "Numeric" | "CheckBox" | "OneOf" | "SuppressIf";
+  type: "Form" | "Numeric" | "CheckBox" | "OneOf" | "String" | "SuppressIf";
   indentations: number;
   offset?: string;
 }>;

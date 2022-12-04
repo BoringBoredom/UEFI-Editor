@@ -99,10 +99,14 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
           error={files.setupSctContainer.isWrongFile}
           onChange={(file) => {
             if (file) {
+              const name = file.name.toLowerCase();
+
               setFiles((draft) => {
                 draft.setupSctContainer = {
                   file,
-                  isWrongFile: !file.name.toLowerCase().includes("setup"),
+                  isWrongFile: !(
+                    name.includes("setup") && name.endsWith(".sct")
+                  ),
                 };
               });
             }
@@ -122,10 +126,12 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
           error={files.setupTxtContainer.isWrongFile}
           onChange={(file) => {
             if (file) {
+              const name = file.name.toLowerCase();
+
               setFiles((draft) => {
                 draft.setupTxtContainer = {
                   file,
-                  isWrongFile: !file.name.includes("ifr"),
+                  isWrongFile: !(name.includes("ifr") && name.endsWith(".txt")),
                 };
               });
             }
@@ -143,10 +149,14 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
           error={files.amitseSctContainer.isWrongFile}
           onChange={(file) => {
             if (file) {
+              const name = file.name.toLowerCase();
+
               setFiles((draft) => {
                 draft.amitseSctContainer = {
                   file,
-                  isWrongFile: !file.name.toLowerCase().includes("amitse"),
+                  isWrongFile: !(
+                    name.includes("amitse") && name.endsWith(".sct")
+                  ),
                 };
               });
             }
@@ -164,10 +174,14 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
           error={files.setupdataBin.isWrongFile}
           onChange={(file) => {
             if (file) {
+              const name = file.name.toLowerCase();
+
               setFiles((draft) => {
                 draft.setupdataBin = {
                   file,
-                  isWrongFile: !file.name.toLowerCase().includes("setupdata"),
+                  isWrongFile: !(
+                    name.includes("setupdata") && name.endsWith(".bin")
+                  ),
                 };
               });
             }

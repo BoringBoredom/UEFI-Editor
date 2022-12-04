@@ -1,9 +1,10 @@
 import React from "react";
-import { Updater } from "use-immer";
 import s from "./FormUi.module.css";
-import { Table, TextInput, Select, Spoiler, Stack } from "@mantine/core";
-import { Data, FormChildren } from "../scripts";
+import { Updater } from "use-immer";
+import { Table, TextInput, Select, Spoiler } from "@mantine/core";
 import { useDebouncedState } from "@mantine/hooks";
+import { Data, FormChildren } from "../scripts";
+import { SearchUi } from "./SearchUi";
 
 export function validateInput(value: string) {
   return (
@@ -149,71 +150,13 @@ export function FormUi({
   }
 
   if (currentFormIndex === -2) {
-    const found: Array<{
-      type: string;
-      formId: string;
-      formName: string;
-      name: string;
-    }> = [];
-
-    if (search.length >= 2) {
-      for (const form of data.forms) {
-        if (form.name.toLowerCase().includes(search)) {
-          found.push({
-            type: "Form",
-            formId: form.formId,
-            formName: form.name,
-            name: form.name,
-          });
-        }
-
-        for (const setting of form.children) {
-          if (setting.name.toLowerCase().includes(search)) {
-            found.push({
-              type: setting.type,
-              formId: form.formId,
-              formName: form.name,
-              name: setting.name,
-            });
-          }
-        }
-      }
-    }
-
     return (
-      <Stack>
-        <TextInput
-          placeholder="Search"
-          defaultValue={search}
-          onChange={(ev) => setSearch(ev.currentTarget.value.toLowerCase())}
-        />
-
-        <Table striped withColumnBorders>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Form Name</th>
-              <th>Form Id</th>
-            </tr>
-          </thead>
-          <tbody>
-            {found.map((entry, index) => (
-              <tr key={index.toString() + entry.formId}>
-                <td>{entry.name}</td>
-                <td>{entry.type}</td>
-                <td
-                  className={s.pointer}
-                  onClick={() => handleRefClick(entry.formId)}
-                >
-                  {entry.formName}
-                </td>
-                <td>{entry.formId}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Stack>
+      <SearchUi
+        data={data}
+        handleRefClick={handleRefClick}
+        search={search}
+        setSearch={setSearch}
+      />
     );
   }
 

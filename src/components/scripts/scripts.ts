@@ -115,6 +115,9 @@ function getUint8Array(string: string) {
 }
 
 export async function downloadModifiedFiles(data: Data, files: Files) {
+  let wasAmitseSctModified = false;
+  let wasSetupdataBinModified = false;
+
   let changeLog = `========== ${files.amitseSctContainer.file?.name} ==========\n\n`;
   let modifiedAmitseSct = files.amitseSctContainer.textContent as string;
 
@@ -139,6 +142,8 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
           (form) => parseInt(form.formId) === parseInt(entry.formId)
         )?.name
       } | ${entry.formId}\n`;
+
+      wasAmitseSctModified = true;
     }
   }
 
@@ -167,6 +172,8 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             newAccessLevel
           );
           changeLog += `${child.name} | ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
+
+          wasSetupdataBinModified = true;
         }
 
         const failsafeIndex = offsetToIndex(child.offsets[1]);
@@ -183,6 +190,8 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             newFailsafe
           );
           changeLog += `${child.name} | ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
+
+          wasSetupdataBinModified = true;
         }
 
         const optimalIndex = offsetToIndex(child.offsets[2]);
@@ -199,31 +208,41 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             newOptimal
           );
           changeLog += `${child.name} | ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
+
+          wasSetupdataBinModified = true;
         }
       }
     }
   }
 
-  saveAs(
-    new Blob([new Uint8Array(getUint8Array(modifiedAmitseSct))], {
-      type: "application/octet-stream",
-    }),
-    "Section_PE32_image_AMITSE_AMITSE.sct"
-  );
+  if (wasAmitseSctModified) {
+    saveAs(
+      new Blob([new Uint8Array(getUint8Array(modifiedAmitseSct))], {
+        type: "application/octet-stream",
+      }),
+      "Section_PE32_image_AMITSE_AMITSE.sct"
+    );
+  }
 
-  saveAs(
-    new Blob([new Uint8Array(getUint8Array(modifiedSetupdataBin))], {
-      type: "application/octet-stream",
-    }),
-    "Section_Freeform_subtype_GUID_setupdata_setupdata_AMITSESetupData_body.bin"
-  );
+  if (wasSetupdataBinModified) {
+    saveAs(
+      new Blob([new Uint8Array(getUint8Array(modifiedSetupdataBin))], {
+        type: "application/octet-stream",
+      }),
+      "Section_Freeform_subtype_GUID_setupdata_setupdata_AMITSESetupData_body.bin"
+    );
+  }
 
-  saveAs(
-    new Blob([changeLog], {
-      type: "text/plain",
-    }),
-    "changelog.txt"
-  );
+  if (wasAmitseSctModified || wasSetupdataBinModified) {
+    saveAs(
+      new Blob([changeLog], {
+        type: "text/plain",
+      }),
+      "changelog.txt"
+    );
+  } else {
+    alert("No modifications have been done.");
+  }
 }
 
 export async function parseData(files: Files) {

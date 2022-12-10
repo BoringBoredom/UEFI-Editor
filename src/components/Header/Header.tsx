@@ -6,7 +6,6 @@ import {
   Button,
   FileButton,
   Group,
-  Modal,
   Header as MantineHeader,
 } from "@mantine/core";
 import { IconDownload, IconUpload } from "@tabler/icons";
@@ -33,7 +32,6 @@ export function Header({
   currentFormIndex,
   setCurrentFormIndex,
 }: HeaderProps) {
-  const [opened, setOpened] = React.useState(false);
   const resetRef = React.useRef<() => void>(null);
 
   const currentForm = data.forms[currentFormIndex];
@@ -43,15 +41,6 @@ export function Header({
       height={{ base: 360, xs: 300, sm: 240, md: 180, lg: 120, xl: 60 }}
     >
       <div className={s.verticalCenter}>
-        <Modal
-          className={s.mismatch}
-          opened={opened}
-          withCloseButton={false}
-          onClose={() => setOpened(false)}
-        >
-          Wrong JSON version or file hashes.
-        </Modal>
-
         <Group className={s.root} position="apart">
           <Group>
             <FileButton
@@ -74,7 +63,7 @@ export function Header({
                     ) {
                       setData(jsonData);
                     } else {
-                      setOpened(true);
+                      alert("Wrong JSON version or file hashes.");
                     }
 
                     resetRef.current?.();

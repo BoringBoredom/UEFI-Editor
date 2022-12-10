@@ -52,48 +52,55 @@ const TableRow = React.memo(
           {(child.type === "Numeric" || child.type === "OneOf") && child.size}
         </td>
         <td className={s.width}>
-          <TextInput
-            value={child.accessLevel}
-            onChange={(ev) => {
-              const value = ev.currentTarget.value.toUpperCase();
+          {child.accessLevel && (
+            <TextInput
+              value={child.accessLevel}
+              onChange={(ev) => {
+                const value = ev.currentTarget.value.toUpperCase();
 
-              if (validateInput(value)) {
-                setData((draft) => {
-                  draft.forms[currentFormIndex].children[index].accessLevel =
-                    value;
-                });
-              }
-            }}
-          />
+                if (validateInput(value)) {
+                  setData((draft) => {
+                    draft.forms[currentFormIndex].children[index].accessLevel =
+                      value;
+                  });
+                }
+              }}
+            />
+          )}
         </td>
         <td className={s.width}>
-          <TextInput
-            value={child.failsafe}
-            onChange={(ev) => {
-              const value = ev.currentTarget.value.toUpperCase();
+          {child.failsafe && (
+            <TextInput
+              value={child.failsafe}
+              onChange={(ev) => {
+                const value = ev.currentTarget.value.toUpperCase();
 
-              if (validateInput(value)) {
-                setData((draft) => {
-                  draft.forms[currentFormIndex].children[index].failsafe =
-                    value;
-                });
-              }
-            }}
-          />
+                if (validateInput(value)) {
+                  setData((draft) => {
+                    draft.forms[currentFormIndex].children[index].failsafe =
+                      value;
+                  });
+                }
+              }}
+            />
+          )}
         </td>
         <td className={s.width}>
-          <TextInput
-            value={child.optimal}
-            onChange={(ev) => {
-              const value = ev.currentTarget.value.toUpperCase();
+          {child.optimal && (
+            <TextInput
+              value={child.optimal}
+              onChange={(ev) => {
+                const value = ev.currentTarget.value.toUpperCase();
 
-              if (validateInput(value)) {
-                setData((draft) => {
-                  draft.forms[currentFormIndex].children[index].optimal = value;
-                });
-              }
-            }}
-          />
+                if (validateInput(value)) {
+                  setData((draft) => {
+                    draft.forms[currentFormIndex].children[index].optimal =
+                      value;
+                  });
+                }
+              }}
+            />
+          )}
         </td>
         <td>
           <Spoiler maxHeight={70} showLabel=".........." hideLabel=".....">

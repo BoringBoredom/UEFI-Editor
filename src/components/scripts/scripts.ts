@@ -17,7 +17,7 @@ import {
   StringPrompt,
 } from "./types";
 
-export const version = "0.0.2";
+export const version = "0.0.3";
 
 function hasScope(hexString: string) {
   const header = hexString.split(" ")[1];
@@ -32,7 +32,7 @@ export function calculateJsonChecksum(menu: Menu, forms: Forms) {
   }
   for (const form of forms) {
     for (const child of form.children) {
-      offsetChecksum += child.offsets.join("");
+      offsetChecksum += child.offsets?.join("");
     }
   }
 
@@ -70,7 +70,7 @@ function checkSuppressions(scopes: Scopes, formChild: FormChildren) {
 function getAccessLevels(
   bytes: string,
   hexSetupdataBin: string
-): [string, string, string, Offsets] {
+): [string, string, string, Offsets] | [null, null, null, null] {
   const byteArray = bytes.split(" ");
   const regex = new RegExp(
     byteArray[6] +
@@ -81,17 +81,28 @@ function getAccessLevels(
       ".{52}" +
       byteArray[2] +
       byteArray[3] +
-      ".{4}(..)(..)"
+      ".{4}(..)(..)",
+    "g"
   );
 
-  const accessLevels = hexSetupdataBin.match(regex) as RegExpMatchArray;
-  const offsets: Offsets = [
-    decToHexString(((accessLevels.index as number) + 32) / 2),
-    decToHexString(((accessLevels.index as number) + 104) / 2),
-    decToHexString(((accessLevels.index as number) + 106) / 2),
-  ];
+  const accessLevels = [...hexSetupdataBin.matchAll(regex)];
 
-  return [accessLevels[1], accessLevels[2], accessLevels[3], offsets];
+  if (accessLevels.length === 1) {
+    const offsets: Offsets = [
+      decToHexString(((accessLevels[0].index as number) + 32) / 2),
+      decToHexString(((accessLevels[0].index as number) + 104) / 2),
+      decToHexString(((accessLevels[0].index as number) + 106) / 2),
+    ];
+
+    return [
+      accessLevels[0][1],
+      accessLevels[0][2],
+      accessLevels[0][3],
+      offsets,
+    ];
+  }
+
+  return [null, null, null, null];
 }
 
 function getUint8Array(string: string) {
@@ -136,52 +147,59 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
 
   for (const form of data.forms) {
     for (const child of form.children) {
-      const accessLevelIndex = offsetToIndex(child.offsets[0]);
-      const oldAccessLevel = modifiedSetupdataBin.slice(
-        accessLevelIndex,
-        accessLevelIndex + 2
-      );
-      const newAccessLevel = child.accessLevel.padStart(2, "0");
-      if (oldAccessLevel !== newAccessLevel) {
-        modifiedSetupdataBin = replaceAt(
-          modifiedSetupdataBin,
+      if (
+        child.offsets &&
+        child.accessLevel &&
+        child.failsafe &&
+        child.optimal
+      ) {
+        const accessLevelIndex = offsetToIndex(child.offsets[0]);
+        const oldAccessLevel = modifiedSetupdataBin.slice(
           accessLevelIndex,
-          2,
-          newAccessLevel
+          accessLevelIndex + 2
         );
-        changeLog += `${child.name} | ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
-      }
+        const newAccessLevel = child.accessLevel.padStart(2, "0");
+        if (oldAccessLevel !== newAccessLevel) {
+          modifiedSetupdataBin = replaceAt(
+            modifiedSetupdataBin,
+            accessLevelIndex,
+            2,
+            newAccessLevel
+          );
+          changeLog += `${child.name} | ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
+        }
 
-      const failsafeIndex = offsetToIndex(child.offsets[1]);
-      const oldFailsafe = modifiedSetupdataBin.slice(
-        failsafeIndex,
-        failsafeIndex + 2
-      );
-      const newFailsafe = child.failsafe.padStart(2, "0");
-      if (oldFailsafe !== newFailsafe) {
-        modifiedSetupdataBin = replaceAt(
-          modifiedSetupdataBin,
+        const failsafeIndex = offsetToIndex(child.offsets[1]);
+        const oldFailsafe = modifiedSetupdataBin.slice(
           failsafeIndex,
-          2,
-          newFailsafe
+          failsafeIndex + 2
         );
-        changeLog += `${child.name} | ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
-      }
+        const newFailsafe = child.failsafe.padStart(2, "0");
+        if (oldFailsafe !== newFailsafe) {
+          modifiedSetupdataBin = replaceAt(
+            modifiedSetupdataBin,
+            failsafeIndex,
+            2,
+            newFailsafe
+          );
+          changeLog += `${child.name} | ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
+        }
 
-      const optimalIndex = offsetToIndex(child.offsets[2]);
-      const oldOptimal = modifiedSetupdataBin.slice(
-        optimalIndex,
-        optimalIndex + 2
-      );
-      const newOptimal = child.optimal.padStart(2, "0");
-      if (oldOptimal !== newOptimal) {
-        modifiedSetupdataBin = replaceAt(
-          modifiedSetupdataBin,
+        const optimalIndex = offsetToIndex(child.offsets[2]);
+        const oldOptimal = modifiedSetupdataBin.slice(
           optimalIndex,
-          2,
-          newOptimal
+          optimalIndex + 2
         );
-        changeLog += `${child.name} | ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
+        const newOptimal = child.optimal.padStart(2, "0");
+        if (oldOptimal !== newOptimal) {
+          modifiedSetupdataBin = replaceAt(
+            modifiedSetupdataBin,
+            optimalIndex,
+            2,
+            newOptimal
+          );
+          changeLog += `${child.name} | ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
+        }
       }
     }
   }

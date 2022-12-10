@@ -35,10 +35,10 @@ export interface FormChild {
   description: string;
   questionId: string;
   varStoreId: string;
-  accessLevel: string;
-  failsafe: string;
-  optimal: string;
-  offsets: Offsets;
+  accessLevel: string | null;
+  failsafe: string | null;
+  optimal: string | null;
+  offsets: Offsets | null;
   suppressIf?: Array<string>;
 }
 

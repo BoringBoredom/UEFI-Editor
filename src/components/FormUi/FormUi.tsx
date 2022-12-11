@@ -52,7 +52,7 @@ const TableRow = React.memo(
           {(child.type === "Numeric" || child.type === "OneOf") && child.size}
         </td>
         <td className={s.width}>
-          {child.accessLevel && (
+          {child.accessLevel !== null && (
             <TextInput
               value={child.accessLevel}
               onChange={(ev) => {
@@ -69,7 +69,7 @@ const TableRow = React.memo(
           )}
         </td>
         <td className={s.width}>
-          {child.failsafe && (
+          {child.failsafe !== null && (
             <TextInput
               value={child.failsafe}
               onChange={(ev) => {
@@ -86,7 +86,7 @@ const TableRow = React.memo(
           )}
         </td>
         <td className={s.width}>
-          {child.optimal && (
+          {child.optimal !== null && (
             <TextInput
               value={child.optimal}
               onChange={(ev) => {

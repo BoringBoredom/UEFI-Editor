@@ -44,13 +44,6 @@ const TableRow = React.memo(
           {child.name}
         </td>
         <td>{child.type}</td>
-        <td>{child.type !== "Ref" && child.varStoreId}</td>
-        <td>
-          {child.type !== "Ref" && child.type !== "String" && child.varOffset}
-        </td>
-        <td>
-          {(child.type === "Numeric" || child.type === "OneOf") && child.size}
-        </td>
         <td className={s.width}>
           {child.accessLevel !== null && (
             <TextInput
@@ -215,9 +208,6 @@ export function FormUi({
         <tr>
           <th>Name</th>
           <th>Type</th>
-          <th>VarStoreId</th>
-          <th>VarOffset</th>
-          <th>Size (Bit)</th>
           <th>Access Level</th>
           <th>Failsafe</th>
           <th>Optimal</th>

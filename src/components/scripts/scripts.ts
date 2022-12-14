@@ -17,7 +17,7 @@ import {
   StringPrompt,
 } from "./types";
 
-export const version = "0.0.3";
+export const version = "0.0.4";
 
 function hasScope(hexString: string) {
   const header = hexString.split(" ")[1];
@@ -85,21 +85,21 @@ function getAccessLevels(
     "g"
   );
 
-  const accessLevels = [...hexSetupdataBin.matchAll(regex)];
+  const matches = [...hexSetupdataBin.matchAll(regex)].filter(
+    (element) => (element.index as number) % 2 === 0
+  );
 
-  if (accessLevels.length === 1) {
+  if (matches.length === 1) {
+    const match = matches[0];
+    const index = match.index as number;
+
     const offsets: Offsets = [
-      decToHexString(((accessLevels[0].index as number) + 32) / 2),
-      decToHexString(((accessLevels[0].index as number) + 104) / 2),
-      decToHexString(((accessLevels[0].index as number) + 106) / 2),
+      decToHexString((index + 32) / 2),
+      decToHexString((index + 104) / 2),
+      decToHexString((index + 106) / 2),
     ];
 
-    return [
-      accessLevels[0][1],
-      accessLevels[0][2],
-      accessLevels[0][3],
-      offsets,
-    ];
+    return [match[1], match[2], match[3], offsets];
   }
 
   return [null, null, null, null];
@@ -137,11 +137,11 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
       changeLog += `${
         data.forms.find((form) => parseInt(form.formId) === parseInt(oldFormId))
           ?.name
-      } | ${oldFormId} -> ${
+      } | FormId ${oldFormId} -> ${
         data.forms.find(
           (form) => parseInt(form.formId) === parseInt(entry.formId)
         )?.name
-      } | ${entry.formId}\n`;
+      } | FormId ${entry.formId}\n`;
 
       wasAmitseSctModified = true;
     }
@@ -171,7 +171,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             2,
             newAccessLevel
           );
-          changeLog += `${child.name} | ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
+          changeLog += `${child.name} | QuestionId ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
 
           wasSetupdataBinModified = true;
         }
@@ -189,7 +189,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             2,
             newFailsafe
           );
-          changeLog += `${child.name} | ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
+          changeLog += `${child.name} | QuestionId ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
 
           wasSetupdataBinModified = true;
         }
@@ -207,7 +207,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             2,
             newOptimal
           );
-          changeLog += `${child.name} | ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
+          changeLog += `${child.name} | QuestionId ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
 
           wasSetupdataBinModified = true;
         }

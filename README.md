@@ -1,6 +1,9 @@
 # Aptio V UEFI Editor (AMIBCP alternative)
 
-https://boringboredom.github.io/UEFI-Editor/
+## https://boringboredom.github.io/UEFI-Editor/
+
+![](./images/SS1.png)
+![](./images/SS2.png)
 
 ---
 

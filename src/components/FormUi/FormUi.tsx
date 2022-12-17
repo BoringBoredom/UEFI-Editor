@@ -1,7 +1,7 @@
 import React from "react";
 import s from "./FormUi.module.css";
 import { Updater } from "use-immer";
-import { Table, TextInput, Select, Spoiler } from "@mantine/core";
+import { Table, TextInput, Select, Spoiler, Chip } from "@mantine/core";
 import { useDebouncedState } from "@mantine/hooks";
 import { Data, FormChildren } from "../scripts";
 import { SearchUi } from "./SearchUi";
@@ -11,6 +11,39 @@ export function validateInput(value: string) {
     value.length <= 2 &&
     (value.length === 0 ||
       value.split("").every((char) => /[a-fA-F0-9]/.test(char)))
+  );
+}
+
+interface SuppressionChipProps {
+  suppressionOffset: string;
+  data: Data;
+  setData: Updater<Data>;
+}
+
+function SuppressionChip({
+  suppressionOffset,
+  data,
+  setData,
+}: SuppressionChipProps) {
+  const suppressionIndex = data.suppressions.findIndex(
+    (suppression) => suppression.offset === suppressionOffset
+  );
+
+  const suppression = data.suppressions[suppressionIndex];
+
+  return (
+    <Chip
+      size="xs"
+      color="red"
+      checked={suppression.active}
+      onClick={() =>
+        setData((draft) => {
+          draft.suppressions[suppressionIndex].active = !suppression.active;
+        })
+      }
+    >
+      {suppressionOffset}
+    </Chip>
   );
 }
 
@@ -28,6 +61,7 @@ const TableRow = React.memo(
     child,
     index,
     handleRefClick,
+    data,
     setData,
     currentFormIndex,
   }: TableRowProps) {
@@ -96,9 +130,16 @@ const TableRow = React.memo(
           )}
         </td>
         <td>
-          <Spoiler maxHeight={70} showLabel=".........." hideLabel=".....">
-            {child.suppressIf?.join(", ")}
-          </Spoiler>
+          <Chip.Group>
+            {child.suppressIf?.map((suppressionOffset, index) => (
+              <SuppressionChip
+                key={index}
+                suppressionOffset={suppressionOffset}
+                data={data}
+                setData={setData}
+              />
+            ))}
+          </Chip.Group>
         </td>
         <td>
           <Spoiler maxHeight={70} showLabel=".........." hideLabel=".....">
@@ -117,7 +158,23 @@ const TableRow = React.memo(
     return (
       oldChild.accessLevel === newChild.accessLevel &&
       oldChild.failsafe === newChild.failsafe &&
-      oldChild.optimal === newChild.optimal
+      oldChild.optimal === newChild.optimal &&
+      JSON.stringify(
+        oldChild.suppressIf?.map(
+          (offset) =>
+            oldProps.data.suppressions.find(
+              (suppression) => suppression.offset === offset
+            )?.active
+        )
+      ) ===
+        JSON.stringify(
+          newChild.suppressIf?.map(
+            (offset) =>
+              newProps.data.suppressions.find(
+                (suppression) => suppression.offset === offset
+              )?.active
+          )
+        )
     );
   }
 );

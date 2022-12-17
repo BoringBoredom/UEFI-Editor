@@ -15,9 +15,10 @@ import {
   Offsets,
   FormChildren,
   StringPrompt,
+  Suppression,
 } from "./types";
 
-export const version = "0.0.4";
+export const version = "0.0.5";
 
 function hasScope(hexString: string) {
   const header = hexString.split(" ")[1];
@@ -25,15 +26,25 @@ function hasScope(hexString: string) {
   return parseInt(header, 16).toString(2).padStart(8, "0")[0] === "1";
 }
 
-export function calculateJsonChecksum(menu: Menu, forms: Forms) {
+export function calculateJsonChecksum(
+  menu: Menu,
+  forms: Forms,
+  suppressions: Array<Suppression>
+) {
   let offsetChecksum = "";
+
   for (const menuItem of menu) {
     offsetChecksum += menuItem.offset;
   }
+
   for (const form of forms) {
     for (const child of form.children) {
       offsetChecksum += child.offsets?.join("");
     }
+  }
+
+  for (const suppression of suppressions) {
+    offsetChecksum += suppression.offset + suppression.start + suppression.end;
   }
 
   return sha256(offsetChecksum).toString();
@@ -45,9 +56,7 @@ function replaceAt(
   length: number,
   replacement: string
 ) {
-  return (
-    string.substring(0, index) + replacement + string.substring(index + length)
-  );
+  return string.slice(0, index) + replacement + string.slice(index + length);
 }
 
 function offsetToIndex(offset: string) {
@@ -62,6 +71,7 @@ function checkSuppressions(scopes: Scopes, formChild: FormChildren) {
   const suppressions = scopes
     .filter((scope) => scope.type === "SuppressIf")
     .map((scope) => scope.offset as string);
+
   if (suppressions.length !== 0) {
     formChild.suppressIf = [...suppressions];
   }
@@ -108,17 +118,80 @@ function getAccessLevels(
 function getUint8Array(string: string) {
   const array = [];
   for (let i = 0, len = string.length; i < len; i += 2) {
-    array[i / 2] = parseInt(string.substring(i, i + 2), 16);
+    array[i / 2] = parseInt(string.slice(i, i + 2), 16);
   }
 
   return array;
 }
 
 export async function downloadModifiedFiles(data: Data, files: Files) {
+  let wasSetupSctModified = false;
   let wasAmitseSctModified = false;
   let wasSetupdataBinModified = false;
 
-  let changeLog = `========== ${files.amitseSctContainer.file?.name} ==========\n\n`;
+  let changeLog = `========== ${files.setupSctContainer.file?.name} ==========\n\n`;
+  let modifiedSetupSct = files.setupSctContainer.textContent as string;
+
+  const suppressions = JSON.parse(JSON.stringify(data.suppressions));
+
+  for (const suppression of suppressions) {
+    if (!suppression.active) {
+      if (
+        modifiedSetupSct.slice(
+          offsetToIndex(suppression.end),
+          offsetToIndex(suppression.end) + 4
+        ) !== "2902"
+      ) {
+        alert("Something went wrong. Please file a bug report on Github.");
+      }
+
+      modifiedSetupSct = replaceAt(
+        modifiedSetupSct,
+        offsetToIndex(suppression.end),
+        4,
+        ""
+      );
+
+      modifiedSetupSct = replaceAt(
+        modifiedSetupSct,
+        offsetToIndex(suppression.start),
+        0,
+        "2902"
+      );
+
+      for (const suppressionToUpdate of suppressions) {
+        if (suppressionToUpdate.offset !== suppression.offset) {
+          if (
+            parseInt(suppression.start, 16) <
+              parseInt(suppressionToUpdate.start, 16) &&
+            parseInt(suppressionToUpdate.start, 16) <
+              parseInt(suppression.end, 16)
+          ) {
+            suppressionToUpdate.start = decToHexString(
+              (offsetToIndex(suppressionToUpdate.start) + 8) / 2
+            );
+          }
+
+          if (
+            parseInt(suppression.start, 16) <
+              parseInt(suppressionToUpdate.end, 16) &&
+            parseInt(suppressionToUpdate.end, 16) <
+              parseInt(suppression.end, 16)
+          ) {
+            suppressionToUpdate.end = decToHexString(
+              (offsetToIndex(suppressionToUpdate.end) + 8) / 2
+            );
+          }
+        }
+      }
+
+      changeLog += `Unsuppressed ${suppression.offset}\n`;
+
+      wasSetupSctModified = true;
+    }
+  }
+
+  changeLog += `\n\n========== ${files.amitseSctContainer.file?.name} ==========\n\n`;
   let modifiedAmitseSct = files.amitseSctContainer.textContent as string;
 
   for (const entry of data.menu) {
@@ -215,6 +288,15 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
     }
   }
 
+  if (wasSetupSctModified) {
+    saveAs(
+      new Blob([new Uint8Array(getUint8Array(modifiedSetupSct))], {
+        type: "application/octet-stream",
+      }),
+      "Section_PE32_image_Setup_Setup.sct"
+    );
+  }
+
   if (wasAmitseSctModified) {
     saveAs(
       new Blob([new Uint8Array(getUint8Array(modifiedAmitseSct))], {
@@ -233,7 +315,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
     );
   }
 
-  if (wasAmitseSctModified || wasSetupdataBinModified) {
+  if (wasSetupSctModified || wasAmitseSctModified || wasSetupdataBinModified) {
     saveAs(
       new Blob([changeLog], {
         type: "text/plain",
@@ -243,6 +325,40 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
   } else {
     alert("No modifications have been done.");
   }
+}
+
+function determineSuppressionStart(
+  setupTxtArray: Array<string>,
+  index: number
+) {
+  if (
+    !hasScope(
+      (setupTxtArray[index + 1].match(/\{ (.*) \}/) as RegExpMatchArray)[1]
+    )
+  ) {
+    return setupTxtArray[index + 2].split(" ")[0].slice(0, -1);
+  }
+
+  let openScopes = 1;
+  let currentIndex = index + 2;
+  while (openScopes !== 0) {
+    const line = setupTxtArray[currentIndex];
+
+    const anyOpcode = line.match(/\{ (.*) \}/);
+    const end = line.match(/\{ 29 02 \}/);
+
+    if (anyOpcode && hasScope(anyOpcode[1])) {
+      openScopes++;
+    }
+
+    if (end) {
+      openScopes--;
+    }
+
+    currentIndex++;
+  }
+
+  return setupTxtArray[currentIndex].split(" ")[0].slice(0, -1);
 }
 
 export async function parseData(files: Files) {
@@ -255,6 +371,7 @@ export async function parseData(files: Files) {
   let formSetId = "";
   const varStores: VarStores = [];
   const forms: Forms = [];
+  const suppressions: Array<Suppression> = [];
   const scopes: Scopes = [];
   let currentForm: Form = {} as Form;
   let currentString: StringPrompt = {} as StringPrompt;
@@ -262,9 +379,13 @@ export async function parseData(files: Files) {
   let currentNumeric: NumericPrompt = {} as NumericPrompt;
   let currentCheckBox: CheckBoxPrompt = {} as CheckBoxPrompt;
 
+  const currentSuppressions: Array<Suppression> = [];
+
   const references: Record<string, Set<string>> = {};
 
-  for (const line of setupTxt.split("\n")) {
+  const setupTxtArray = setupTxt.split("\n");
+
+  for (const [index, line] of setupTxtArray.entries()) {
     const formSet = line.match(
       /FormSet Guid: (.*)-(.*)-(.*)-(.*)-(.*), Title:/
     );
@@ -292,6 +413,7 @@ export async function parseData(files: Files) {
     const defaultId = line.match(/Default DefaultId: (.*) Value: (.*) \{/);
     const end = line.match(/\{ 29 02 \}/);
     const indentations = (line.match(/\t/g) || []).length;
+    const offset = line.split(" ")[0].slice(0, -1);
 
     if (formSet) {
       formSetId = formSet[4] + formSet[5];
@@ -323,8 +445,14 @@ export async function parseData(files: Files) {
       scopes.push({
         type: "SuppressIf",
         indentations,
-        offset: line.split(" ")[0].slice(0, -1),
+        offset,
       });
+
+      currentSuppressions.push({
+        offset,
+        active: true,
+        start: determineSuppressionStart(setupTxtArray, index),
+      } as Suppression);
     }
 
     if (ref) {
@@ -512,9 +640,15 @@ export async function parseData(files: Files) {
           currentForm.children.push(currentOneOf);
         } else if (scopeType === "String") {
           currentForm.children.push(currentString);
+        } else if (scopeType === "SuppressIf") {
+          if (currentSuppressions.length === 0) {
+            alert("Something went wrong. Please file a bug report on Github.");
+          }
+
+          const latestSuppression = currentSuppressions.pop() as Suppression;
+          suppressions.push({ ...latestSuppression, end: offset });
         }
 
-        // debug
         if (scopes.length === 0) {
           alert("Something went wrong. Please file a bug report on Github.");
         }
@@ -524,8 +658,7 @@ export async function parseData(files: Files) {
     }
   }
 
-  // debug
-  if (scopes.length !== 0) {
+  if (scopes.length !== 0 || currentSuppressions.length !== 0) {
     alert("Something went wrong. Please file a bug report on Github.");
   }
 
@@ -558,13 +691,14 @@ export async function parseData(files: Files) {
     menu,
     forms,
     varStores,
+    suppressions,
     version,
     hashes: {
       setupTxt: sha256(setupTxt).toString(),
       setupSct: sha256(files.setupSctContainer.textContent).toString(),
       amitseSct: sha256(amitseSct).toString(),
       setupdataBin: sha256(setupdataBin).toString(),
-      offsetChecksum: calculateJsonChecksum(menu, forms),
+      offsetChecksum: calculateJsonChecksum(menu, forms, suppressions),
     },
   };
 

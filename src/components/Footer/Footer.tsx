@@ -7,7 +7,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { Updater } from "use-immer";
-import { Data } from "../scripts";
+import { Data, Suppression } from "../scripts";
 import { validateInput } from "../FormUi";
 
 interface FooterProps {
@@ -24,6 +24,29 @@ export function Footer({ currentFormIndex, setData }: FooterProps) {
         <MantineFooter height={{ base: 40 }}>
           <div className={s.verticalCenter}>
             <Group className={s.root} position="right" spacing="xs">
+              <Button
+                size="xs"
+                variant="default"
+                onClick={() =>
+                  setData((draft) => {
+                    for (const child of draft.forms[currentFormIndex]
+                      .children) {
+                      if (child.suppressIf) {
+                        for (const suppressionOffset of child.suppressIf) {
+                          (
+                            draft.suppressions.find(
+                              (suppression) =>
+                                suppression.offset === suppressionOffset
+                            ) as Suppression
+                          ).active = false;
+                        }
+                      }
+                    }
+                  })
+                }
+              >
+                Unsuppress all Items in this Form
+              </Button>
               <Button
                 size="xs"
                 variant="default"

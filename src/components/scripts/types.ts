@@ -2,6 +2,7 @@ export interface Data {
   menu: Menu;
   varStores: VarStores;
   forms: Forms;
+  suppressions: Array<Suppression>;
   version: string;
   hashes: {
     setupTxt: string;
@@ -11,6 +12,13 @@ export interface Data {
     offsetChecksum: string;
   };
 }
+
+export type Suppression = {
+  offset: string;
+  active: boolean;
+  start: string;
+  end: string;
+};
 
 export type Menu = Array<{
   name: string;

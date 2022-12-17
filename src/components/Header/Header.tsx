@@ -58,8 +58,11 @@ export function Header({
                       jsonData.hashes.amitseSct === data.hashes.amitseSct &&
                       jsonData.hashes.setupdataBin ===
                         data.hashes.setupdataBin &&
-                      calculateJsonChecksum(jsonData.menu, jsonData.forms) ===
-                        data.hashes.offsetChecksum
+                      calculateJsonChecksum(
+                        jsonData.menu,
+                        jsonData.forms,
+                        jsonData.suppressions
+                      ) === data.hashes.offsetChecksum
                     ) {
                       setData(jsonData);
                     } else {

@@ -293,7 +293,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
       new Blob([new Uint8Array(getUint8Array(modifiedSetupSct))], {
         type: "application/octet-stream",
       }),
-      "Section_PE32_image_Setup_Setup.sct"
+      files.setupSctContainer.file?.name
     );
   }
 
@@ -302,7 +302,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
       new Blob([new Uint8Array(getUint8Array(modifiedAmitseSct))], {
         type: "application/octet-stream",
       }),
-      "Section_PE32_image_AMITSE_AMITSE.sct"
+      files.amitseSctContainer.file?.name
     );
   }
 
@@ -311,7 +311,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
       new Blob([new Uint8Array(getUint8Array(modifiedSetupdataBin))], {
         type: "application/octet-stream",
       }),
-      "Section_Freeform_subtype_GUID_setupdata_setupdata_AMITSESetupData_body.bin"
+      files.setupdataBin.file?.name
     );
   }
 

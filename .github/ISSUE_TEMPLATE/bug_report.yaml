@@ -1,0 +1,65 @@
+name: Bug Report
+description: Only use this form for bug reports.
+body:
+  - type: input
+    id: uefi-download
+    attributes:
+      label: Provide the official URL to the UEFI you tried to modify.
+      description: I will only investigate official downloads from motherboard vendors.
+    validations:
+      required: true
+  - type: dropdown
+    id: is-modified
+    attributes:
+      label: Did you modify a previously modified UEFI or the stock one?
+      options:
+        - Previously modified
+        - Stock
+    validations:
+      required: true
+  - type: input
+    id: flashing-method
+    attributes:
+      label: What flashing method did you use?
+      description: E.g. motherboard's flashback feature
+    validations:
+      required: true
+  - type: dropdown
+    id: tested
+    attributes:
+      label: Did you successfully test it with a stock UEFI first?
+      options:
+        - No
+        - Yes
+      validation:
+        required: true
+  - type: dropdown
+    id: ifr-extractor-version
+    attributes:
+      label: Did you use the specific version of IFR-Extractor-RS linked on the UEFI Editor page?
+      options:
+        - No
+        - Yes
+      validation:
+        required: true
+  - type: textarea
+    id: data-json
+    attributes:
+      label: Attach the data.json file with the modification you attempted to do.
+      description: Limit it to the problematic setting for easier debugging.
+      validation:
+        required: true
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Describe the expected outcome as detailed as possible.
+      description: Attach images if necessary.
+      validation:
+        required: true
+  - type: textarea
+    id: actual-outcome
+    attributes:
+      label: Describe the actual outcome as detailed as possible.
+      description: Attach images if necessary.
+      validation:
+        required: true

@@ -29,37 +29,37 @@ body:
     attributes:
       label: Did you successfully test it with a stock UEFI first?
       options:
-        - No
-        - Yes
-      validation:
-        required: true
+        - "No"
+        - "Yes"
+    validations:
+      required: true
   - type: dropdown
     id: ifr-extractor-version
     attributes:
       label: Did you use the specific version of IFR-Extractor-RS linked on the UEFI Editor page?
       options:
-        - No
-        - Yes
-      validation:
-        required: true
+        - "No"
+        - "Yes"
+    validations:
+      required: true
   - type: textarea
     id: data-json
     attributes:
       label: Attach the data.json file with the modification you attempted to do.
       description: Limit it to the problematic setting for easier debugging.
-      validation:
-        required: true
+    validations:
+      required: true
   - type: textarea
     id: expected-outcome
     attributes:
       label: Describe the expected outcome as detailed as possible.
       description: Attach images if necessary.
-      validation:
-        required: true
+    validations:
+      required: true
   - type: textarea
     id: actual-outcome
     attributes:
       label: Describe the actual outcome as detailed as possible.
       description: Attach images if necessary.
-      validation:
-        required: true
+    validations:
+      required: true

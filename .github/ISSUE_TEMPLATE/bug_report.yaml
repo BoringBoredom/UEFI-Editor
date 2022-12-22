@@ -42,6 +42,30 @@ body:
         - "Yes"
     validations:
       required: true
+  - type: input
+    id: setup-sct-sha256
+    attributes:
+      label: SHA256 hash of Setup SCT
+    validations:
+      required: true
+  - type: input
+    id: setup-txt-sha256
+    attributes:
+      label: SHA256 hash of IFR Extractor output TXT
+    validations:
+      required: true
+  - type: input
+    id: amitse-sct-sha256
+    attributes:
+      label: SHA256 hash of AMITSE SCT
+    validations:
+      required: true
+  - type: input
+    id: setupdata-bin-sha256
+    attributes:
+      label: SHA256 hash of Setupdata BIN
+    validations:
+      required: true
   - type: textarea
     id: data-json
     attributes:

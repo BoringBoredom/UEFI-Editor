@@ -12,10 +12,11 @@ export function Readme() {
     <Stack className={s.margin}>
       <div>
         <h3>
-          Note: Only the linked version of IFR-Extractor-RS works. You need a
-          Github account to download it until the latest artifact is published
-          as regular release.
+          Only the linked version of IFR-Extractor-RS works. You need a Github
+          account to download it until the artifact is published as regular
+          release.
         </h3>
+        <h3>Hover over underlined text for additional information.</h3>
       </div>
       <div>
         <h2>Extracting files</h2>
@@ -34,7 +35,7 @@ export function Readme() {
             <Text span fw={700} fs="italic">
               High Precision
             </Text>{" "}
-            and double-click either{" "}
+            and double-click the{" "}
             <Tooltip label={<Image src={referencePng} />}>
               <Text span td="underline">
                 reference
@@ -84,6 +85,15 @@ export function Readme() {
         </List>
       </div>
       <div>
+        <h2>Exposing invisible settings</h2>
+        <List>
+          <List.Item>
+            Usually, either unsuppressing items or setting their access level to
+            05 does the job.
+          </List.Item>
+        </List>
+      </div>
+      <div>
         <h2>Replacing files</h2>
         <List>
           <List.Item>
@@ -106,11 +116,15 @@ export function Readme() {
             to find the sections in 0.28.0.
           </List.Item>
           <List.Item>
+            Replace files the same way you extracted them (Extract as is -&gt;
+            Replace as is, Extract body -&gt; Replace body)
+          </List.Item>
+          <List.Item>
             Press{" "}
             <Text span fw={700} fs="italic">
               Save image file...
             </Text>{" "}
-            to save the modifications.
+            (top left) to save the modifications.
           </List.Item>
         </List>
       </div>

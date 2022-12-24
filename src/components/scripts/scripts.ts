@@ -18,7 +18,7 @@ import {
   Suppression,
 } from "./types";
 
-export const version = "0.0.5";
+export const version = "0.0.6";
 
 function hasScope(hexString: string) {
   const header = hexString.split(" ")[1];
@@ -366,7 +366,7 @@ export async function parseData(files: Files) {
   const amitseSct = files.amitseSctContainer.textContent as string;
   const setupdataBin = files.setupdataBin.textContent as string;
 
-  setupTxt = setupTxt.replaceAll(/[\r\n|\n|\r](?!0x)/g, " ");
+  setupTxt = setupTxt.replaceAll(/[\r\n|\n|\r](?!0x)/g, "<br>");
 
   let formSetId = "";
   const varStores: VarStores = [];

@@ -143,7 +143,12 @@ const TableRow = React.memo(
         </td>
         <td>
           <Spoiler maxHeight={70} showLabel=".........." hideLabel=".....">
-            {child.description}
+            {child.description
+              .split("<br>")
+              .filter((line) => line !== "")
+              .map((line, index) => (
+                <div key={index}>{line}</div>
+              ))}
           </Spoiler>
         </td>
       </tr>

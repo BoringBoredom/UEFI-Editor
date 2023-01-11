@@ -5,10 +5,6 @@
 .forms {
   font-size: 2rem;
 }
-.mismatch {
-  font-size: 5rem;
-  text-align: center;
-}
 .pointer {
   cursor: pointer;
   text-decoration: underline dotted;

@@ -11,7 +11,7 @@
 
 ## Preparation
 
-Download [XDleader555's](https://github.com/XDleader555/grub_setup_var/releases) or [datasone's](https://github.com/datasone/grub-mod-setup_var/releases) modded shell and rename it to **_BOOTX64.EFI_**.
+Download [datasone's modded shell](https://github.com/datasone/grub-mod-setup_var/releases) and rename it to **_BOOTX64.EFI_**.
 
 Format a USB drive as FAT32 and put **_BOOTX64.EFI_** in **_USB:\EFI\BOOT\\_** (create the folders **_EFI_** and **_BOOT_** manually). The final path of the shell will be **_USB:\EFI\BOOT\BOOTX64.EFI_**.
 
@@ -19,7 +19,7 @@ Download your **current** BIOS version from the motherboard vendor's site. Offse
 
 Drag and drop it into [UEFITool](https://github.com/LongSoft/UEFITool/releases). Press CTRL + F and perform a **_Text_** search for any setting. Double-click the reference to the section at the bottom, right-click the section (usually under **_Setup_**) and press **_Extract as is..._**.
 
-Convert the extracted file with [IRFExtractor](https://github.com/LongSoft/Universal-IFR-Extractor/releases). Rename the output to **_a.txt_**, move it to the folder containing [this script](https://github.com/BoringBoredom/IFR-Formatter/releases) and run it.
+Convert the extracted file with [IRFExtractor](https://github.com/LongSoft/Universal-IFR-Extractor/releases). Optionally, rename the output to **_a.txt_**, move it to the folder containing [this script](https://github.com/BoringBoredom/IFR-Formatter/releases) and run it.
 
 Disable Secure Boot and boot from the USB drive in UEFI mode (CSM disabled). You can enable CSM again after you're done.
 
@@ -46,29 +46,7 @@ High Precision Timer | VarStore: PchSetup, VarOffset: 0x20, Size: 0x1
      Enabled: 0x1 (default)
 ```
 
-### [XDleader555's syntax](https://github.com/XDleader555/grub_setup_var#usage) (READ THIS)
-
-#### Writing
-
-```
-setup_var VarStore VarOffset Value
-```
-
-```
-setup_var PchSetup 0x20 0x0
-```
-
-#### Reading
-
-```
-setup_var VarStore VarOffset
-```
-
-```
-setup_var PchSetup 0x20
-```
-
-### [datasone's syntax](https://github.com/datasone/grub-mod-setup_var#setup_var_cv) (READ THIS)
+### [Syntax](https://github.com/datasone/grub-mod-setup_var#setup_var_cv) (READ THIS)
 
 #### Writing
 
@@ -100,7 +78,7 @@ reboot
 
 ---
 
-Workarounds for various issues (e.g. multiple Setup VarStores): [datasone's legacy commands](https://github.com/datasone/grub-mod-setup_var#legacy-commands)
+Workarounds for various issues (e.g. multiple Setup VarStores): [legacy commands](https://github.com/datasone/grub-mod-setup_var#legacy-commands)
 
 ---
 

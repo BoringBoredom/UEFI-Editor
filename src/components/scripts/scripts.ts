@@ -143,6 +143,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
         ) !== "2902"
       ) {
         alert("Something went wrong. Please file a bug report on Github.");
+        return;
       }
 
       modifiedSetupSct = replaceAt(
@@ -643,6 +644,7 @@ export async function parseData(files: Files) {
         } else if (scopeType === "SuppressIf") {
           if (currentSuppressions.length === 0) {
             alert("Something went wrong. Please file a bug report on Github.");
+            return {} as Data;
           }
 
           const latestSuppression = currentSuppressions.pop() as Suppression;
@@ -651,6 +653,7 @@ export async function parseData(files: Files) {
 
         if (scopes.length === 0) {
           alert("Something went wrong. Please file a bug report on Github.");
+          return {} as Data;
         }
 
         scopes.pop();
@@ -660,6 +663,7 @@ export async function parseData(files: Files) {
 
   if (scopes.length !== 0 || currentSuppressions.length !== 0) {
     alert("Something went wrong. Please file a bug report on Github.");
+    return {} as Data;
   }
 
   const matches = [

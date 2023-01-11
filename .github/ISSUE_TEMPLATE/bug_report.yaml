@@ -45,7 +45,7 @@ body:
   - type: input
     id: setup-sct-sha256
     attributes:
-      label: SHA256 hash of Setup SCT
+      label: SHA256 hash of unmodified Setup SCT
     validations:
       required: true
   - type: input
@@ -57,13 +57,13 @@ body:
   - type: input
     id: amitse-sct-sha256
     attributes:
-      label: SHA256 hash of AMITSE SCT
+      label: SHA256 hash of unmodified AMITSE SCT
     validations:
       required: true
   - type: input
     id: setupdata-bin-sha256
     attributes:
-      label: SHA256 hash of Setupdata BIN
+      label: SHA256 hash of unmodified Setupdata BIN
     validations:
       required: true
   - type: textarea
@@ -71,6 +71,12 @@ body:
     attributes:
       label: Attach the data.json file with the modification you attempted to do.
       description: Limit it to the problematic setting for easier debugging.
+    validations:
+      required: true
+  - type: input
+    id: final-rom-sha256
+    attributes:
+      label: SHA256 hash of modified UEFI
     validations:
       required: true
   - type: textarea

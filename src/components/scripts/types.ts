@@ -82,7 +82,7 @@ export interface OneOfPrompt extends FormChild {
   type: "OneOf";
   varOffset: string;
   size: string;
-  options: Array<string>;
+  options: Array<{ option: string; value: string }>;
   defaults?: Array<Default>;
 }
 

@@ -598,7 +598,10 @@ export async function parseData(files: Files) {
     }
 
     if (oneOfOption) {
-      currentOneOf.options.push(`${oneOfOption[1]}: ${oneOfOption[2]}`);
+      currentOneOf.options.push({
+        option: oneOfOption[1],
+        value: oneOfOption[2],
+      });
     }
 
     if (defaultId && scopes.length !== 0) {

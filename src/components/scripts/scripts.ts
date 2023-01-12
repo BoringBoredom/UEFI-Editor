@@ -470,6 +470,9 @@ export async function parseData(files: Files) {
         type: "Ref",
         questionId: ref[4],
         varStoreId: ref[5],
+        varStoreName: varStores.find(
+          (varStore) => varStore.varStoreId === ref[5]
+        )?.name as string,
         formId,
         accessLevel,
         failsafe,
@@ -500,6 +503,9 @@ export async function parseData(files: Files) {
         type: "String",
         questionId: string[4],
         varStoreId: string[5],
+        varStoreName: varStores.find(
+          (varStore) => varStore.varStoreId === string[5]
+        )?.name as string,
         accessLevel,
         failsafe,
         optimal,
@@ -525,6 +531,9 @@ export async function parseData(files: Files) {
         type: "Numeric",
         questionId: numeric[4],
         varStoreId: numeric[5],
+        varStoreName: varStores.find(
+          (varStore) => varStore.varStoreId === numeric[5]
+        )?.name as string,
         varOffset: numeric[6],
         size: numeric[8],
         min: numeric[9],
@@ -555,6 +564,9 @@ export async function parseData(files: Files) {
         type: "CheckBox",
         questionId: checkBox[4],
         varStoreId: checkBox[5],
+        varStoreName: varStores.find(
+          (varStore) => varStore.varStoreId === checkBox[5]
+        )?.name as string,
         varOffset: checkBox[6],
         accessLevel,
         failsafe,
@@ -581,6 +593,9 @@ export async function parseData(files: Files) {
         type: "OneOf",
         questionId: oneOf[4],
         varStoreId: oneOf[5],
+        varStoreName: varStores.find(
+          (varStore) => varStore.varStoreId === oneOf[5]
+        )?.name as string,
         varOffset: oneOf[6],
         size: oneOf[8],
         options: [],

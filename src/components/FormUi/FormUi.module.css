@@ -13,3 +13,9 @@
   width: 7rem;
   min-width: 7rem;
 }
+.infoRow {
+  display: flex;
+}
+.infoRow > div {
+  width: 50%;
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import s from "./FormUi.module.css";
 import { Updater } from "use-immer";
-import { Table, TextInput, Select, Spoiler, Chip } from "@mantine/core";
+import { Table, TextInput, Select, Spoiler, Chip, Stack } from "@mantine/core";
 import { useDebouncedState } from "@mantine/hooks";
 import { Data, FormChildren } from "../scripts";
 import { SearchUi } from "./SearchUi";
@@ -65,19 +65,60 @@ const TableRow = React.memo(
     setData,
     currentFormIndex,
   }: TableRowProps) {
+    const type = child.type;
+    const info = [];
+
+    if (type === "CheckBox" || type === "OneOf" || type === "Numeric") {
+      if (type === "OneOf") {
+        for (const option of child.options) {
+          info.push([option.option, option.value]);
+        }
+
+        info.push(["newline"]);
+      }
+
+      if (type === "Numeric") {
+        info.push(
+          ["Min", child.min],
+          ["Max", child.max],
+          ["Step", child.step],
+          ["newline"]
+        );
+      }
+
+      if (child.defaults) {
+        for (const def of child.defaults) {
+          info.push([`DefaultId ${def.defaultId}`, def.value]);
+        }
+
+        info.push(["newline"]);
+      }
+
+      info.push(
+        ["QuestionId", child.questionId],
+        ["VarStoreId", child.varStoreId],
+        ["VarStoreName", child.varStoreName],
+        ["VarOffset", child.varOffset]
+      );
+
+      if (type !== "CheckBox") {
+        info.push(["Size (bits)", child.size]);
+      }
+    }
+
     return (
       <tr>
         <td
-          className={child.type === "Ref" ? s.pointer : undefined}
+          className={type === "Ref" ? s.pointer : undefined}
           onClick={() => {
-            if (child.type === "Ref") {
+            if (type === "Ref") {
               handleRefClick(child.formId);
             }
           }}
         >
           {child.name}
         </td>
-        <td>{child.type}</td>
+        <td>{type}</td>
         <td className={s.width}>
           {child.accessLevel !== null && (
             <TextInput
@@ -143,12 +184,30 @@ const TableRow = React.memo(
         </td>
         <td>
           <Spoiler maxHeight={70} showLabel=".........." hideLabel=".....">
-            {child.description
-              .split("<br>")
-              .filter((line) => line !== "")
-              .map((line, index) => (
-                <div key={index}>{line}</div>
-              ))}
+            <Stack>
+              <div>
+                {child.description
+                  .split("<br>")
+                  .filter((line) => line !== "")
+                  .map((line, index) => (
+                    <div key={index}>{line}</div>
+                  ))}
+              </div>
+              <div>
+                {info.map((item, index) => (
+                  <div key={index} className={s.infoRow}>
+                    {item[0] === "newline" ? (
+                      <br />
+                    ) : (
+                      <>
+                        <div>{item[0]}</div>
+                        <div>{item[1]}</div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Stack>
           </Spoiler>
         </td>
       </tr>
@@ -274,7 +333,7 @@ export function FormUi({
           <th>Failsafe</th>
           <th>Optimal</th>
           <th>Suppress If</th>
-          <th>Description</th>
+          <th>Info</th>
         </tr>
       </thead>
       <tbody>

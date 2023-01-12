@@ -369,6 +369,11 @@ export async function parseData(files: Files) {
 
   setupTxt = setupTxt.replaceAll(/[\r\n|\n|\r](?!0x)/g, "<br>");
 
+  if (!/\{ .* \}/.test(setupTxt)) {
+    alert(`Use the "verbose" option of IFRExtractor.`);
+    return {} as Data;
+  }
+
   let formSetId = "";
   const varStores: VarStores = [];
   const forms: Forms = [];

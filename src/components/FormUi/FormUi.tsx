@@ -287,7 +287,7 @@ export function FormUi({
         <thead>
           <tr>
             <th>Name</th>
-            <th>FormId</th>
+            <th>Form Id</th>
           </tr>
         </thead>
         <tbody>

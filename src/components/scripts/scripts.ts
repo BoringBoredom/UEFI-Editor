@@ -19,6 +19,7 @@ import {
 } from "./types";
 
 export const version = "0.0.6";
+const wantedIFRExtractorVersion = "1.5.0";
 
 function hasScope(hexString: string) {
   const header = hexString.split(" ")[1];
@@ -129,8 +130,10 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
   let wasAmitseSctModified = false;
   let wasSetupdataBinModified = false;
 
-  let changeLog = `========== ${files.setupSctContainer.file?.name} ==========\n\n`;
+  let changeLog = "";
+
   let modifiedSetupSct = files.setupSctContainer.textContent as string;
+  let setupSctChangeLog = "";
 
   const suppressions = JSON.parse(JSON.stringify(data.suppressions));
 
@@ -186,14 +189,14 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
         }
       }
 
-      changeLog += `Unsuppressed ${suppression.offset}\n`;
+      setupSctChangeLog += `Unsuppressed ${suppression.offset}\n`;
 
       wasSetupSctModified = true;
     }
   }
 
-  changeLog += `\n\n========== ${files.amitseSctContainer.file?.name} ==========\n\n`;
   let modifiedAmitseSct = files.amitseSctContainer.textContent as string;
+  let amitseSctChangeLog = "";
 
   for (const entry of data.menu) {
     const padded = entry.formId.split("x")[1].padStart(4, "0");
@@ -208,7 +211,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
         parseInt(oldValue.slice(-2) + oldValue.slice(-4, -2), 16)
       );
 
-      changeLog += `${
+      amitseSctChangeLog += `${
         data.forms.find((form) => parseInt(form.formId) === parseInt(oldFormId))
           ?.name
       } | FormId ${oldFormId} -> ${
@@ -221,8 +224,8 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
     }
   }
 
-  changeLog += `\n\n========== ${files.setupdataBin.file?.name} ==========\n\n`;
   let modifiedSetupdataBin = files.setupdataBin.textContent as string;
+  let setupdataBinChangeLog = "";
 
   for (const form of data.forms) {
     for (const child of form.children) {
@@ -245,7 +248,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             2,
             newAccessLevel
           );
-          changeLog += `${child.name} | QuestionId ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
+          setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
 
           wasSetupdataBinModified = true;
         }
@@ -263,7 +266,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             2,
             newFailsafe
           );
-          changeLog += `${child.name} | QuestionId ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
+          setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
 
           wasSetupdataBinModified = true;
         }
@@ -281,7 +284,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
             2,
             newOptimal
           );
-          changeLog += `${child.name} | QuestionId ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
+          setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
 
           wasSetupdataBinModified = true;
         }
@@ -290,6 +293,8 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
   }
 
   if (wasSetupSctModified) {
+    changeLog += `========== ${files.setupSctContainer.file?.name} ==========\n\n${setupSctChangeLog}\n\n\n`;
+
     saveAs(
       new Blob([new Uint8Array(getUint8Array(modifiedSetupSct))], {
         type: "application/octet-stream",
@@ -299,6 +304,8 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
   }
 
   if (wasAmitseSctModified) {
+    changeLog += `========== ${files.amitseSctContainer.file?.name} ==========\n\n${amitseSctChangeLog}\n\n\n`;
+
     saveAs(
       new Blob([new Uint8Array(getUint8Array(modifiedAmitseSct))], {
         type: "application/octet-stream",
@@ -308,6 +315,8 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
   }
 
   if (wasSetupdataBinModified) {
+    changeLog += `========== ${files.setupdataBin.file?.name} ==========\n\n${setupdataBinChangeLog}\n\n\n`;
+
     saveAs(
       new Blob([new Uint8Array(getUint8Array(modifiedSetupdataBin))], {
         type: "application/octet-stream",
@@ -367,8 +376,21 @@ export async function parseData(files: Files) {
   const amitseSct = files.amitseSctContainer.textContent as string;
   const setupdataBin = files.setupdataBin.textContent as string;
 
+  if (
+    !setupTxt.includes(
+      `Program version: ${wantedIFRExtractorVersion}, Extraction mode:`
+    )
+  ) {
+    alert(
+      `Wrong IFR-Extractor-RS version. Use version ${wantedIFRExtractorVersion}.`
+    );
+    window.location.reload();
+    return {} as Data;
+  }
+
   if (!/\{ .* \}/.test(setupTxt)) {
     alert(`Use the "verbose" option of IFRExtractor.`);
+    window.location.reload();
     return {} as Data;
   }
 
@@ -407,13 +429,13 @@ export async function parseData(files: Files) {
       /String Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), MinSize: (.*), MaxSize: (.*), Flags: (.*) \{ (.*) \}/
     );
     const numeric = line.match(
-      /Numeric Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
+      /Numeric Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
     );
     const checkBox = line.match(
-      /CheckBox Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreOffset: (.*), Flags: (.*) \{ (.*) \}/
+      /CheckBox Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*) \{ (.*) \}/
     );
     const oneOf = line.match(
-      /OneOf Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
+      /OneOf Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
     );
     const oneOfOption = line.match(/OneOfOption Option: "(.*)" Value: (.*) \{/);
     const defaultId = line.match(/Default DefaultId: (.*) Value: (.*) \{/);
@@ -667,6 +689,7 @@ export async function parseData(files: Files) {
         } else if (scopeType === "SuppressIf") {
           if (currentSuppressions.length === 0) {
             alert("Something went wrong. Please file a bug report on Github.");
+            window.location.reload();
             return {} as Data;
           }
 
@@ -676,6 +699,7 @@ export async function parseData(files: Files) {
 
         if (scopes.length === 0) {
           alert("Something went wrong. Please file a bug report on Github.");
+          window.location.reload();
           return {} as Data;
         }
 
@@ -686,6 +710,7 @@ export async function parseData(files: Files) {
 
   if (scopes.length !== 0 || currentSuppressions.length !== 0) {
     alert("Something went wrong. Please file a bug report on Github.");
+    window.location.reload();
     return {} as Data;
   }
 

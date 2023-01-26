@@ -16,7 +16,7 @@ export function Readme() {
           account to download it until the artifact is published as regular
           release.
         </h3>
-        <h3>Hover over underlined text for additional information.</h3>
+        <h3>Hover over underlined text below for additional information.</h3>
       </div>
       <div>
         <h2>Extracting files</h2>

@@ -96,11 +96,11 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
             variant="default"
             size="lg"
             component="a"
-            href="https://github.com/LongSoft/IFRExtractor-RS/suites/9555751857/artifacts/454700873"
+            href="https://github.com/LongSoft/IFRExtractor-RS/suites/10243453542/artifacts/502394428"
             target="_blank"
             leftIcon={<IconDownload />}
           >
-            {`IFRExtractor-RS`}
+            {`IFRExtractor-RS 1.5.0`}
           </Button>
         </Group>
 

@@ -76,6 +76,7 @@ export interface NumericPrompt extends FormChild {
 export interface CheckBoxPrompt extends FormChild {
   type: "CheckBox";
   varOffset: string;
+  flags: string;
   defaults?: Array<Default>;
 }
 

@@ -8,11 +8,9 @@ import {
   FileInput,
   Image,
   Stack,
-  Group,
-  Button,
   LoadingOverlay,
 } from "@mantine/core";
-import { IconDownload, IconUpload } from "@tabler/icons";
+import { IconUpload } from "@tabler/icons";
 import { Data, parseData } from "../scripts";
 
 async function binToHexString(file: File) {
@@ -80,30 +78,6 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
         loaderProps={{ size: "xl" }}
       />
       <Stack>
-        <Group grow>
-          <Button
-            variant="default"
-            size="lg"
-            component="a"
-            href="https://github.com/LongSoft/UEFITool/releases"
-            target="_blank"
-            leftIcon={<IconDownload />}
-          >
-            {`UEFITool`}
-          </Button>
-
-          <Button
-            variant="default"
-            size="lg"
-            component="a"
-            href="https://github.com/LongSoft/IFRExtractor-RS/suites/10243453542/artifacts/502394428"
-            target="_blank"
-            leftIcon={<IconDownload />}
-          >
-            {`IFRExtractor-RS 1.5.0`}
-          </Button>
-        </Group>
-
         <Tooltip label={<Image src={setupSctPng} />}>
           <FileInput
             icon={<IconUpload />}

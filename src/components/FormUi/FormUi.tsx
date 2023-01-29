@@ -91,7 +91,25 @@ const TableRow = React.memo(
           info.push([`DefaultId ${def.defaultId}`, def.value]);
         }
 
-        info.push(["newline"]);
+        if (type !== "CheckBox") {
+          info.push(["newline"]);
+        }
+      }
+
+      if (type === "CheckBox") {
+        const def = child.flags.match(/\bDefault: (Enabled|Disabled)/);
+        if (def) {
+          info.push(["Default", def[1] === "Enabled" ? "1" : "0"]);
+        }
+
+        const mfgDef = child.flags.match(/MfgDefault: (Enabled|Disabled)/);
+        if (mfgDef) {
+          info.push(["MfgDefault", mfgDef[1] === "Enabled" ? "1" : "0"]);
+        }
+
+        if (def || mfgDef || child.defaults) {
+          info.push(["newline"]);
+        }
       }
 
       info.push(
@@ -185,28 +203,32 @@ const TableRow = React.memo(
         <td>
           <Spoiler maxHeight={70} showLabel=".........." hideLabel=".....">
             <Stack>
-              <div>
-                {child.description
-                  .split("<br>")
-                  .filter((line) => line !== "")
-                  .map((line, index) => (
-                    <div key={index}>{line}</div>
+              {child.description && (
+                <div>
+                  {child.description
+                    .split("<br>")
+                    .filter((line) => line !== "")
+                    .map((line, index) => (
+                      <div key={index}>{line}</div>
+                    ))}
+                </div>
+              )}
+              {info.length > 0 && (
+                <div>
+                  {info.map((item, index) => (
+                    <div key={index} className={s.infoRow}>
+                      {item[0] === "newline" ? (
+                        <br />
+                      ) : (
+                        <>
+                          <div>{item[0]}</div>
+                          <div>{item[1]}</div>
+                        </>
+                      )}
+                    </div>
                   ))}
-              </div>
-              <div>
-                {info.map((item, index) => (
-                  <div key={index} className={s.infoRow}>
-                    {item[0] === "newline" ? (
-                      <br />
-                    ) : (
-                      <>
-                        <div>{item[0]}</div>
-                        <div>{item[1]}</div>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
+                </div>
+              )}
             </Stack>
           </Spoiler>
         </td>

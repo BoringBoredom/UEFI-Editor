@@ -18,8 +18,8 @@ import {
   Suppression,
 } from "./types";
 
-export const version = "0.0.6";
-const wantedIFRExtractorVersion = "1.5.0";
+export const version = "0.0.7";
+const wantedIFRExtractorVersion = "1.5.1";
 
 function hasScope(hexString: string) {
   const header = hexString.split(" ")[1];
@@ -376,14 +376,16 @@ export async function parseData(files: Files) {
   const amitseSct = files.amitseSctContainer.textContent as string;
   const setupdataBin = files.setupdataBin.textContent as string;
 
-  if (
-    !setupTxt.includes(
-      `Program version: ${wantedIFRExtractorVersion}, Extraction mode:`
-    )
-  ) {
+  if (!setupTxt.includes(`Program version: ${wantedIFRExtractorVersion}`)) {
     alert(
       `Wrong IFR-Extractor-RS version. Use version ${wantedIFRExtractorVersion}.`
     );
+    window.location.reload();
+    return {} as Data;
+  }
+
+  if (!setupTxt.includes("Extraction mode: UEFI")) {
+    alert("Only UEFI is supported.");
     window.location.reload();
     return {} as Data;
   }
@@ -595,6 +597,7 @@ export async function parseData(files: Files) {
           (varStore) => varStore.varStoreId === checkBox[5]
         )?.name as string,
         varOffset: checkBox[6],
+        flags: checkBox[7],
         accessLevel,
         failsafe,
         optimal,

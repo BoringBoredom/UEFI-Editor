@@ -10,18 +10,20 @@ import fileGuidPng from "../images/fileGuid.png";
 export function Readme() {
   return (
     <Stack className={s.margin}>
-      <div>
-        <h3>
-          Only the linked version of IFR-Extractor-RS works. You need a Github
-          account to download it until the artifact is published as regular
-          release.
-        </h3>
-        <h3>Hover over underlined text below for additional information.</h3>
-      </div>
+      <h2>Hover over underlined text below for additional information.</h2>
       <div>
         <h2>Extracting files</h2>
         <List>
-          <List.Item>Drag the BIOS file into UEFITool.</List.Item>
+          <List.Item>
+            Drag the BIOS file into{" "}
+            <Anchor
+              href="https://github.com/LongSoft/UEFITool/releases"
+              target="_blank"
+            >
+              UEFITool
+            </Anchor>
+            .
+          </List.Item>
           <List.Item>
             Press CTRL + F, select the{" "}
             <Text span fw={700} fs="italic">
@@ -70,9 +72,12 @@ export function Readme() {
           </List.Item>
           <List.Item>
             Move{" "}
-            <Text span fw={700} fs="italic">
+            <Anchor
+              href="https://github.com/LongSoft/IFRExtractor-RS/releases"
+              target="_blank"
+            >
               ifrextractor.exe
-            </Text>{" "}
+            </Anchor>{" "}
             to the current folder, press SHIFT + right-click, press{" "}
             <Text span fw={700} fs="italic">
               Open command window here

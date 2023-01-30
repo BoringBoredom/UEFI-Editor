@@ -17,18 +17,18 @@
 ## Extracting the necessary files
 
 - Drag and drop the BIOS file into **_UEFITool NE_**.
-- Search (CTRL + F) for a known setting.
+- Search (CTRL + F) for a known setting.  
   ![](./images/extraction/1.png)
-- Double-click the reference to **_Setup/PE32 image section_** at the bottom.
+- Double-click the reference to **_Setup/PE32 image section_** at the bottom.  
   ![](./images/extraction/2.png)
-- Extract **_PE32 image section_** "**_as is_**".
+- Extract **_PE32 image section_** "**_as is_**".  
   ![](./images/extraction/3.png)
-- Move **_ifrextractor.exe_** to the current folder, open the command line inside and convert the .sct file you just extracted: **_ifrextractor.exe "Section_PE32_image_Setup_Setup.sct" verbose_**
+- Move **_ifrextractor.exe_** to the current folder, open the command line inside and convert the .sct file you just extracted: **_ifrextractor.exe "Section_PE32_image_Setup_Setup.sct" verbose_**  
   ![](./images/extraction/4.png)
-- Scroll down inside the currently expanded section and find **_AMITSE_** and **_setupdata_** (sometimes both required files are under **_AMITSE_**). Extract **_PE32 image section_** "**_as is_**" and **_setupdata_** as "**_body_**".
+- Scroll down inside the currently expanded section and find **_AMITSE_** and **_setupdata_** (sometimes both required files are under **_AMITSE_**). Extract **_PE32 image section_** "**_as is_**" and **_setupdata_** as "**_body_**".  
   ![](./images/extraction/5.png)
   ![](./images/extraction/6.png)
-- Upload the 4 files to the **_UEFI Editor_** page.
+- Upload the 4 files to the **_UEFI Editor_** page.  
   ![](./images/extraction/7.png)
 
 ## Exposing invisible settings
@@ -43,10 +43,10 @@
 
   Example for **_Setup/PE32 image section_**:
 
-  **_UEFITool NE_**:
+  **_UEFITool NE_**:  
   ![](./images/insertion/1.png)
 
-  **_UEFITool 0.28.0_**:
+  **_UEFITool 0.28.0_**:  
   ![](./images/insertion/2.png)
   ![](./images/insertion/3.png)
 

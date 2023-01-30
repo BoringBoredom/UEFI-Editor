@@ -1,14 +1,14 @@
 import React from "react";
 import s from "./App.module.css";
 import { useImmer } from "use-immer";
-import { AppShell } from "@mantine/core";
+import { AppShell, Button, Group, Stack } from "@mantine/core";
 import { Data } from "./components/scripts";
 import { Files, FileUploads } from "./components/FileUploads";
 import { FormUi } from "./components/FormUi";
 import { Navigation } from "./components/Navigation";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { Readme } from "./components/Readme";
+import { IconBrandGithub } from "@tabler/icons";
 
 export default function App() {
   const [files, setFiles] = useImmer<Files>({
@@ -54,10 +54,31 @@ export default function App() {
           />
         </AppShell>
       ) : (
-        <div className={s.padding}>
+        <Stack className={s.padding} spacing="xl">
           <FileUploads files={files} setFiles={setFiles} setData={setData} />
-          <Readme />
-        </div>
+          <Group position="center">
+            <Button
+              variant="default"
+              size="lg"
+              component="a"
+              href="https://github.com/BoringBoredom/UEFI-Editor#usage-guide"
+              target="_blank"
+              leftIcon={<IconBrandGithub />}
+            >
+              Usage guide
+            </Button>
+            <Button
+              variant="default"
+              size="lg"
+              component="a"
+              href="https://github.com/BoringBoredom/UEFI-Editor/issues"
+              target="_blank"
+              leftIcon={<IconBrandGithub />}
+            >
+              Report a bug
+            </Button>
+          </Group>
+        </Stack>
       )}
     </>
   );

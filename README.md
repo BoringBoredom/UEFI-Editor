@@ -2,8 +2,60 @@
 
 ## https://boringboredom.github.io/UEFI-Editor/
 
-![](./images/SS1.png)
-![](./images/SS2.png)
+![](./images/showcase/1.png)
+![](./images/showcase/2.png)
+
+# Usage guide
+
+## Prerequisites
+
+- [UEFITool NE](https://github.com/LongSoft/UEFITool/releases) (press **Show all 14 assets**)
+- [UEFITool 0.28.0](https://github.com/LongSoft/UEFITool/releases/tag/0.28.0) ([why?](https://github.com/LongSoft/UEFITool/issues/67#issuecomment-268906461))
+- [IFR Extractor](https://github.com/LongSoft/IFRExtractor-RS/releases)
+- [UEFI Editor](https://boringboredom.github.io/UEFI-Editor/)
+
+## Extracting the necessary files
+
+- Drag and drop the BIOS file into **_UEFITool NE_**.
+- Search (CTRL + F) for a known setting.
+  ![](./images/extraction/1.png)
+- Double-click the reference to **_Setup/PE32 image section_** at the bottom.
+  ![](./images/extraction/2.png)
+- Extract **_PE32 image section_** "**_as is_**".
+  ![](./images/extraction/3.png)
+- Move **_ifrextractor.exe_** to the current folder, open the command line inside and convert the .sct file you just extracted: **_ifrextractor.exe "Section_PE32_image_Setup_Setup.sct" verbose_**
+  ![](./images/extraction/4.png)
+- Scroll down inside the currently expanded section and find **_AMITSE_** and **_setupdata_** (sometimes both required files are under **_AMITSE_**). Extract **_PE32 image section_** "**_as is_**" and **_setupdata_** as "**_body_**".
+  ![](./images/extraction/5.png)
+  ![](./images/extraction/6.png)
+- Upload the 4 files to the **_UEFI Editor_** page.
+  ![](./images/extraction/7.png)
+
+## Exposing invisible settings
+
+- Usually, either unsuppressing items or setting their access level to 05 does the job.
+
+## Inserting modified files
+
+- **_UEFI Editor_** will only give you back files that were modified.
+- To find the correct sections in **_UEFITool 0.28.0_** you can search for **_File GUID_** s you copy from **_UEFITool NE_**.
+- Replace files the same way you extracted them: **_Extract as is_** -> **_Replace as is_** and **_Extract body_** -> **_Replace body_**
+
+  Example for **_Setup/PE32 image section_**:
+
+  **_UEFITool NE_**:
+  ![](./images/insertion/1.png)
+
+  **_UEFITool 0.28.0_**:
+  ![](./images/insertion/2.png)
+  ![](./images/insertion/3.png)
+
+- Save the modifications.  
+  ![](./images/insertion/4.png)
+
+---
+
+The section below is unrelated to the above tool.
 
 ---
 

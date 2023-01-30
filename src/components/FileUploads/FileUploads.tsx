@@ -1,15 +1,6 @@
 import React from "react";
 import { Updater } from "use-immer";
-import setupSctPng from "../images/setupSct.png";
-import amitseSctPng from "../images/amitseSct.png";
-import setupdataBinPng from "../images/setupdataBin.png";
-import {
-  Tooltip,
-  FileInput,
-  Image,
-  Stack,
-  LoadingOverlay,
-} from "@mantine/core";
+import { FileInput, Stack, LoadingOverlay } from "@mantine/core";
 import { IconUpload } from "@tabler/icons";
 import { Data, parseData } from "../scripts";
 
@@ -78,107 +69,95 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
         loaderProps={{ size: "xl" }}
       />
       <Stack>
-        <Tooltip label={<Image src={setupSctPng} />}>
-          <FileInput
-            icon={<IconUpload />}
-            size="lg"
-            placeholder="Setup SCT"
-            accept=".sct"
-            value={files.setupSctContainer.file}
-            error={files.setupSctContainer.isWrongFile}
-            onChange={(file) => {
-              if (file) {
-                const name = file.name.toLowerCase();
+        <FileInput
+          icon={<IconUpload />}
+          size="lg"
+          placeholder="Setup SCT"
+          accept=".sct"
+          value={files.setupSctContainer.file}
+          error={files.setupSctContainer.isWrongFile}
+          onChange={(file) => {
+            if (file) {
+              const name = file.name.toLowerCase();
 
-                setFiles((draft) => {
-                  draft.setupSctContainer = {
-                    file,
-                    isWrongFile: !(
-                      name.includes("setup") && name.endsWith(".sct")
-                    ),
-                  };
-                });
-              }
-            }}
-          />
-        </Tooltip>
+              setFiles((draft) => {
+                draft.setupSctContainer = {
+                  file,
+                  isWrongFile: !(
+                    name.includes("setup") && name.endsWith(".sct")
+                  ),
+                };
+              });
+            }
+          }}
+        />
 
-        <Tooltip
-          label={`ifrextractor.exe "Section_PE32_image_Setup.sct" verbose`}
-        >
-          <FileInput
-            icon={<IconUpload />}
-            size="lg"
-            placeholder="IFR Extractor output TXT"
-            accept=".txt"
-            value={files.setupTxtContainer.file}
-            error={files.setupTxtContainer.isWrongFile}
-            onChange={(file) => {
-              if (file) {
-                const name = file.name.toLowerCase();
+        <FileInput
+          icon={<IconUpload />}
+          size="lg"
+          placeholder="IFR Extractor output TXT"
+          accept=".txt"
+          value={files.setupTxtContainer.file}
+          error={files.setupTxtContainer.isWrongFile}
+          onChange={(file) => {
+            if (file) {
+              const name = file.name.toLowerCase();
 
-                setFiles((draft) => {
-                  draft.setupTxtContainer = {
-                    file,
-                    isWrongFile: !(
-                      name.includes("ifr") && name.endsWith(".txt")
-                    ),
-                  };
-                });
-              }
-            }}
-          />
-        </Tooltip>
+              setFiles((draft) => {
+                draft.setupTxtContainer = {
+                  file,
+                  isWrongFile: !(name.includes("ifr") && name.endsWith(".txt")),
+                };
+              });
+            }
+          }}
+        />
 
-        <Tooltip label={<Image src={amitseSctPng} />}>
-          <FileInput
-            icon={<IconUpload />}
-            size="lg"
-            placeholder="AMITSE SCT"
-            accept=".sct"
-            value={files.amitseSctContainer.file}
-            error={files.amitseSctContainer.isWrongFile}
-            onChange={(file) => {
-              if (file) {
-                const name = file.name.toLowerCase();
+        <FileInput
+          icon={<IconUpload />}
+          size="lg"
+          placeholder="AMITSE SCT"
+          accept=".sct"
+          value={files.amitseSctContainer.file}
+          error={files.amitseSctContainer.isWrongFile}
+          onChange={(file) => {
+            if (file) {
+              const name = file.name.toLowerCase();
 
-                setFiles((draft) => {
-                  draft.amitseSctContainer = {
-                    file,
-                    isWrongFile: !(
-                      name.includes("amitse") && name.endsWith(".sct")
-                    ),
-                  };
-                });
-              }
-            }}
-          />
-        </Tooltip>
+              setFiles((draft) => {
+                draft.amitseSctContainer = {
+                  file,
+                  isWrongFile: !(
+                    name.includes("amitse") && name.endsWith(".sct")
+                  ),
+                };
+              });
+            }
+          }}
+        />
 
-        <Tooltip label={<Image src={setupdataBinPng} />}>
-          <FileInput
-            icon={<IconUpload />}
-            size="lg"
-            placeholder="Setupdata BIN"
-            accept=".bin"
-            value={files.setupdataBin.file}
-            error={files.setupdataBin.isWrongFile}
-            onChange={(file) => {
-              if (file) {
-                const name = file.name.toLowerCase();
+        <FileInput
+          icon={<IconUpload />}
+          size="lg"
+          placeholder="Setupdata BIN"
+          accept=".bin"
+          value={files.setupdataBin.file}
+          error={files.setupdataBin.isWrongFile}
+          onChange={(file) => {
+            if (file) {
+              const name = file.name.toLowerCase();
 
-                setFiles((draft) => {
-                  draft.setupdataBin = {
-                    file,
-                    isWrongFile: !(
-                      name.includes("setupdata") && name.endsWith(".bin")
-                    ),
-                  };
-                });
-              }
-            }}
-          />
-        </Tooltip>
+              setFiles((draft) => {
+                draft.setupdataBin = {
+                  file,
+                  isWrongFile: !(
+                    name.includes("setupdata") && name.endsWith(".bin")
+                  ),
+                };
+              });
+            }
+          }}
+        />
       </Stack>
     </>
   );

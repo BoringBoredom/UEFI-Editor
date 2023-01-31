@@ -53,14 +53,14 @@
     ![](./images/usage/1.png)
     ![](./images/usage/2.jpg)
 
-  - E.g. on MSI boards you can replace **_OC Runner_** with **_Advanced_** (child of **_Setup_**) to gain access to a lot of Forms that are otherwise inaccessible due to missing references. Once inside **_Advanced_**, press **_ESC_** to reach the **_Setup_** Form which also contains a reference to **_OC Runner_**.
+  - E.g. on MSI boards you can replace **_OC Profiles_** with **_Advanced_** (child of **_Setup_**) to gain access to a lot of Forms that are otherwise inaccessible due to missing references while still retaining access to **_OC Profiles_**. Press **_ESC_** after selecting **_OC Profiles_** to access **_Setup_**.
 
 - ### Item visibility control
 
   - If one method doesn't work, try the other one. It varies from UEFI to UEFI.
   - #### Suppress If
 
-    - A **_Suppress If_** opcode hides nested items if the condition is true. The presence of a **_Suppress If_** opcode doesn't mean the condition is always true. However, if it is, you can remove the suppression by unchecking the offset.
+    - A **_Suppress If_** opcode hides nested items if the condition is true. The presence of a **_Suppress If_** opcode doesn't always mean the condition is true. However, if it is, you can remove the suppression by unchecking the offset.
 
       ![](./images/usage/3.png)
 

@@ -33,15 +33,6 @@ body:
         - "Yes"
     validations:
       required: true
-  - type: dropdown
-    id: ifr-extractor-version
-    attributes:
-      label: Did you use the specific version of IFR-Extractor-RS linked on the UEFI Editor page?
-      options:
-        - "No"
-        - "Yes"
-    validations:
-      required: true
   - type: input
     id: setup-sct-sha256
     attributes:

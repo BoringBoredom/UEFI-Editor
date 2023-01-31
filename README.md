@@ -10,34 +10,69 @@
 ## Prerequisites
 
 - [UEFITool NE](https://github.com/LongSoft/UEFITool/releases) (press **Show all 14 assets**)
-- [UEFITool 0.28.0](https://github.com/LongSoft/UEFITool/releases/tag/0.28.0) ([why?](https://github.com/LongSoft/UEFITool/issues/67#issuecomment-268906461))
+- [UEFITool 0.28.0](https://github.com/LongSoft/UEFITool/releases/tag/0.28.0) ([why?](https://github.com/LongSoft/UEFITool#known-issues))
 - [IFR Extractor](https://github.com/LongSoft/IFRExtractor-RS/releases)
 - [UEFI Editor](https://boringboredom.github.io/UEFI-Editor/)
 
 ## Extracting the necessary files
 
 - Drag and drop the BIOS file into **_UEFITool NE_**.
-- Search (CTRL + F) for a known setting.  
+- Search (CTRL + F) for a known setting.
+
   ![](./images/extraction/1.png)
-- Double-click the reference to **_Setup/PE32 image section_** at the bottom.  
+
+- Double-click the reference to **_Setup/PE32 image section_** at the bottom.
+
   ![](./images/extraction/2.png)
-- Extract **_PE32 image section_** "**_as is_**".  
+
+- Extract **_PE32 image section_** "**_as is_**".
+
   ![](./images/extraction/3.png)
-- Move **_ifrextractor.exe_** to the current folder, open the command line inside and convert the .sct file you just extracted: **_ifrextractor.exe "Section_PE32_image_Setup_Setup.sct" verbose_**  
+
+- Move **_ifrextractor.exe_** to the current folder, open the command line inside and convert the .sct file you just extracted: **_ifrextractor.exe "Section_PE32_image_Setup_Setup.sct" verbose_**
+
   ![](./images/extraction/4.png)
-- Scroll down inside the currently expanded section and find **_AMITSE_** and **_setupdata_** (sometimes both required files are under **_AMITSE_**). Extract **_PE32 image section_** "**_as is_**" and **_setupdata_** as "**_body_**".  
+
+- Scroll down inside the currently expanded section and find **_AMITSE_** and **_setupdata_** (sometimes both required files are under **_AMITSE_**). Extract **_PE32 image section_** "**_as is_**" and **_setupdata_** as "**_body_**".
+
   ![](./images/extraction/5.png)
   ![](./images/extraction/6.png)
-- Upload the 4 files to the **_UEFI Editor_** page.  
+
+- Upload the 4 files to the **_UEFI Editor_** page.
+
   ![](./images/extraction/7.png)
 
-## Exposing invisible settings
+## Using the UEFI Editor GUI
 
-- Usually, either unsuppressing items or setting their access level to 05 does the job.
+- ### Navigation
+  - Dotted underlined text has references to Forms and can be clicked.
+- ### Menu
+
+  - You can change the target Form of top-level references here. This is useful for UEFIs that have a custom **_Advanced_** Form.
+
+    ![](./images/usage/1.png)
+    ![](./images/usage/2.jpg)
+
+  - E.g. on MSI boards you can replace **_OC Runner_** with **_Advanced_** (child of **_Setup_**) to gain access to a lot of Forms that are otherwise inaccessible due to missing references. Once inside **_Advanced_**, press **_ESC_** to reach the **_Setup_** Form which also contains a reference to **_OC Runner_**.
+
+- ### Item visibility control
+
+  - If one method doesn't work, try the other one. It varies from UEFI to UEFI.
+  - #### Suppress If
+
+    - A **_Suppress If_** opcode hides nested items if the condition is true. The presence of a **_Suppress If_** opcode doesn't mean the condition is always true. However, if it is, you can remove the suppression by unchecking the offset.
+
+      ![](./images/usage/3.png)
+
+  - #### Access level
+
+    - Another method of controlling item visibility is changing the access level. **_05_** usually works. [Here is a forum post by Lost_N_BIOS with possible access level values](https://winraid.level1techs.com/t/request-maximus-xi-hero-unlock-amibcp/33743/4) (CTRL + F **_05/Yes_**).
+
+      ![](./images/usage/4.png)
 
 ## Inserting modified files
 
-- **_UEFI Editor_** will only give you back files that were modified.
+- Press the **_UEFI Files_** download button to download the modified files and the change log.
 - To find the correct sections in **_UEFITool 0.28.0_** you can search for **_File GUID_** s you copy from **_UEFITool NE_**.
 - Replace files the same way you extracted them: **_Extract as is_** -> **_Replace as is_** and **_Extract body_** -> **_Replace body_**
 
@@ -50,7 +85,8 @@
   ![](./images/insertion/2.png)
   ![](./images/insertion/3.png)
 
-- Save the modifications.  
+- Save the modifications.
+
   ![](./images/insertion/4.png)
 
 ---

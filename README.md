@@ -57,7 +57,7 @@
 
 - ### Item visibility control
 
-  - If one method doesn't work, try the other one. It varies from UEFI to UEFI.
+  - If one method doesn't work, try the other one. Using both at the same time can cause issues. It varies from UEFI to UEFI.
   - #### Suppress If
 
     - A **_Suppress If_** opcode hides nested items if the condition is true. The presence of a **_Suppress If_** opcode doesn't always mean the condition is true. However, if it is, you can remove the suppression by unchecking the offset.

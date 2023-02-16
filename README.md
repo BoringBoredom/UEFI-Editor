@@ -57,7 +57,7 @@
     ![](./images/usage/1.png)
     ![](./images/usage/2.jpg)
 
-  - E.g. on MSI boards you can replace `OC Profiles` with `Advanced` (child of `Setup`) to gain access to a lot of Forms that are otherwise inaccessible due to missing references while still retaining access to `OC Profiles`. Press `ESC` after selecting `OC Profiles` to access `Setup`.
+  - E.g. on MSI boards, you can replace `OC Profiles` with `Advanced` (child of `Setup`) to gain access to a lot of Forms that are otherwise inaccessible due to missing references while still retaining access to `OC Profiles`. Press `ESC` after selecting `OC Profiles` to access `Setup`.
 
 - ### Item visibility control
 

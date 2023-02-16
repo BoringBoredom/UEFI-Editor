@@ -118,26 +118,28 @@ Disable `Secure Boot` and `CSM` and boot from the USB drive in UEFI mode.
 ## Example
 
 ```
-VarStore Guid: B08F97FF-E6E8-4193-A997-5E9E9B0ADB32, VarStoreId: 0x2, Size: 0x3C1, Name: "CpuSetup" { 24 1F FF 97 8F B0 E8 E6 93 41 A9 97 5E 9E 9B 0A DB 32 02 00 C1 03 43 70 75 53 65 74 75 70 00 }
-```
-
-```
-OneOf Prompt: "Intel C-State", Help: "[...]", QuestionFlags: 0x10, QuestionId: 0x1EB, VarStoreId: 0x2, VarOffset: 0x14, Flags: 0x10, Size: 8, Min: 0x0, Max: 0x2, Step: 0x0 { 05 91 00 11 01 11 EB 01 02 00 14 00 10 10 00 02 00 }
-	OneOfOption Option: "Auto" Value: 2, Default, MfgDefault { 09 07 06 00 30 00 02 }
-	OneOfOption Option: "Enabled" Value: 1 { 09 07 03 00 00 00 01 }
-	OneOfOption Option: "Disabled" Value: 0 { 09 07 04 00 00 00 00 }
+OneOf Prompt: "Intel C-State", Help: "[...]", QuestionFlags: [...], QuestionId: [...], VarStoreId: 0x2, VarOffset: 0x14, Flags: [...], Size: 8, Min: [...], Max: [...], Step: [...] { [...] }
+	OneOfOption Option: "Auto" Value: 2, Default, MfgDefault { [...] }
+	OneOfOption Option: "Enabled" Value: 1 { [...] }
+	OneOfOption Option: "Disabled" Value: 0 { [...] }
 End  { 29 02 }
 ```
 
-`Size` (not the `VarStore` size) is shown in bits.  
-`Value` is a decimal.
+`Size` is a decimal in bits. Convert it to a hexadecimal in bytes.  
+`Value` is a decimal. Convert it to a hexadecimal.
+
+Search for the `VarStoreId` to find the `VarStoreName`.
+
+```
+VarStore Guid: [...], VarStoreId: 0x2, Size: [...], Name: "CpuSetup" { [...] }
+```
 
 ### [Syntax](https://github.com/datasone/grub-mod-setup_var#setup_var_cv) (READ THIS)
 
 #### Writing
 
 ```
-setup_var_cv VarStoreName VarOffset Size(bytes) Value(hexadecimal)
+setup_var_cv VarStoreName VarOffset Size Value
 ```
 
 ```
@@ -147,7 +149,7 @@ setup_var_cv CpuSetup 0x14 0x1 0x0
 #### Reading
 
 ```
-setup_var_cv VarStoreName VarOffset Size(bytes)
+setup_var_cv VarStoreName VarOffset Size
 ```
 
 ```

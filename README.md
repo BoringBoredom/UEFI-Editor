@@ -61,6 +61,7 @@
 
 - ### Item visibility control
 
+  - Make sure the parent forms are visible when targeting a setting. Use the top-right navigation to travel upwards.
   - If one method doesn't work, try the other one. Using both at the same time can cause issues. It varies from UEFI to UEFI.
   - #### Suppress If
 
@@ -70,7 +71,7 @@
 
   - #### Access level
 
-    - Another method of controlling item visibility is changing the access level. `05` usually works. [Here is a forum post by Lost_N_BIOS with possible access level values](https://winraid.level1techs.com/t/request-maximus-xi-hero-unlock-amibcp/33743/4) (`CTRL + F` `05/Yes`).
+    - Another method of controlling item visibility is changing the access level. `05` usually works. A different value does not necessarily mean it's hidden. [Here is a forum post by Lost_N_BIOS with possible access level values](https://winraid.level1techs.com/t/request-maximus-xi-hero-unlock-amibcp/33743/4) (`CTRL + F` `05/Yes`).
 
       ![](./images/usage/4.png)
 

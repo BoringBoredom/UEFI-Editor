@@ -18,7 +18,7 @@ import {
   Suppression,
 } from "./types";
 
-export const version = "0.0.7";
+export const version = "0.0.8";
 const wantedIFRExtractorVersion = "1.5.1";
 
 function hasScope(hexString: string) {
@@ -396,7 +396,7 @@ export async function parseData(files: Files) {
     return {} as Data;
   }
 
-  setupTxt = setupTxt.replaceAll(/[\r\n|\n|\r](?!0x)/g, "<br>");
+  setupTxt = setupTxt.replaceAll(/[\r\n|\n|\r](?!0x[0-9A-F]{3})/g, "<br>");
 
   let formSetId = "";
   const varStores: VarStores = [];
@@ -444,6 +444,7 @@ export async function parseData(files: Files) {
     const end = line.match(/\{ 29 02 \}/);
     const indentations = (line.match(/\t/g) || []).length;
     const offset = line.split(" ")[0].slice(0, -1);
+    const currentScope = scopes[scopes.length - 1];
 
     if (formSet) {
       formSetId = formSet[4] + formSet[5];
@@ -642,7 +643,10 @@ export async function parseData(files: Files) {
       }
     }
 
-    if (oneOfOption) {
+    if (
+      oneOfOption &&
+      (currentScope.type === "OneOf" || currentScope.type === "SuppressIf")
+    ) {
       currentOneOf.options.push({
         option: oneOfOption[1],
         value: oneOfOption[2],
@@ -650,7 +654,6 @@ export async function parseData(files: Files) {
     }
 
     if (defaultId && scopes.length !== 0) {
-      const currentScope = scopes[scopes.length - 1];
       const oneDefault = {
         defaultId: defaultId[1],
         value: defaultId[2],
@@ -675,7 +678,6 @@ export async function parseData(files: Files) {
     }
 
     if (end) {
-      const currentScope = scopes[scopes.length - 1];
       const scopeType = currentScope?.type;
 
       if (currentScope?.indentations === indentations) {

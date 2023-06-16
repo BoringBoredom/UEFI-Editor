@@ -29,7 +29,7 @@
 
   ![](./images/extraction/3.png)
 
-- Move `ifrextractor.exe` to the current folder, open the command line inside and convert the `.sct` file you just extracted.
+- Move `ifrextractor.exe` to the current folder, open the CLI inside and convert the `.sct` file you just extracted.
 
   ```
   ifrextractor.exe "Section_PE32_image_Setup_Setup.sct" verbose
@@ -114,9 +114,13 @@ Download your **_current_** BIOS version from the motherboard vendor's site. The
 
 Follow [these instructions](#extracting-the-necessary-files) until and including the conversion with `ifrextractor.exe`.
 
+Optionally, download [IFR-Formatter.js](https://raw.githubusercontent.com/BoringBoredom/UEFI-Editor/master/IFR-Formatter/IFR-Formatter.js) (right-click and `Save link as...`) and [node.exe](https://nodejs.org/dist/latest/win-x64/node.exe). Place them in the same folder as the IFR Extractor output and execute `node IFR-Formatter.js yourIfrExtractorOutput.txt` in the CLI.
+
 Disable `Secure Boot` and `CSM` and boot from the USB drive in UEFI mode.
 
 ## Example
+
+### IFR Extractor output
 
 ```
 OneOf Prompt: "Intel C-State", Help: "[...]", QuestionFlags: [...], QuestionId: [...], VarStoreId: 0x2, VarOffset: 0x14, Flags: [...], Size: 8, Min: [...], Max: [...], Step: [...] { [...] }
@@ -133,6 +137,15 @@ Search for the `VarStoreId` to find the `VarStoreName`.
 
 ```
 VarStore Guid: [...], VarStoreId: 0x2, Size: [...], Name: "CpuSetup" { [...] }
+```
+
+### IFR-Formatter.js output
+
+```
+Intel C-State | VarStore: CpuSetup | VarOffset: 0x14 | Size: 0x1
+    Auto: 0x2
+    Enabled: 0x1
+    Disabled: 0x0
 ```
 
 ### [Syntax](https://github.com/datasone/grub-mod-setup_var#setup_var_cv) (READ THIS)

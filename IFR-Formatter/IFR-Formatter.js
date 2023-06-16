@@ -7,7 +7,7 @@ function returnForm(currentForm) {
 }
 
 (async function () {
-  const currentVersion = "0.1.0";
+  const currentVersion = "0.1.1";
 
   let script;
   let latestVersionMatch;
@@ -49,8 +49,12 @@ function returnForm(currentForm) {
     }
   }
 
-  let file = fs.readFileSync(`./${path.basename(process.argv[2])}`, "utf8");
+  let file = fs.readFileSync(process.argv[2], "utf8");
   let formattedFile = "";
+
+  if(!file.match(/[\r\n|\n|\r](0x[0-9A-F]{3})/)) {
+    return console.log("The script only works on verbose output of ifrextractor https://github.com/LongSoft/IFRExtractor-RS");
+  }
 
   file = file.replaceAll(/[\r\n|\n|\r](?!0x[0-9A-F]{3})/g, "<br>");
 
@@ -123,7 +127,7 @@ function returnForm(currentForm) {
   }
 
   fs.writeFileSync(
-    `./formatted_${path.basename(process.argv[2])}`,
+    path.join(path.dirname(process.argv[2]), `formatted_${path.basename(process.argv[2])}`),
     formattedFile
   );
 })();

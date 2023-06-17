@@ -7,7 +7,8 @@ function returnForm(currentForm) {
 }
 
 (async function () {
-  const currentVersion = "0.1.0";
+  const currentVersion = "0.1.1";
+  const wantedIFRExtractorVersion = "1.5.1";
 
   let script;
   let latestVersionMatch;
@@ -43,14 +44,29 @@ function returnForm(currentForm) {
         currentMinor === latestMinor &&
         currentPatch < latestPatch)
     ) {
-      fs.writeFileSync(`./${path.basename(__filename)}`, script);
+      fs.writeFileSync(process.argv[1], script);
 
       return console.log("The script has been updated. Run it again.");
     }
   }
 
-  let file = fs.readFileSync(`./${path.basename(process.argv[2])}`, "utf8");
+  const filePath = process.argv[2];
+  let file = fs.readFileSync(filePath, "utf8");
   let formattedFile = "";
+
+  if (!file.includes(`Program version: ${wantedIFRExtractorVersion}`)) {
+    return console.log(
+      `Wrong IFR-Extractor-RS version. Use version ${wantedIFRExtractorVersion}.`
+    );
+  }
+
+  if (!file.includes("Extraction mode: UEFI")) {
+    return console.log("Only UEFI is supported.");
+  }
+
+  if (!/\{ .* \}/.test(file)) {
+    return console.log(`Use the "verbose" option of IFRExtractor.`);
+  }
 
   file = file.replaceAll(/[\r\n|\n|\r](?!0x[0-9A-F]{3})/g, "<br>");
 
@@ -123,7 +139,7 @@ function returnForm(currentForm) {
   }
 
   fs.writeFileSync(
-    `./formatted_${path.basename(process.argv[2])}`,
+    path.join(path.dirname(filePath), `formatted_${path.basename(filePath)}`),
     formattedFile
   );
 })();

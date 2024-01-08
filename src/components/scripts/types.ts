@@ -36,7 +36,12 @@ export interface Form {
   children: Array<FormChildren>;
 }
 
-export type Offsets = [string, string, string];
+export interface Offsets {
+  accessLevel: string;
+  failsafe: string;
+  optimal: string;
+  pageId?: string;
+}
 
 export interface FormChild {
   name: string;
@@ -61,6 +66,7 @@ export type FormChildren =
 export interface RefPrompt extends FormChild {
   type: "Ref";
   formId: string;
+  pageId: string | null;
 }
 
 export interface NumericPrompt extends FormChild {

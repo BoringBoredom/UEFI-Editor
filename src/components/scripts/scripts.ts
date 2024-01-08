@@ -40,7 +40,7 @@ export function calculateJsonChecksum(
 
   for (const form of forms) {
     for (const child of form.children) {
-      offsetChecksum += child.offsets?.join("");
+      offsetChecksum += JSON.stringify(child.offsets);
     }
   }
 
@@ -78,15 +78,22 @@ function checkSuppressions(scopes: Scopes, formChild: FormChildren) {
   }
 }
 
-function getAccessLevels(
+function getAdditionalData(
   bytes: string,
-  hexSetupdataBin: string
-): [string, string, string, Offsets] | [null, null, null, null] {
+  hexSetupdataBin: string,
+  isRef: boolean
+): {
+  pageId: string | null;
+  accessLevel: string | null;
+  failsafe: string | null;
+  optimal: string | null;
+  offsets: Offsets | null;
+} {
   const byteArray = bytes.split(" ");
   const regex = new RegExp(
     byteArray[6] +
       byteArray[7] +
-      ".{28}(..).{6}" +
+      ".{20}(....).{4}(..).{6}" +
       byteArray[4] +
       byteArray[5] +
       ".{52}" +
@@ -104,16 +111,32 @@ function getAccessLevels(
     const match = matches[0];
     const index = match.index as number;
 
-    const offsets: Offsets = [
-      decToHexString((index + 32) / 2),
-      decToHexString((index + 104) / 2),
-      decToHexString((index + 106) / 2),
-    ];
+    const offsets: Offsets = {
+      accessLevel: decToHexString((index + 32) / 2),
+      failsafe: decToHexString((index + 104) / 2),
+      optimal: decToHexString((index + 106) / 2),
+    };
 
-    return [match[1], match[2], match[3], offsets];
+    if (isRef) {
+      offsets.pageId = decToHexString((index + 24) / 2);
+    }
+
+    return {
+      pageId: match[1],
+      accessLevel: match[2],
+      failsafe: match[3],
+      optimal: match[4],
+      offsets,
+    };
   }
 
-  return [null, null, null, null];
+  return {
+    pageId: null,
+    accessLevel: null,
+    failsafe: null,
+    optimal: null,
+    offsets: null,
+  };
 }
 
 function getUint8Array(string: string) {
@@ -235,7 +258,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
         child.failsafe &&
         child.optimal
       ) {
-        const accessLevelIndex = offsetToIndex(child.offsets[0]);
+        const accessLevelIndex = offsetToIndex(child.offsets.accessLevel);
         const oldAccessLevel = modifiedSetupdataBin.slice(
           accessLevelIndex,
           accessLevelIndex + 2
@@ -253,7 +276,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
           wasSetupdataBinModified = true;
         }
 
-        const failsafeIndex = offsetToIndex(child.offsets[1]);
+        const failsafeIndex = offsetToIndex(child.offsets.failsafe);
         const oldFailsafe = modifiedSetupdataBin.slice(
           failsafeIndex,
           failsafeIndex + 2
@@ -271,7 +294,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
           wasSetupdataBinModified = true;
         }
 
-        const optimalIndex = offsetToIndex(child.offsets[2]);
+        const optimalIndex = offsetToIndex(child.offsets.optimal);
         const oldOptimal = modifiedSetupdataBin.slice(
           optimalIndex,
           optimalIndex + 2
@@ -487,11 +510,6 @@ export async function parseData(files: Files) {
     }
 
     if (ref) {
-      const [accessLevel, failsafe, optimal, offsets] = getAccessLevels(
-        ref[8],
-        setupdataBin
-      );
-
       const formId = ref[7];
 
       const currentRef: RefPrompt = {
@@ -504,10 +522,7 @@ export async function parseData(files: Files) {
           (varStore) => varStore.varStoreId === ref[5]
         )?.name as string,
         formId,
-        accessLevel,
-        failsafe,
-        optimal,
-        offsets,
+        ...getAdditionalData(ref[8], setupdataBin, true),
       };
 
       checkSuppressions(scopes, currentRef);
@@ -522,9 +537,10 @@ export async function parseData(files: Files) {
     }
 
     if (string) {
-      const [accessLevel, failsafe, optimal, offsets] = getAccessLevels(
+      const { accessLevel, failsafe, optimal, offsets } = getAdditionalData(
         string[10],
-        setupdataBin
+        setupdataBin,
+        false
       );
 
       currentString = {
@@ -550,9 +566,10 @@ export async function parseData(files: Files) {
     }
 
     if (numeric) {
-      const [accessLevel, failsafe, optimal, offsets] = getAccessLevels(
+      const { accessLevel, failsafe, optimal, offsets } = getAdditionalData(
         numeric[12],
-        setupdataBin
+        setupdataBin,
+        false
       );
 
       currentNumeric = {
@@ -583,9 +600,10 @@ export async function parseData(files: Files) {
     }
 
     if (checkBox) {
-      const [accessLevel, failsafe, optimal, offsets] = getAccessLevels(
+      const { accessLevel, failsafe, optimal, offsets } = getAdditionalData(
         checkBox[8],
-        setupdataBin
+        setupdataBin,
+        false
       );
 
       currentCheckBox = {
@@ -613,9 +631,10 @@ export async function parseData(files: Files) {
     }
 
     if (oneOf) {
-      const [accessLevel, failsafe, optimal, offsets] = getAccessLevels(
+      const { accessLevel, failsafe, optimal, offsets } = getAdditionalData(
         oneOf[12],
-        setupdataBin
+        setupdataBin,
+        false
       );
 
       currentOneOf = {

@@ -15,7 +15,7 @@ import {
   downloadModifiedFiles,
   version,
 } from "../scripts";
-import { Files } from "../FileUploads";
+import { Files, PopulatedFiles } from "../FileUploads";
 
 interface HeaderProps {
   files: Files;
@@ -100,7 +100,7 @@ export function Header({
               variant="default"
               leftIcon={<IconDownload />}
               onClick={() => {
-                void downloadModifiedFiles(data, files);
+                void downloadModifiedFiles(data, files as PopulatedFiles);
               }}
             >
               UEFI files

@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
-/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { saveAs } from "file-saver";
-import { Files } from "../FileUploads";
+import { PopulatedFiles } from "../FileUploads";
 import sha256 from "crypto-js/sha256";
 import {
   Data,
@@ -121,11 +118,13 @@ function getAdditionalData(
   );
 
   const matches = [...hexSetupdataBin.matchAll(regex)].filter(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     (element) => element.index! % 2 === 0
   );
 
   if (matches.length === 1) {
     const match = matches[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const index = match.index!;
 
     const offsets: Offsets = {
@@ -166,14 +165,14 @@ function getUint8Array(string: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await
-export async function downloadModifiedFiles(data: Data, files: Files) {
+export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
   let wasSetupSctModified = false;
   let wasAmitseSctModified = false;
   let wasSetupdataBinModified = false;
 
   let changeLog = "";
 
-  let modifiedSetupSct = files.setupSctContainer.textContent!;
+  let modifiedSetupSct = files.setupSctContainer.textContent;
   let setupSctChangeLog = "";
 
   const suppressions = JSON.parse(
@@ -238,7 +237,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
     }
   }
 
-  let modifiedAmitseSct = files.amitseSctContainer.textContent!;
+  let modifiedAmitseSct = files.amitseSctContainer.textContent;
   let amitseSctChangeLog = "";
 
   for (const entry of data.menu) {
@@ -267,7 +266,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
     }
   }
 
-  let modifiedSetupdataBin = files.setupdataBinContainer.textContent!;
+  let modifiedSetupdataBin = files.setupdataBinContainer.textContent;
   let setupdataBinChangeLog = "";
 
   for (const form of data.forms) {
@@ -336,35 +335,35 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
   }
 
   if (wasSetupSctModified) {
-    changeLog += `========== ${files.setupSctContainer.file?.name} ==========\n\n${setupSctChangeLog}\n\n\n`;
+    changeLog += `========== ${files.setupSctContainer.file.name} ==========\n\n${setupSctChangeLog}\n\n\n`;
 
     saveAs(
       new Blob([new Uint8Array(getUint8Array(modifiedSetupSct))], {
         type: "application/octet-stream",
       }),
-      files.setupSctContainer.file?.name
+      files.setupSctContainer.file.name
     );
   }
 
   if (wasAmitseSctModified) {
-    changeLog += `========== ${files.amitseSctContainer.file?.name} ==========\n\n${amitseSctChangeLog}\n\n\n`;
+    changeLog += `========== ${files.amitseSctContainer.file.name} ==========\n\n${amitseSctChangeLog}\n\n\n`;
 
     saveAs(
       new Blob([new Uint8Array(getUint8Array(modifiedAmitseSct))], {
         type: "application/octet-stream",
       }),
-      files.amitseSctContainer.file?.name
+      files.amitseSctContainer.file.name
     );
   }
 
   if (wasSetupdataBinModified) {
-    changeLog += `========== ${files.setupdataBinContainer.file?.name} ==========\n\n${setupdataBinChangeLog}\n\n\n`;
+    changeLog += `========== ${files.setupdataBinContainer.file.name} ==========\n\n${setupdataBinChangeLog}\n\n\n`;
 
     saveAs(
       new Blob([new Uint8Array(getUint8Array(modifiedSetupdataBin))], {
         type: "application/octet-stream",
       }),
-      files.setupdataBinContainer.file?.name
+      files.setupdataBinContainer.file.name
     );
   }
 
@@ -381,6 +380,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
 }
 
 function determineSuppressionStart(setupTxtArray: string[], index: number) {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   if (!hasScope(setupTxtArray[index + 1].match(/\{ (.*) \}/)![1])) {
     return setupTxtArray[index + 2].split(" ")[0].slice(0, -1);
   }
@@ -408,10 +408,10 @@ function determineSuppressionStart(setupTxtArray: string[], index: number) {
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await
-export async function parseData(files: Files) {
-  let setupTxt = files.setupTxtContainer.textContent!;
-  const amitseSct = files.amitseSctContainer.textContent!;
-  const setupdataBin = files.setupdataBinContainer.textContent!;
+export async function parseData(files: PopulatedFiles) {
+  let setupTxt = files.setupTxtContainer.textContent;
+  const amitseSct = files.amitseSctContainer.textContent;
+  const setupdataBin = files.setupdataBinContainer.textContent;
 
   if (!setupTxt.includes(`Program version: ${wantedIFRExtractorVersion}`)) {
     alert(
@@ -534,7 +534,7 @@ export async function parseData(files: Files) {
         varStoreId: ref[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === ref[5]
-        )?.name!,
+        )?.name,
         formId,
         ...getAdditionalData(ref[8], setupdataBin, true),
       };
@@ -565,7 +565,7 @@ export async function parseData(files: Files) {
         varStoreId: string[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === string[5]
-        )?.name!,
+        )?.name,
         accessLevel,
         failsafe,
         optimal,
@@ -594,7 +594,7 @@ export async function parseData(files: Files) {
         varStoreId: numeric[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === numeric[5]
-        )?.name!,
+        )?.name,
         varOffset: numeric[6],
         size: numeric[8],
         min: numeric[9],
@@ -628,7 +628,7 @@ export async function parseData(files: Files) {
         varStoreId: checkBox[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === checkBox[5]
-        )?.name!,
+        )?.name,
         varOffset: checkBox[6],
         flags: checkBox[7],
         accessLevel,
@@ -659,7 +659,7 @@ export async function parseData(files: Files) {
         varStoreId: oneOf[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === oneOf[5]
-        )?.name!,
+        )?.name,
         varOffset: oneOf[6],
         size: oneOf[8],
         options: [],
@@ -686,34 +686,34 @@ export async function parseData(files: Files) {
       });
     }
 
-    if (defaultId && scopes.length !== 0) {
-      const oneDefault = {
-        defaultId: defaultId[1],
-        value: defaultId[2],
-      };
+    if (scopes.length !== 0) {
+      if (defaultId) {
+        const oneDefault = {
+          defaultId: defaultId[1],
+          value: defaultId[2],
+        };
 
-      if (currentScope.type === "Numeric") {
-        if (!currentNumeric.defaults) {
-          currentNumeric.defaults = [];
+        if (currentScope.type === "Numeric") {
+          if (!currentNumeric.defaults) {
+            currentNumeric.defaults = [];
+          }
+          currentNumeric.defaults.push(oneDefault);
+        } else if (currentScope.type === "CheckBox") {
+          if (!currentCheckBox.defaults) {
+            currentCheckBox.defaults = [];
+          }
+          currentCheckBox.defaults.push(oneDefault);
+        } else if (currentScope.type === "OneOf") {
+          if (!currentOneOf.defaults) {
+            currentOneOf.defaults = [];
+          }
+          currentOneOf.defaults.push(oneDefault);
         }
-        currentNumeric.defaults.push(oneDefault);
-      } else if (currentScope.type === "CheckBox") {
-        if (!currentCheckBox.defaults) {
-          currentCheckBox.defaults = [];
-        }
-        currentCheckBox.defaults.push(oneDefault);
-      } else if (currentScope.type === "OneOf") {
-        if (!currentOneOf.defaults) {
-          currentOneOf.defaults = [];
-        }
-        currentOneOf.defaults.push(oneDefault);
       }
-    }
 
-    if (end) {
-      const scopeType = currentScope?.type;
+      if (end && currentScope.indentations === indentations) {
+        const scopeType = currentScope.type;
 
-      if (currentScope?.indentations === indentations) {
         if (scopeType === "Form") {
           forms.push(currentForm);
         } else if (scopeType === "Numeric") {
@@ -724,22 +724,16 @@ export async function parseData(files: Files) {
           currentForm.children.push(currentOneOf);
         } else if (scopeType === "String") {
           currentForm.children.push(currentString);
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        } else if (scopeType === "SuppressIf") {
-          if (currentSuppressions.length === 0) {
+        } else {
+          const latestSuppression = currentSuppressions.pop();
+
+          if (!latestSuppression) {
             alert("Something went wrong. Please file a bug report on Github.");
             window.location.reload();
             return {} as Data;
           }
 
-          const latestSuppression = currentSuppressions.pop()!;
           suppressions.push({ ...latestSuppression, end: offset });
-        }
-
-        if (scopes.length === 0) {
-          alert("Something went wrong. Please file a bug report on Github.");
-          window.location.reload();
-          return {} as Data;
         }
 
         scopes.pop();
@@ -762,9 +756,11 @@ export async function parseData(files: Files) {
         parseInt(match[1].slice(2) + match[1].slice(0, 2), 16)
       );
       return {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
         name: forms.find((form) => parseInt(form.formId) === parseInt(hexEntry))
           ?.name!,
         formId: hexEntry,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         offset: decToHexString((match.index! + formSetId.length) / 2),
       };
     })
@@ -784,7 +780,7 @@ export async function parseData(files: Files) {
     version,
     hashes: {
       setupTxt: sha256(setupTxt).toString(),
-      setupSct: sha256(files.setupSctContainer.textContent!).toString(),
+      setupSct: sha256(files.setupSctContainer.textContent).toString(),
       amitseSct: sha256(amitseSct).toString(),
       setupdataBin: sha256(setupdataBin).toString(),
       offsetChecksum: calculateJsonChecksum(menu, forms, suppressions),

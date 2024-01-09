@@ -48,7 +48,7 @@ export interface FormChild {
   description: string;
   questionId: string;
   varStoreId: string;
-  varStoreName: string;
+  varStoreName?: string;
   accessLevel: string | null;
   failsafe: string | null;
   optimal: string | null;

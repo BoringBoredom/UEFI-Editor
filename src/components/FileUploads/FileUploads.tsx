@@ -11,10 +11,22 @@ export interface Files {
   setupdataBinContainer: FileContainer;
 }
 
+export interface PopulatedFiles {
+  setupSctContainer: PopulatedFileContainer;
+  setupTxtContainer: PopulatedFileContainer;
+  amitseSctContainer: PopulatedFileContainer;
+  setupdataBinContainer: PopulatedFileContainer;
+}
+
 export interface FileContainer {
   file?: File;
   textContent?: string;
   isWrongFile: boolean;
+}
+
+export interface PopulatedFileContainer extends FileContainer {
+  file: File;
+  textContent: string;
 }
 
 export interface FileUploadsProps {
@@ -55,7 +67,7 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
           });
         });
       } else {
-        void parseData(files).then((data) => {
+        void parseData(files as PopulatedFiles).then((data) => {
           setData(data);
         });
       }

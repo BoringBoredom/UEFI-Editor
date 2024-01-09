@@ -3,16 +3,8 @@ import s from "./FormUi.module.css";
 import { Updater } from "use-immer";
 import { Table, TextInput, Select, Spoiler, Chip, Stack } from "@mantine/core";
 import { useDebouncedState } from "@mantine/hooks";
-import { Data, FormChildren } from "../scripts";
+import { Data, FormChildren, validateByteInput } from "../scripts";
 import { SearchUi } from "./SearchUi";
-
-export function validateInput(value: string) {
-  return (
-    value.length <= 2 &&
-    (value.length === 0 ||
-      value.split("").every((char) => /[a-fA-F0-9]/.test(char)))
-  );
-}
 
 interface SuppressionChipProps {
   suppressionOffset: string;
@@ -36,11 +28,11 @@ function SuppressionChip({
       size="xs"
       color="red"
       checked={suppression.active}
-      onClick={() =>
+      onClick={() => {
         setData((draft) => {
           draft.suppressions[suppressionIndex].active = !suppression.active;
-        })
-      }
+        });
+      }}
     >
       {suppressionOffset}
     </Chip>
@@ -107,7 +99,7 @@ const TableRow = React.memo(
           info.push(["MfgDefault", mfgDef[1] === "Enabled" ? "1" : "0"]);
         }
 
-        if (def || mfgDef || child.defaults) {
+        if (def ?? mfgDef ?? child.defaults) {
           info.push(["newline"]);
         }
       }
@@ -142,9 +134,9 @@ const TableRow = React.memo(
             <TextInput
               value={child.accessLevel}
               onChange={(ev) => {
-                const value = ev.currentTarget.value.toUpperCase();
+                const value = ev.target.value.toUpperCase();
 
-                if (validateInput(value)) {
+                if (validateByteInput(value)) {
                   setData((draft) => {
                     draft.forms[currentFormIndex].children[index].accessLevel =
                       value;
@@ -159,9 +151,9 @@ const TableRow = React.memo(
             <TextInput
               value={child.failsafe}
               onChange={(ev) => {
-                const value = ev.currentTarget.value.toUpperCase();
+                const value = ev.target.value.toUpperCase();
 
-                if (validateInput(value)) {
+                if (validateByteInput(value)) {
                   setData((draft) => {
                     draft.forms[currentFormIndex].children[index].failsafe =
                       value;
@@ -176,9 +168,9 @@ const TableRow = React.memo(
             <TextInput
               value={child.optimal}
               onChange={(ev) => {
-                const value = ev.currentTarget.value.toUpperCase();
+                const value = ev.target.value.toUpperCase();
 
-                if (validateInput(value)) {
+                if (validateByteInput(value)) {
                   setData((draft) => {
                     draft.forms[currentFormIndex].children[index].optimal =
                       value;
@@ -317,7 +309,9 @@ export function FormUi({
             <tr key={index.toString() + entry.offset + entry.formId}>
               <td
                 className={s.pointer}
-                onClick={() => handleRefClick(entry.formId)}
+                onClick={() => {
+                  handleRefClick(entry.formId);
+                }}
               >
                 {entry.name}
               </td>
@@ -330,9 +324,10 @@ export function FormUi({
                     if (value !== null) {
                       setData((draft) => {
                         draft.menu[index].formId = value;
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
                         draft.menu[index].name = data.forms.find(
                           (form) => parseInt(form.formId) === parseInt(value)
-                        )?.name as string;
+                        )?.name!;
                       });
                     }
                   }}

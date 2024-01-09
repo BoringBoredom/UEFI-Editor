@@ -25,7 +25,9 @@ export const Navigation = React.memo(
               ? [s.navElement, s.menu, s.selected].join(" ")
               : [s.navElement, s.menu].join(" ")
           }
-          onClick={() => setCurrentFormIndex(-1)}
+          onClick={() => {
+            setCurrentFormIndex(-1);
+          }}
         >
           Menu
         </Navbar.Section>
@@ -48,7 +50,9 @@ export const Navigation = React.memo(
               ? [s.navElement, s.search, s.selected].join(" ")
               : [s.navElement, s.search].join(" ")
           }
-          onClick={() => setCurrentFormIndex(-2)}
+          onClick={() => {
+            setCurrentFormIndex(-2);
+          }}
         >
           Search
         </Navbar.Section>

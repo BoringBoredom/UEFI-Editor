@@ -7,8 +7,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { Updater } from "use-immer";
-import { Data, Suppression } from "../scripts";
-import { validateInput } from "../FormUi";
+import { Data, Suppression, validateByteInput } from "../scripts";
 
 interface FooterProps {
   currentFormIndex: number;
@@ -27,7 +26,7 @@ export function Footer({ currentFormIndex, setData }: FooterProps) {
               <Button
                 size="xs"
                 variant="default"
-                onClick={() =>
+                onClick={() => {
                   setData((draft) => {
                     for (const child of draft.forms[currentFormIndex]
                       .children) {
@@ -42,22 +41,22 @@ export function Footer({ currentFormIndex, setData }: FooterProps) {
                         }
                       }
                     }
-                  })
-                }
+                  });
+                }}
               >
                 Unsuppress all Items in this Form
               </Button>
               <Button
                 size="xs"
                 variant="default"
-                onClick={() =>
+                onClick={() => {
                   setData((draft) => {
                     for (const child of draft.forms[currentFormIndex]
                       .children) {
                       child.accessLevel = input;
                     }
-                  })
-                }
+                  });
+                }}
               >
                 Change all Access Levels in this Form to
               </Button>
@@ -66,9 +65,9 @@ export function Footer({ currentFormIndex, setData }: FooterProps) {
                 size="xs"
                 value={input}
                 onChange={(ev) => {
-                  const value = ev.currentTarget.value.toUpperCase();
+                  const value = ev.target.value.toUpperCase();
 
-                  if (validateInput(value)) {
+                  if (validateByteInput(value)) {
                     setInput(value);
                   }
                 }}

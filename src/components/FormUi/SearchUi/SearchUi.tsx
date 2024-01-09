@@ -1,4 +1,3 @@
-import React from "react";
 import s from "../FormUi.module.css";
 import { useFocusTrap } from "@mantine/hooks";
 import { Data } from "../../scripts";
@@ -19,12 +18,12 @@ export function SearchUi({
 }: SearchUiProps) {
   const focusTrapRef = useFocusTrap();
 
-  const found: Array<{
+  const found: {
     type: string;
     formId: string;
     formName: string;
     name: string;
-  }> = [];
+  }[] = [];
 
   if (search.length >= 2) {
     for (const form of data.forms) {
@@ -56,7 +55,9 @@ export function SearchUi({
         ref={focusTrapRef}
         placeholder="Search"
         defaultValue={search}
-        onChange={(ev) => setSearch(ev.currentTarget.value.toLowerCase())}
+        onChange={(ev) => {
+          setSearch(ev.target.value.toLowerCase());
+        }}
       />
 
       <Table striped withColumnBorders>
@@ -75,7 +76,9 @@ export function SearchUi({
               <td>{entry.type}</td>
               <td
                 className={s.pointer}
-                onClick={() => handleRefClick(entry.formId)}
+                onClick={() => {
+                  handleRefClick(entry.formId);
+                }}
               >
                 {entry.formName}
               </td>

@@ -2,7 +2,7 @@ export interface Data {
   menu: Menu;
   varStores: VarStores;
   forms: Forms;
-  suppressions: Array<Suppression>;
+  suppressions: Suppression[];
   version: string;
   hashes: {
     setupTxt: string;
@@ -13,27 +13,27 @@ export interface Data {
   };
 }
 
-export type Suppression = {
+export interface Suppression {
   offset: string;
   active: boolean;
   start: string;
   end: string;
-};
+}
 
-export type Menu = Array<{
+export type Menu = {
   name: string;
   formId: string;
   offset: string;
-}>;
+}[];
 
-export type Forms = Array<Form>;
+export type Forms = Form[];
 
 export interface Form {
   name: string;
   type: "Form";
   formId: string;
-  referencedIn: Array<string | null>;
-  children: Array<FormChildren>;
+  referencedIn: (string | null)[];
+  children: FormChildren[];
 }
 
 export interface Offsets {
@@ -53,7 +53,7 @@ export interface FormChild {
   failsafe: string | null;
   optimal: string | null;
   offsets: Offsets | null;
-  suppressIf?: Array<string>;
+  suppressIf?: string[];
 }
 
 export type FormChildren =
@@ -76,41 +76,41 @@ export interface NumericPrompt extends FormChild {
   min: string;
   max: string;
   step: string;
-  defaults?: Array<Default>;
+  defaults?: Default[];
 }
 
 export interface CheckBoxPrompt extends FormChild {
   type: "CheckBox";
   varOffset: string;
   flags: string;
-  defaults?: Array<Default>;
+  defaults?: Default[];
 }
 
 export interface OneOfPrompt extends FormChild {
   type: "OneOf";
   varOffset: string;
   size: string;
-  options: Array<{ option: string; value: string }>;
-  defaults?: Array<Default>;
+  options: { option: string; value: string }[];
+  defaults?: Default[];
 }
 
 export interface StringPrompt extends FormChild {
   type: "String";
 }
 
-export type VarStores = Array<{
+export type VarStores = {
   varStoreId: string;
   size: string;
   name: string;
-}>;
+}[];
 
 export interface Default {
   defaultId: string;
   value: string;
 }
 
-export type Scopes = Array<{
+export type Scopes = {
   type: "Form" | "Numeric" | "CheckBox" | "OneOf" | "String" | "SuppressIf";
   indentations: number;
   offset?: string;
-}>;
+}[];

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { saveAs } from "file-saver";
 import { Files } from "../FileUploads";
 import sha256 from "crypto-js/sha256";
@@ -21,16 +24,30 @@ import {
 export const version = "0.0.8";
 const wantedIFRExtractorVersion = "1.5.1";
 
+export async function binToHexString(file: File) {
+  return [...new Uint8Array(await file.arrayBuffer())]
+    .map((x) => x.toString(16).toUpperCase().padStart(2, "0"))
+    .join("");
+}
+
+export function validateByteInput(value: string) {
+  return (
+    value.length <= 2 &&
+    (value.length === 0 ||
+      value.split("").every((char) => /[a-fA-F0-9]/.test(char)))
+  );
+}
+
 function hasScope(hexString: string) {
   const header = hexString.split(" ")[1];
 
-  return parseInt(header, 16).toString(2).padStart(8, "0")[0] === "1";
+  return parseInt(header, 16).toString(2).padStart(8, "0").startsWith("1");
 }
 
 export function calculateJsonChecksum(
   menu: Menu,
   forms: Forms,
-  suppressions: Array<Suppression>
+  suppressions: Suppression[]
 ) {
   let offsetChecksum = "";
 
@@ -71,7 +88,7 @@ function decToHexString(decimal: number) {
 function checkSuppressions(scopes: Scopes, formChild: FormChildren) {
   const suppressions = scopes
     .filter((scope) => scope.type === "SuppressIf")
-    .map((scope) => scope.offset as string);
+    .map((scope) => scope.offset) as string[];
 
   if (suppressions.length !== 0) {
     formChild.suppressIf = [...suppressions];
@@ -104,12 +121,12 @@ function getAdditionalData(
   );
 
   const matches = [...hexSetupdataBin.matchAll(regex)].filter(
-    (element) => (element.index as number) % 2 === 0
+    (element) => element.index! % 2 === 0
   );
 
   if (matches.length === 1) {
     const match = matches[0];
-    const index = match.index as number;
+    const index = match.index!;
 
     const offsets: Offsets = {
       accessLevel: decToHexString((index + 32) / 2),
@@ -148,6 +165,7 @@ function getUint8Array(string: string) {
   return array;
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function downloadModifiedFiles(data: Data, files: Files) {
   let wasSetupSctModified = false;
   let wasAmitseSctModified = false;
@@ -155,10 +173,12 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
 
   let changeLog = "";
 
-  let modifiedSetupSct = files.setupSctContainer.textContent as string;
+  let modifiedSetupSct = files.setupSctContainer.textContent!;
   let setupSctChangeLog = "";
 
-  const suppressions = JSON.parse(JSON.stringify(data.suppressions));
+  const suppressions = JSON.parse(
+    JSON.stringify(data.suppressions)
+  ) as Suppression[];
 
   for (const suppression of suppressions) {
     if (!suppression.active) {
@@ -218,7 +238,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
     }
   }
 
-  let modifiedAmitseSct = files.amitseSctContainer.textContent as string;
+  let modifiedAmitseSct = files.amitseSctContainer.textContent!;
   let amitseSctChangeLog = "";
 
   for (const entry of data.menu) {
@@ -247,7 +267,7 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
     }
   }
 
-  let modifiedSetupdataBin = files.setupdataBin.textContent as string;
+  let modifiedSetupdataBin = files.setupdataBinContainer.textContent!;
   let setupdataBinChangeLog = "";
 
   for (const form of data.forms) {
@@ -338,13 +358,13 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
   }
 
   if (wasSetupdataBinModified) {
-    changeLog += `========== ${files.setupdataBin.file?.name} ==========\n\n${setupdataBinChangeLog}\n\n\n`;
+    changeLog += `========== ${files.setupdataBinContainer.file?.name} ==========\n\n${setupdataBinChangeLog}\n\n\n`;
 
     saveAs(
       new Blob([new Uint8Array(getUint8Array(modifiedSetupdataBin))], {
         type: "application/octet-stream",
       }),
-      files.setupdataBin.file?.name
+      files.setupdataBinContainer.file?.name
     );
   }
 
@@ -360,15 +380,8 @@ export async function downloadModifiedFiles(data: Data, files: Files) {
   }
 }
 
-function determineSuppressionStart(
-  setupTxtArray: Array<string>,
-  index: number
-) {
-  if (
-    !hasScope(
-      (setupTxtArray[index + 1].match(/\{ (.*) \}/) as RegExpMatchArray)[1]
-    )
-  ) {
+function determineSuppressionStart(setupTxtArray: string[], index: number) {
+  if (!hasScope(setupTxtArray[index + 1].match(/\{ (.*) \}/)![1])) {
     return setupTxtArray[index + 2].split(" ")[0].slice(0, -1);
   }
 
@@ -394,10 +407,11 @@ function determineSuppressionStart(
   return setupTxtArray[currentIndex].split(" ")[0].slice(0, -1);
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function parseData(files: Files) {
-  let setupTxt = files.setupTxtContainer.textContent as string;
-  const amitseSct = files.amitseSctContainer.textContent as string;
-  const setupdataBin = files.setupdataBin.textContent as string;
+  let setupTxt = files.setupTxtContainer.textContent!;
+  const amitseSct = files.amitseSctContainer.textContent!;
+  const setupdataBin = files.setupdataBinContainer.textContent!;
 
   if (!setupTxt.includes(`Program version: ${wantedIFRExtractorVersion}`)) {
     alert(
@@ -424,7 +438,7 @@ export async function parseData(files: Files) {
   let formSetId = "";
   const varStores: VarStores = [];
   const forms: Forms = [];
-  const suppressions: Array<Suppression> = [];
+  const suppressions: Suppression[] = [];
   const scopes: Scopes = [];
   let currentForm: Form = {} as Form;
   let currentString: StringPrompt = {} as StringPrompt;
@@ -432,7 +446,7 @@ export async function parseData(files: Files) {
   let currentNumeric: NumericPrompt = {} as NumericPrompt;
   let currentCheckBox: CheckBoxPrompt = {} as CheckBoxPrompt;
 
-  const currentSuppressions: Array<Suppression> = [];
+  const currentSuppressions: Suppression[] = [];
 
   const references: Record<string, Set<string>> = {};
 
@@ -465,7 +479,7 @@ export async function parseData(files: Files) {
     const oneOfOption = line.match(/OneOfOption Option: "(.*)" Value: (.*) \{/);
     const defaultId = line.match(/Default DefaultId: (.*) Value: (.*) \{/);
     const end = line.match(/\{ 29 02 \}/);
-    const indentations = (line.match(/\t/g) || []).length;
+    const indentations = (line.match(/\t/g) ?? []).length;
     const offset = line.split(" ")[0].slice(0, -1);
     const currentScope = scopes[scopes.length - 1];
 
@@ -520,7 +534,7 @@ export async function parseData(files: Files) {
         varStoreId: ref[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === ref[5]
-        )?.name as string,
+        )?.name!,
         formId,
         ...getAdditionalData(ref[8], setupdataBin, true),
       };
@@ -529,7 +543,7 @@ export async function parseData(files: Files) {
 
       currentForm.children.push(currentRef);
 
-      if (references[formId]) {
+      if (formId in references) {
         references[formId].add(currentForm.formId);
       } else {
         references[formId] = new Set([currentForm.formId]);
@@ -551,7 +565,7 @@ export async function parseData(files: Files) {
         varStoreId: string[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === string[5]
-        )?.name as string,
+        )?.name!,
         accessLevel,
         failsafe,
         optimal,
@@ -580,7 +594,7 @@ export async function parseData(files: Files) {
         varStoreId: numeric[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === numeric[5]
-        )?.name as string,
+        )?.name!,
         varOffset: numeric[6],
         size: numeric[8],
         min: numeric[9],
@@ -614,7 +628,7 @@ export async function parseData(files: Files) {
         varStoreId: checkBox[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === checkBox[5]
-        )?.name as string,
+        )?.name!,
         varOffset: checkBox[6],
         flags: checkBox[7],
         accessLevel,
@@ -645,7 +659,7 @@ export async function parseData(files: Files) {
         varStoreId: oneOf[5],
         varStoreName: varStores.find(
           (varStore) => varStore.varStoreId === oneOf[5]
-        )?.name as string,
+        )?.name!,
         varOffset: oneOf[6],
         size: oneOf[8],
         options: [],
@@ -710,6 +724,7 @@ export async function parseData(files: Files) {
           currentForm.children.push(currentOneOf);
         } else if (scopeType === "String") {
           currentForm.children.push(currentString);
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         } else if (scopeType === "SuppressIf") {
           if (currentSuppressions.length === 0) {
             alert("Something went wrong. Please file a bug report on Github.");
@@ -717,7 +732,7 @@ export async function parseData(files: Files) {
             return {} as Data;
           }
 
-          const latestSuppression = currentSuppressions.pop() as Suppression;
+          const latestSuppression = currentSuppressions.pop()!;
           suppressions.push({ ...latestSuppression, end: offset });
         }
 
@@ -748,11 +763,9 @@ export async function parseData(files: Files) {
       );
       return {
         name: forms.find((form) => parseInt(form.formId) === parseInt(hexEntry))
-          ?.name as string,
+          ?.name!,
         formId: hexEntry,
-        offset: decToHexString(
-          ((match.index as number) + formSetId.length) / 2
-        ),
+        offset: decToHexString((match.index! + formSetId.length) / 2),
       };
     })
     .filter((x) => x.name);
@@ -771,7 +784,7 @@ export async function parseData(files: Files) {
     version,
     hashes: {
       setupTxt: sha256(setupTxt).toString(),
-      setupSct: sha256(files.setupSctContainer.textContent).toString(),
+      setupSct: sha256(files.setupSctContainer.textContent!).toString(),
       amitseSct: sha256(amitseSct).toString(),
       setupdataBin: sha256(setupdataBin).toString(),
       offsetChecksum: calculateJsonChecksum(menu, forms, suppressions),

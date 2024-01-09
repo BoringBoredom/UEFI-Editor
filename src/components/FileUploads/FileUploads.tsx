@@ -1,20 +1,14 @@
 import React from "react";
 import { Updater } from "use-immer";
 import { FileInput, Stack, LoadingOverlay } from "@mantine/core";
-import { IconUpload } from "@tabler/icons";
-import { Data, parseData } from "../scripts";
-
-async function binToHexString(file: File) {
-  return [...new Uint8Array(await file.arrayBuffer())]
-    .map((x) => x.toString(16).toUpperCase().padStart(2, "0"))
-    .join("");
-}
+import { IconUpload } from "@tabler/icons-react";
+import { Data, parseData, binToHexString } from "../scripts";
 
 export interface Files {
   setupSctContainer: FileContainer;
   setupTxtContainer: FileContainer;
   amitseSctContainer: FileContainer;
-  setupdataBin: FileContainer;
+  setupdataBinContainer: FileContainer;
 }
 
 export interface FileContainer {
@@ -32,30 +26,38 @@ export interface FileUploadsProps {
 export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
   React.useEffect(() => {
     if (
-      Object.values(files).every(
-        (fileContainer) => fileContainer.file && !fileContainer.isWrongFile
-      )
+      files.setupSctContainer.file &&
+      !files.setupSctContainer.isWrongFile &&
+      files.setupTxtContainer.file &&
+      !files.setupTxtContainer.isWrongFile &&
+      files.amitseSctContainer.file &&
+      !files.amitseSctContainer.isWrongFile &&
+      files.setupdataBinContainer.file &&
+      !files.setupdataBinContainer.isWrongFile
     ) {
       if (
-        Object.values(files).every(
-          (fileContainer) => !fileContainer.textContent
-        )
+        !files.setupSctContainer.textContent &&
+        !files.setupTxtContainer.textContent &&
+        !files.amitseSctContainer.textContent &&
+        !files.setupdataBinContainer.textContent
       ) {
-        Promise.all([
-          (files.setupTxtContainer.file as File).text(),
-          binToHexString(files.setupSctContainer.file as File),
-          binToHexString(files.amitseSctContainer.file as File),
-          binToHexString(files.setupdataBin.file as File),
-        ]).then((values) =>
+        void Promise.all([
+          files.setupTxtContainer.file.text(),
+          binToHexString(files.setupSctContainer.file),
+          binToHexString(files.amitseSctContainer.file),
+          binToHexString(files.setupdataBinContainer.file),
+        ]).then((values) => {
           setFiles((draft) => {
             draft.setupTxtContainer.textContent = values[0];
             draft.setupSctContainer.textContent = values[1];
             draft.amitseSctContainer.textContent = values[2];
-            draft.setupdataBin.textContent = values[3];
-          })
-        );
+            draft.setupdataBinContainer.textContent = values[3];
+          });
+        });
       } else {
-        parseData(files).then((data) => setData(data));
+        void parseData(files).then((data) => {
+          setData(data);
+        });
       }
     }
   }, [files, setFiles, setData]);
@@ -63,9 +65,18 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
   return (
     <>
       <LoadingOverlay
-        visible={Object.values(files).every(
-          (fileContainer) => fileContainer.file && !fileContainer.isWrongFile
-        )}
+        visible={
+          !!(
+            files.setupSctContainer.file &&
+            !files.setupSctContainer.isWrongFile &&
+            files.setupTxtContainer.file &&
+            !files.setupTxtContainer.isWrongFile &&
+            files.amitseSctContainer.file &&
+            !files.amitseSctContainer.isWrongFile &&
+            files.setupdataBinContainer.file &&
+            !files.setupdataBinContainer.isWrongFile
+          )
+        }
         loaderProps={{ size: "xl" }}
       />
       <Stack>
@@ -141,14 +152,14 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
           size="lg"
           placeholder="Setupdata BIN"
           accept=".bin"
-          value={files.setupdataBin.file}
-          error={files.setupdataBin.isWrongFile}
+          value={files.setupdataBinContainer.file}
+          error={files.setupdataBinContainer.isWrongFile}
           onChange={(file) => {
             if (file) {
               const name = file.name.toLowerCase();
 
               setFiles((draft) => {
-                draft.setupdataBin = {
+                draft.setupdataBinContainer = {
                   file,
                   isWrongFile: !(
                     name.includes("setupdata") && name.endsWith(".bin")

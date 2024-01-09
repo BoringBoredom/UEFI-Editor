@@ -8,23 +8,23 @@ import { FormUi } from "./components/FormUi";
 import { Navigation } from "./components/Navigation";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { IconBrandGithub } from "@tabler/icons";
+import { IconBrandGithub } from "@tabler/icons-react";
 
 export default function App() {
   const [files, setFiles] = useImmer<Files>({
     setupSctContainer: { isWrongFile: false },
     setupTxtContainer: { isWrongFile: false },
     amitseSctContainer: { isWrongFile: false },
-    setupdataBin: { isWrongFile: false },
+    setupdataBinContainer: { isWrongFile: false },
   });
 
-  const [data, setData] = useImmer<Data>(null as unknown as Data);
+  const [data, setData] = useImmer<Data>({} as Data);
 
   const [currentFormIndex, setCurrentFormIndex] = React.useState(-1);
 
   return (
     <>
-      {data ? (
+      {Object.values(data).length !== 0 ? (
         <AppShell
           navbar={
             <Navigation

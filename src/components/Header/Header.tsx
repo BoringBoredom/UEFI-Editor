@@ -8,7 +8,7 @@ import {
   Group,
   Header as MantineHeader,
 } from "@mantine/core";
-import { IconDownload, IconUpload } from "@tabler/icons";
+import { IconDownload, IconUpload } from "@tabler/icons-react";
 import {
   calculateJsonChecksum,
   Data,
@@ -48,8 +48,8 @@ export function Header({
               accept=".json"
               onChange={(file) => {
                 if (file) {
-                  file.text().then((fileData) => {
-                    const jsonData: Data = JSON.parse(fileData);
+                  void file.text().then((fileData) => {
+                    const jsonData = JSON.parse(fileData) as Data;
 
                     if (
                       jsonData.version === version &&
@@ -84,14 +84,14 @@ export function Header({
             <Button
               variant="default"
               leftIcon={<IconDownload />}
-              onClick={() =>
+              onClick={() => {
                 saveAs(
                   new Blob([JSON.stringify(data, null, 2)], {
                     type: "text/plain",
                   }),
                   "data.json"
-                )
-              }
+                );
+              }}
             >
               data.json
             </Button>
@@ -99,7 +99,9 @@ export function Header({
             <Button
               variant="default"
               leftIcon={<IconDownload />}
-              onClick={() => downloadModifiedFiles(data, files)}
+              onClick={() => {
+                void downloadModifiedFiles(data, files);
+              }}
             >
               UEFI files
             </Button>
@@ -117,8 +119,8 @@ export function Header({
                         onClick={() => {
                           const formIndex = data.forms.findIndex(
                             (form) =>
-                              parseInt(form.formId) ===
-                              parseInt(formId as string)
+                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                              parseInt(form.formId) === parseInt(formId!)
                           );
 
                           if (formIndex >= 0) {
@@ -133,8 +135,8 @@ export function Header({
                         {
                           data.forms.find(
                             (form) =>
-                              parseInt(form.formId) ===
-                              parseInt(formId as string)
+                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                              parseInt(form.formId) === parseInt(formId!)
                           )?.name
                         }
                       </div>

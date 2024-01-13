@@ -3,15 +3,15 @@
   cursor: pointer;
 }
 .navElement:hover {
-  background-color: #25262b;
+  background-color: var(--mantine-color-dark-6);
 }
 .selected {
-  background-color: rgba(28, 126, 214, 0.25);
-  color: #a5d8ff;
+  background-color: rgba(34, 139, 230, 0.15);
+  color: #74c0fc;
 }
 .menu {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--_app-shell-border-color);
 }
 .search {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--_app-shell-border-color);
 }

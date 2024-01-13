@@ -1,16 +1,12 @@
 .root {
-  width: 100%;
-  padding: 12px;
-}
-.forms {
+  padding: 0 1rem;
   font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  height: 100%;
 }
 .pointer {
   cursor: pointer;
   text-decoration: underline dotted;
-}
-.verticalCenter {
-  display: flex;
-  align-items: center;
-  height: 100%;
 }

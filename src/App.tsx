@@ -3,7 +3,7 @@ import s from "./App.module.css";
 import { useImmer } from "use-immer";
 import { AppShell, Button, Group, Stack } from "@mantine/core";
 import { Data } from "./components/scripts";
-import { Files, FileUploads } from "./components/FileUploads";
+import { Files, FileUploads, PopulatedFiles } from "./components/FileUploads";
 import { FormUi } from "./components/FormUi";
 import { Navigation } from "./components/Navigation";
 import { Header } from "./components/Header";
@@ -25,45 +25,49 @@ export default function App() {
   return (
     <>
       {Object.values(data).length !== 0 ? (
-        <AppShell
-          navbar={
+        <>
+          <AppShell.Navbar>
             <Navigation
               data={data}
               currentFormIndex={currentFormIndex}
               setCurrentFormIndex={setCurrentFormIndex}
             />
-          }
-          header={
+          </AppShell.Navbar>
+          <AppShell.Header>
             <Header
-              files={files}
+              data={data}
+              currentFormIndex={currentFormIndex}
+              setCurrentFormIndex={setCurrentFormIndex}
+            />
+          </AppShell.Header>
+          <AppShell.Footer>
+            <Footer
+              currentFormIndex={currentFormIndex}
+              files={files as PopulatedFiles}
+              data={data}
+              setData={setData}
+            />
+          </AppShell.Footer>
+          <AppShell.Main>
+            <FormUi
               data={data}
               setData={setData}
               currentFormIndex={currentFormIndex}
               setCurrentFormIndex={setCurrentFormIndex}
             />
-          }
-          footer={
-            <Footer currentFormIndex={currentFormIndex} setData={setData} />
-          }
-        >
-          <FormUi
-            data={data}
-            setData={setData}
-            currentFormIndex={currentFormIndex}
-            setCurrentFormIndex={setCurrentFormIndex}
-          />
-        </AppShell>
+          </AppShell.Main>
+        </>
       ) : (
-        <Stack className={s.padding} spacing="xl">
+        <Stack className={s.padding} gap="xl">
           <FileUploads files={files} setFiles={setFiles} setData={setData} />
-          <Group position="center">
+          <Group justify="center">
             <Button
               variant="default"
               size="lg"
               component="a"
               href="https://github.com/BoringBoredom/UEFI-Editor#usage-guide"
               target="_blank"
-              leftIcon={<IconBrandGithub />}
+              leftSection={<IconBrandGithub />}
             >
               Usage guide
             </Button>
@@ -73,7 +77,7 @@ export default function App() {
               component="a"
               href="https://github.com/BoringBoredom/UEFI-Editor/issues"
               target="_blank"
-              leftIcon={<IconBrandGithub />}
+              leftSection={<IconBrandGithub />}
             >
               Report a bug
             </Button>

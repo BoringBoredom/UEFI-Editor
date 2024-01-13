@@ -1,6 +1,6 @@
 import React from "react";
 import s from "./Navigation.module.css";
-import { NavLink, Navbar, ScrollArea } from "@mantine/core";
+import { NavLink, AppShell, ScrollArea } from "@mantine/core";
 import { Data } from "../scripts";
 
 interface NavigationProps {
@@ -16,10 +16,8 @@ export const Navigation = React.memo(
     setCurrentFormIndex,
   }: NavigationProps) {
     return (
-      <Navbar
-        width={{ base: 100, xs: 140, sm: 180, md: 220, lg: 260, xl: 300 }}
-      >
-        <Navbar.Section
+      <>
+        <AppShell.Section
           className={
             currentFormIndex === -1
               ? [s.navElement, s.menu, s.selected].join(" ")
@@ -30,8 +28,8 @@ export const Navigation = React.memo(
           }}
         >
           Menu
-        </Navbar.Section>
-        <Navbar.Section grow component={ScrollArea} type="always">
+        </AppShell.Section>
+        <AppShell.Section grow component={ScrollArea} type="always">
           {data.forms.map((form, index) => (
             <NavLink
               key={index.toString() + form.formId}
@@ -43,8 +41,8 @@ export const Navigation = React.memo(
               }}
             />
           ))}
-        </Navbar.Section>
-        <Navbar.Section
+        </AppShell.Section>
+        <AppShell.Section
           className={
             currentFormIndex === -2
               ? [s.navElement, s.search, s.selected].join(" ")
@@ -55,8 +53,8 @@ export const Navigation = React.memo(
           }}
         >
           Search
-        </Navbar.Section>
-      </Navbar>
+        </AppShell.Section>
+      </>
     );
   },
   (oldProps: NavigationProps, newProps: NavigationProps) =>

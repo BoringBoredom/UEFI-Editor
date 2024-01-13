@@ -32,7 +32,7 @@ export interface Form {
   name: string;
   type: "Form";
   formId: string;
-  referencedIn: (string | null)[];
+  referencedIn: string[];
   children: FormChildren[];
 }
 

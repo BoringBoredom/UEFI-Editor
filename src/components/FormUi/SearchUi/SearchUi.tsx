@@ -2,6 +2,7 @@ import s from "../FormUi.module.css";
 import { useFocusTrap } from "@mantine/hooks";
 import { Data } from "../../scripts";
 import { Stack, Table, TextInput } from "@mantine/core";
+import { IconSearch } from "@tabler/icons-react";
 
 interface SearchUiProps {
   data: Data;
@@ -55,37 +56,38 @@ export function SearchUi({
         ref={focusTrapRef}
         placeholder="Search"
         defaultValue={search}
+        leftSection={<IconSearch />}
         onChange={(ev) => {
           setSearch(ev.target.value.toLowerCase());
         }}
       />
 
       <Table striped withColumnBorders>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Form Name</th>
-            <th>Form Id</th>
-          </tr>
-        </thead>
-        <tbody>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Name</Table.Th>
+            <Table.Th>Type</Table.Th>
+            <Table.Th>Form Name</Table.Th>
+            <Table.Th>Form Id</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
           {found.map((entry, index) => (
-            <tr key={index.toString() + entry.formId}>
-              <td>{entry.name}</td>
-              <td>{entry.type}</td>
-              <td
+            <Table.Tr key={index.toString() + entry.formId}>
+              <Table.Td>{entry.name}</Table.Td>
+              <Table.Td>{entry.type}</Table.Td>
+              <Table.Td
                 className={s.pointer}
                 onClick={() => {
                   handleRefClick(entry.formId);
                 }}
               >
                 {entry.formName}
-              </td>
-              <td>{entry.formId}</td>
-            </tr>
+              </Table.Td>
+              <Table.Td>{entry.formId}</Table.Td>
+            </Table.Tr>
           ))}
-        </tbody>
+        </Table.Tbody>
       </Table>
     </Stack>
   );

@@ -164,7 +164,6 @@ function getUint8Array(string: string) {
   return array;
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
   let wasSetupSctModified = false;
   let wasAmitseSctModified = false;
@@ -377,6 +376,8 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
   } else {
     alert("No modifications have been done.");
   }
+
+  return Promise.resolve();
 }
 
 function determineSuppressionStart(setupTxtArray: string[], index: number) {
@@ -407,7 +408,6 @@ function determineSuppressionStart(setupTxtArray: string[], index: number) {
   return setupTxtArray[currentIndex].split(" ")[0].slice(0, -1);
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function parseData(files: PopulatedFiles) {
   let setupTxt = files.setupTxtContainer.textContent;
   const amitseSct = files.amitseSctContainer.textContent;
@@ -787,5 +787,5 @@ export async function parseData(files: PopulatedFiles) {
     },
   };
 
-  return dataJson;
+  return Promise.resolve(dataJson);
 }

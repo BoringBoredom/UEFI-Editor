@@ -19,3 +19,16 @@
 .infoRow > div {
   width: 50%;
 }
+.memoRow:not(:last-of-type) {
+  border-bottom: calc(0.0625rem * 1) solid #373a40;
+}
+.memoRow > td {
+  padding: var(--table-vertical-spacing)
+    var(--table-horizontal-spacing, var(--mantine-spacing-xs));
+}
+.memoRow > td:not(:last-child) {
+  border-right: calc(0.0625rem * 1) solid #373a40;
+}
+.striped > tr:nth-child(odd) {
+  background-color: #25262b;
+}

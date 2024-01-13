@@ -1,7 +1,15 @@
 import React from "react";
 import s from "./FormUi.module.css";
 import { Updater } from "use-immer";
-import { Table, TextInput, Select, Spoiler, Chip, Stack } from "@mantine/core";
+import {
+  Table,
+  TextInput,
+  NativeSelect,
+  Spoiler,
+  Chip,
+  Stack,
+  Group,
+} from "@mantine/core";
 import { useDebouncedState } from "@mantine/hooks";
 import { Data, FormChildren, validateByteInput } from "../scripts";
 import { SearchUi } from "./SearchUi";
@@ -26,7 +34,8 @@ function SuppressionChip({
   return (
     <Chip
       size="xs"
-      color="red"
+      color="rgb(224, 49, 49)"
+      variant="outline"
       checked={suppression.active}
       onClick={() => {
         setData((draft) => {
@@ -117,7 +126,7 @@ const TableRow = React.memo(
     }
 
     return (
-      <tr>
+      <tr className={s.memoRow}>
         <td
           className={type === "Ref" ? s.pointer : undefined}
           onClick={() => {
@@ -181,7 +190,7 @@ const TableRow = React.memo(
           )}
         </td>
         <td>
-          <Chip.Group>
+          <Group gap="xs">
             {child.suppressIf?.map((suppressionOffset, index) => (
               <SuppressionChip
                 key={index}
@@ -190,10 +199,15 @@ const TableRow = React.memo(
                 setData={setData}
               />
             ))}
-          </Chip.Group>
+          </Group>
         </td>
         <td>
-          <Spoiler maxHeight={70} showLabel=".........." hideLabel=".....">
+          <Spoiler
+            transitionDuration={0}
+            maxHeight={70}
+            showLabel=".........."
+            hideLabel="....."
+          >
             <Stack>
               {child.description && (
                 <div>
@@ -298,62 +312,62 @@ export function FormUi({
   if (currentFormIndex === -1) {
     return (
       <Table striped withColumnBorders>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Form Id</th>
-          </tr>
-        </thead>
-        <tbody>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Name</Table.Th>
+            <Table.Th>Form Id</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
           {data.menu.map((entry, index) => (
-            <tr key={index.toString() + entry.offset + entry.formId}>
-              <td
+            <Table.Tr key={index.toString() + entry.offset + entry.formId}>
+              <Table.Td
                 className={s.pointer}
                 onClick={() => {
                   handleRefClick(entry.formId);
                 }}
               >
                 {entry.name}
-              </td>
-              <td className={s.formIdWidth}>
-                <Select
+              </Table.Td>
+              <Table.Td className={s.formIdWidth}>
+                <NativeSelect
                   className={s.formIdChildWidth}
                   value={entry.formId}
                   data={data.forms.map((form) => form.formId)}
-                  onChange={(value) => {
-                    if (value !== null) {
-                      setData((draft) => {
-                        draft.menu[index].formId = value;
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
-                        draft.menu[index].name = data.forms.find(
-                          (form) => parseInt(form.formId) === parseInt(value)
-                        )?.name!;
-                      });
-                    }
+                  onChange={(ev) => {
+                    const value = ev.target.value;
+
+                    setData((draft) => {
+                      draft.menu[index].formId = value;
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+                      draft.menu[index].name = data.forms.find(
+                        (form) => parseInt(form.formId) === parseInt(value)
+                      )?.name!;
+                    });
                   }}
                 />
-              </td>
-            </tr>
+              </Table.Td>
+            </Table.Tr>
           ))}
-        </tbody>
+        </Table.Tbody>
       </Table>
     );
   }
 
   return (
-    <Table striped withColumnBorders>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Access Level</th>
-          <th>Failsafe</th>
-          <th>Optimal</th>
-          <th>Suppress If</th>
-          <th>Info</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table stickyHeader stickyHeaderOffset={60} striped withColumnBorders>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th>Name</Table.Th>
+          <Table.Th>Type</Table.Th>
+          <Table.Th>Access Level</Table.Th>
+          <Table.Th>Failsafe</Table.Th>
+          <Table.Th>Optimal</Table.Th>
+          <Table.Th>Suppress If</Table.Th>
+          <Table.Th>Info</Table.Th>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody className={s.striped}>
         {data.forms[currentFormIndex].children.map((child, index) => (
           <TableRow
             key={index.toString() + child.questionId}
@@ -365,7 +379,7 @@ export function FormUi({
             currentFormIndex={currentFormIndex}
           />
         ))}
-      </tbody>
+      </Table.Tbody>
     </Table>
   );
 }

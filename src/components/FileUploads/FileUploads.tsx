@@ -12,21 +12,16 @@ export interface Files {
 }
 
 export interface PopulatedFiles {
-  setupSctContainer: PopulatedFileContainer;
-  setupTxtContainer: PopulatedFileContainer;
-  amitseSctContainer: PopulatedFileContainer;
-  setupdataBinContainer: PopulatedFileContainer;
+  setupSctContainer: Required<FileContainer>;
+  setupTxtContainer: Required<FileContainer>;
+  amitseSctContainer: Required<FileContainer>;
+  setupdataBinContainer: Required<FileContainer>;
 }
 
 export interface FileContainer {
   file?: File;
   textContent?: string;
   isWrongFile: boolean;
-}
-
-export interface PopulatedFileContainer extends FileContainer {
-  file: File;
-  textContent: string;
 }
 
 export interface FileUploadsProps {
@@ -93,7 +88,7 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
       />
       <Stack>
         <FileInput
-          icon={<IconUpload />}
+          leftSection={<IconUpload />}
           size="lg"
           placeholder="Setup SCT"
           accept=".sct"
@@ -116,7 +111,7 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
         />
 
         <FileInput
-          icon={<IconUpload />}
+          leftSection={<IconUpload />}
           size="lg"
           placeholder="IFR Extractor output TXT"
           accept=".txt"
@@ -137,7 +132,7 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
         />
 
         <FileInput
-          icon={<IconUpload />}
+          leftSection={<IconUpload />}
           size="lg"
           placeholder="AMITSE SCT"
           accept=".sct"
@@ -160,7 +155,7 @@ export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
         />
 
         <FileInput
-          icon={<IconUpload />}
+          leftSection={<IconUpload />}
           size="lg"
           placeholder="Setupdata BIN"
           accept=".bin"

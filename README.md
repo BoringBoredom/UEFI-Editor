@@ -1,6 +1,4 @@
-# Aptio V UEFI Editor (AMIBCP alternative)
-
-## https://boringboredom.github.io/UEFI-Editor/
+# [Aptio V UEFI Editor](https://boringboredom.github.io/UEFI-Editor/)
 
 ![](./images/showcase/1.png)
 ![](./images/showcase/2.png)
@@ -62,7 +60,7 @@
 - ### Item visibility control
 
   - Make sure the parent forms are visible when targeting a setting. Use the top-right navigation to travel upwards.
-  - If one method doesn't work, try the other one. Using both at the same time can cause issues. It varies from UEFI to UEFI.
+  - If one method doesn't work, try the other one. Using both at the same time can cause issues. It varies from UEFI to UEFI. Try modifying `Access Level` first.
   - #### Suppress If
 
     - A `Suppress If` opcode hides nested items if the condition is true. The presence of a `Suppress If` opcode doesn't always mean the condition is true. However, if it is, you can remove the suppression by unchecking the offset.

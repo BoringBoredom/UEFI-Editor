@@ -3,16 +3,15 @@ import s from "./Footer.module.css";
 import { Button, Group, TextInput, FileButton } from "@mantine/core";
 import { IconDownload, IconUpload } from "@tabler/icons-react";
 import { saveAs } from "file-saver";
-import { Updater } from "use-immer";
+import type { Updater } from "use-immer";
 import {
-  Data,
-  Suppression,
   validateByteInput,
   calculateJsonChecksum,
   downloadModifiedFiles,
   version,
-} from "../scripts";
-import { PopulatedFiles } from "../FileUploads";
+} from "../scripts/scripts";
+import type { Data, Suppression } from "../scripts/types";
+import type { PopulatedFiles } from "../FileUploads/FileUploads";
 
 interface FooterProps {
   files: PopulatedFiles;
@@ -21,7 +20,7 @@ interface FooterProps {
   currentFormIndex: number;
 }
 
-export function Footer({
+export default function Footer({
   files,
   currentFormIndex,
   data,

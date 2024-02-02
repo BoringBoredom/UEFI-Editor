@@ -1,6 +1,6 @@
 import React from "react";
 import s from "./FormUi.module.css";
-import { Updater } from "use-immer";
+import type { Updater } from "use-immer";
 import {
   Table,
   TextInput,
@@ -11,8 +11,9 @@ import {
   Group,
 } from "@mantine/core";
 import { useDebouncedState } from "@mantine/hooks";
-import { Data, FormChildren, validateByteInput } from "../scripts";
-import { SearchUi } from "./SearchUi";
+import type { Data, FormChildren } from "../scripts/types";
+import { validateByteInput } from "../scripts/scripts";
+import SearchUi from "./SearchUi/SearchUi";
 
 interface SuppressionChipProps {
   suppressionOffset: string;
@@ -278,7 +279,7 @@ interface FormUiProps {
   setCurrentFormIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export function FormUi({
+export default function FormUi({
   data,
   setData,
   currentFormIndex,

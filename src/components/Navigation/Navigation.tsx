@@ -1,7 +1,7 @@
 import React from "react";
 import s from "./Navigation.module.css";
 import { NavLink, AppShell, ScrollArea } from "@mantine/core";
-import { Data } from "../scripts";
+import type { Data } from "../scripts/types";
 
 interface NavigationProps {
   data: Data;
@@ -9,7 +9,7 @@ interface NavigationProps {
   setCurrentFormIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const Navigation = React.memo(
+const Navigation = React.memo(
   function Navigation({
     data,
     currentFormIndex,
@@ -60,3 +60,5 @@ export const Navigation = React.memo(
   (oldProps: NavigationProps, newProps: NavigationProps) =>
     oldProps.currentFormIndex === newProps.currentFormIndex
 );
+
+export default Navigation;

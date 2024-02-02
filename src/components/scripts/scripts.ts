@@ -1,7 +1,7 @@
 import { saveAs } from "file-saver";
-import { PopulatedFiles } from "../FileUploads";
+import type { PopulatedFiles } from "../FileUploads/FileUploads";
 import sha256 from "crypto-js/sha256";
-import {
+import type {
   Data,
   Forms,
   Form,

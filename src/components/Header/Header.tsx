@@ -1,7 +1,7 @@
 import React from "react";
 import { Group } from "@mantine/core";
 import s from "./Header.module.css";
-import { Data } from "../scripts";
+import type { Data } from "../scripts/types";
 
 interface HeaderProps {
   data: Data;
@@ -9,7 +9,7 @@ interface HeaderProps {
   setCurrentFormIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export function Header({
+export default function Header({
   data,
   currentFormIndex,
   setCurrentFormIndex,

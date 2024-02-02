@@ -1,8 +1,9 @@
 import React from "react";
-import { Updater } from "use-immer";
+import type { Updater } from "use-immer";
 import { FileInput, Stack, LoadingOverlay } from "@mantine/core";
 import { IconUpload } from "@tabler/icons-react";
-import { Data, parseData, binToHexString } from "../scripts";
+import { parseData, binToHexString } from "../scripts/scripts";
+import type { Data } from "../scripts/types";
 
 export interface Files {
   setupSctContainer: FileContainer;
@@ -30,7 +31,11 @@ export interface FileUploadsProps {
   setData: Updater<Data>;
 }
 
-export function FileUploads({ files, setFiles, setData }: FileUploadsProps) {
+export default function FileUploads({
+  files,
+  setFiles,
+  setData,
+}: FileUploadsProps) {
   React.useEffect(() => {
     if (
       files.setupSctContainer.file &&

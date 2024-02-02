@@ -1,6 +1,6 @@
 import s from "../FormUi.module.css";
 import { useFocusTrap } from "@mantine/hooks";
-import { Data } from "../../scripts";
+import type { Data } from "../../scripts/types";
 import { Stack, Table, TextInput } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 
@@ -11,7 +11,7 @@ interface SearchUiProps {
   setSearch: (newValue: string) => void;
 }
 
-export function SearchUi({
+export default function SearchUi({
   data,
   handleRefClick,
   search,

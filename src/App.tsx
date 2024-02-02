@@ -2,12 +2,15 @@ import React from "react";
 import s from "./App.module.css";
 import { useImmer } from "use-immer";
 import { AppShell, Button, Group, Stack } from "@mantine/core";
-import { Data } from "./components/scripts";
-import { Files, FileUploads, PopulatedFiles } from "./components/FileUploads";
-import { FormUi } from "./components/FormUi";
-import { Navigation } from "./components/Navigation";
-import { Header } from "./components/Header";
-import { Footer } from "./components/Footer";
+import type { Data } from "./components/scripts/types";
+import FileUploads, {
+  Files,
+  PopulatedFiles,
+} from "./components/FileUploads/FileUploads";
+import FormUi from "./components/FormUi/FormUi";
+import Navigation from "./components/Navigation/Navigation";
+import Header from "./components/Header/Header";
+import Footer from "./components/Footer/Footer";
 import { IconBrandGithub } from "@tabler/icons-react";
 
 export default function App() {

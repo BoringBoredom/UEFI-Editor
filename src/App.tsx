@@ -4,8 +4,8 @@ import { useImmer } from "use-immer";
 import { AppShell, Button, Group, Stack } from "@mantine/core";
 import type { Data } from "./components/scripts/types";
 import FileUploads, {
-  Files,
-  PopulatedFiles,
+  type Files,
+  type PopulatedFiles,
 } from "./components/FileUploads/FileUploads";
 import FormUi from "./components/FormUi/FormUi";
 import Navigation from "./components/Navigation/Navigation";

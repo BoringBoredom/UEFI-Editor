@@ -110,7 +110,7 @@ export default function Footer({
               variant="default"
               onClick={() => {
                 setData((draft) => {
-                  for (const child of draft.forms[currentFormIndex].children) {
+                  for (const child of data.forms[currentFormIndex].children) {
                     if (child.suppressIf) {
                       for (const suppressionOffset of child.suppressIf) {
                         (

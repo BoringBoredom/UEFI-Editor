@@ -23,33 +23,31 @@ export default function Header({
           <Group gap="xs">
             {currentForm.referencedIn.length > 0 && (
               <>
-                <Group gap="xs">
-                  {currentForm.referencedIn.map((formId) => (
-                    <div
-                      key={currentForm.formId + formId}
-                      className={s.pointer}
-                      onClick={() => {
-                        const formIndex = data.forms.findIndex(
-                          (form) => parseInt(form.formId) === parseInt(formId)
-                        );
+                {currentForm.referencedIn.map((formId) => (
+                  <div
+                    key={currentForm.formId + formId}
+                    className={s.pointer}
+                    onClick={() => {
+                      const formIndex = data.forms.findIndex(
+                        (form) => parseInt(form.formId) === parseInt(formId)
+                      );
 
-                        if (formIndex >= 0) {
-                          setCurrentFormIndex(formIndex);
+                      if (formIndex >= 0) {
+                        setCurrentFormIndex(formIndex);
 
-                          document
-                            .getElementById(`nav-${formIndex}`)
-                            ?.scrollIntoView();
-                        }
-                      }}
-                    >
-                      {
-                        data.forms.find(
-                          (form) => parseInt(form.formId) === parseInt(formId)
-                        )?.name
+                        document
+                          .getElementById(`nav-${formIndex}`)
+                          ?.scrollIntoView();
                       }
-                    </div>
-                  ))}
-                </Group>
+                    }}
+                  >
+                    {
+                      data.forms.find(
+                        (form) => parseInt(form.formId) === parseInt(formId)
+                      )?.name
+                    }
+                  </div>
+                ))}
                 <div>{">"}</div>
               </>
             )}

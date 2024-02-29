@@ -10,8 +10,8 @@
   color: #74c0fc;
 }
 .menu {
-  border-bottom: 1px solid var(--_app-shell-border-color);
+  border-bottom: 1px solid var(--app-shell-border-color);
 }
 .search {
-  border-top: 1px solid var(--_app-shell-border-color);
+  border-top: 1px solid var(--app-shell-border-color);
 }

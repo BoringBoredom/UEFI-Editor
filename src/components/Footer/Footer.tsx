@@ -134,7 +134,9 @@ export default function Footer({
               onClick={() => {
                 setData((draft) => {
                   for (const child of draft.forms[currentFormIndex].children) {
-                    child.accessLevel = input;
+                    if (child.accessLevel !== null) {
+                      child.accessLevel = input;
+                    }
                   }
                 });
               }}

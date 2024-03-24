@@ -295,7 +295,7 @@ export default function FormUi({
     if (formIndex >= 0) {
       setCurrentFormIndex(formIndex);
 
-      document.getElementById(`nav-${formIndex}`)?.scrollIntoView();
+      document.getElementById(`nav-${formIndex.toString()}`)?.scrollIntoView();
     }
   }
 

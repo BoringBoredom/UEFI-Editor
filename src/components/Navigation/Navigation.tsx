@@ -33,7 +33,7 @@ const Navigation = React.memo(
           {data.forms.map((form, index) => (
             <NavLink
               key={index.toString() + form.formId}
-              id={`nav-${index}`}
+              id={`nav-${index.toString()}`}
               active={index === currentFormIndex}
               label={`${form.formId} ${form.name}`}
               onClick={() => {

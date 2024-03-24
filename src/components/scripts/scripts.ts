@@ -118,13 +118,13 @@ function getAdditionalData(
   );
 
   const matches = [...hexSetupdataBin.matchAll(regex)].filter(
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
     (element) => element.index! % 2 === 0
   );
 
   if (matches.length === 1) {
     const match = matches[0];
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
     const index = match.index!;
 
     const offsets: Offsets = {
@@ -253,12 +253,15 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
       );
 
       amitseSctChangeLog += `${
-        data.forms.find((form) => parseInt(form.formId) === parseInt(oldFormId))
-          ?.name
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        data.forms.find(
+          (form) => parseInt(form.formId) === parseInt(oldFormId)
+        )!.name
       } | FormId ${oldFormId} -> ${
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         data.forms.find(
           (form) => parseInt(form.formId) === parseInt(entry.formId)
-        )?.name
+        )!.name
       } | FormId ${entry.formId}\n`;
 
       wasAmitseSctModified = true;
@@ -760,7 +763,7 @@ export async function parseData(files: PopulatedFiles) {
         name: forms.find((form) => parseInt(form.formId) === parseInt(hexEntry))
           ?.name!,
         formId: hexEntry,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
         offset: decToHexString((match.index! + formSetId.length) / 2),
       };
     })

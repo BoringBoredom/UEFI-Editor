@@ -36,7 +36,7 @@ export default function Header({
                         setCurrentFormIndex(formIndex);
 
                         document
-                          .getElementById(`nav-${formIndex}`)
+                          .getElementById(`nav-${formIndex.toString()}`)
                           ?.scrollIntoView();
                       }
                     }}

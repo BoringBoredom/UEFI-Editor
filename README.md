@@ -110,7 +110,7 @@ Format a USB drive as `FAT32` and move `BOOTX64.EFI` to `USB:\EFI\BOOT\` (create
 
 Download your **_current_** BIOS version from the motherboard vendor's site. The structure changes across different versions, so make sure you have the **_same_** BIOS.
 
-Follow [these instructions](#extracting-the-necessary-files) until and including the conversion with `ifrextractor.exe`.
+Follow [these instructions](#extracting-the-necessary-files) until and including the conversion with `ifrextractor.exe`. If there are two `Setup` sections, use the one that has matching offsets (change settings in BIOS and read values with datasone's shell to confirm).
 
 Optionally, download [IFR-Formatter.js](https://raw.githubusercontent.com/BoringBoredom/UEFI-Editor/master/IFR-Formatter/IFR-Formatter.js) (right-click and `Save link as...`) and [node.exe](https://nodejs.org/dist/latest/win-x64/node.exe). Place them in the same folder as the IFR Extractor output and execute `node IFR-Formatter.js yourIfrExtractorOutput.txt` in the CLI.
 

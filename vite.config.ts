@@ -8,7 +8,10 @@ export default defineConfig({
     react(),
     checker({
       typescript: true,
-      eslint: { lintCommand: 'eslint "./src/**/*.{ts,tsx}"' },
+      eslint: {
+        lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
+        useFlatConfig: true,
+      },
     }),
   ],
   base: "/UEFI-Editor/",

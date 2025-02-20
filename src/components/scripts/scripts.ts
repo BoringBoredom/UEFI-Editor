@@ -19,7 +19,7 @@ import type {
 } from "./types";
 
 export const version = "0.0.8";
-const wantedIFRExtractorVersion = "1.5.1";
+const wantedIFRExtractorVersions = ["1.5.1", "1.6.0"];
 
 export async function binToHexString(file: File) {
   return [...new Uint8Array(await file.arrayBuffer())]
@@ -118,14 +118,12 @@ function getAdditionalData(
   );
 
   const matches = [...hexSetupdataBin.matchAll(regex)].filter(
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-    (element) => element.index! % 2 === 0
+    (element) => element.index % 2 === 0
   );
 
   if (matches.length === 1) {
     const match = matches[0];
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-    const index = match.index!;
+    const index = match.index;
 
     const offsets: Offsets = {
       accessLevel: decToHexString((index + 32) / 2),
@@ -385,7 +383,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
 
 function determineSuppressionStart(setupTxtArray: string[], index: number) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  if (!hasScope(setupTxtArray[index + 1].match(/\{ (.*) \}/)![1])) {
+  if (!hasScope(/\{ (.*) \}/.exec(setupTxtArray[index + 1])![1])) {
     return setupTxtArray[index + 2].split(" ")[0].slice(0, -1);
   }
 
@@ -394,8 +392,8 @@ function determineSuppressionStart(setupTxtArray: string[], index: number) {
   while (openScopes !== 0) {
     const line = setupTxtArray[currentIndex];
 
-    const anyOpcode = line.match(/\{ (.*) \}/);
-    const end = line.match(/\{ 29 02 \}/);
+    const anyOpcode = /\{ (.*) \}/.exec(line);
+    const end = /\{ 29 02 \}/.exec(line);
 
     if (anyOpcode && hasScope(anyOpcode[1])) {
       openScopes++;
@@ -416,9 +414,15 @@ export async function parseData(files: PopulatedFiles) {
   const amitseSct = files.amitseSctContainer.textContent;
   const setupdataBin = files.setupdataBinContainer.textContent;
 
-  if (!setupTxt.includes(`Program version: ${wantedIFRExtractorVersion}`)) {
+  if (
+    !wantedIFRExtractorVersions.some((version) =>
+      setupTxt.includes(`Program version: ${version}`)
+    )
+  ) {
     alert(
-      `Wrong IFR-Extractor-RS version. Use version ${wantedIFRExtractorVersion}.`
+      `Wrong IFRExtractor-RS version. Compatible versions: ${wantedIFRExtractorVersions.join(
+        ", "
+      )}.`
     );
     window.location.reload();
     return {} as Data;
@@ -436,7 +440,7 @@ export async function parseData(files: PopulatedFiles) {
     return {} as Data;
   }
 
-  setupTxt = setupTxt.replaceAll(/[\r\n|\n|\r](?!0x[0-9A-F]{3})/g, "<br>");
+  setupTxt = setupTxt.replace(/[\r\n|\n|\r](?!0x[0-9A-F]{3})/g, "<br>");
 
   let formSetId = "";
   const varStores: VarStores = [];
@@ -456,32 +460,36 @@ export async function parseData(files: PopulatedFiles) {
   const setupTxtArray = setupTxt.split("\n");
 
   for (const [index, line] of setupTxtArray.entries()) {
-    const formSet = line.match(
-      /FormSet Guid: (.*)-(.*)-(.*)-(.*)-(.*), Title:/
-    );
-    const varStore = line.match(
-      /VarStore Guid: (.*), VarStoreId: (.*), Size: (.*), Name: "(.*)" \{/
-    );
-    const form = line.match(/Form FormId: (.*), Title: "(.*)" \{ (.*) \}/);
-    const suppressIf = line.match(/\{ 0A 82 \}/);
-    const ref = line.match(
-      /Ref Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), FormId: (.*) \{ (.*) \}/
-    );
-    const string = line.match(
-      /String Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), MinSize: (.*), MaxSize: (.*), Flags: (.*) \{ (.*) \}/
-    );
-    const numeric = line.match(
-      /Numeric Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
-    );
-    const checkBox = line.match(
-      /CheckBox Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*) \{ (.*) \}/
-    );
-    const oneOf = line.match(
-      /OneOf Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
-    );
-    const oneOfOption = line.match(/OneOfOption Option: "(.*)" Value: (.*) \{/);
-    const defaultId = line.match(/Default DefaultId: (.*) Value: (.*) \{/);
-    const end = line.match(/\{ 29 02 \}/);
+    const formSet = /FormSet Guid: (.*)-(.*)-(.*)-(.*)-(.*), Title:/.exec(line);
+    const varStore =
+      /VarStore Guid: (.*), VarStoreId: (.*), Size: (.*), Name: "(.*)" \{/.exec(
+        line
+      );
+    const form = /Form FormId: (.*), Title: "(.*)" \{ (.*) \}/.exec(line);
+    const suppressIf = /\{ 0A 82 \}/.exec(line);
+    const ref =
+      /Ref Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), FormId: (.*) \{ (.*) \}/.exec(
+        line
+      );
+    const string =
+      /String Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), MinSize: (.*), MaxSize: (.*), Flags: (.*) \{ (.*) \}/.exec(
+        line
+      );
+    const numeric =
+      /Numeric Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/.exec(
+        line
+      );
+    const checkBox =
+      /CheckBox Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*) \{ (.*) \}/.exec(
+        line
+      );
+    const oneOf =
+      /OneOf Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/.exec(
+        line
+      );
+    const oneOfOption = /OneOfOption Option: "(.*)" Value: (.*) \{/.exec(line);
+    const defaultId = /Default DefaultId: (.*) Value: (.*) \{/.exec(line);
+    const end = /\{ 29 02 \}/.exec(line);
     const indentations = (line.match(/\t/g) ?? []).length;
     const offset = line.split(" ")[0].slice(0, -1);
     const currentScope = scopes[scopes.length - 1];
@@ -763,8 +771,7 @@ export async function parseData(files: PopulatedFiles) {
         name: forms.find((form) => parseInt(form.formId) === parseInt(hexEntry))
           ?.name!,
         formId: hexEntry,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-        offset: decToHexString((match.index! + formSetId.length) / 2),
+        offset: decToHexString((match.index + formSetId.length) / 2),
       };
     })
     .filter((x) => x.name);

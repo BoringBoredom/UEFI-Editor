@@ -99,12 +99,12 @@ const TableRow = React.memo(
       }
 
       if (type === "CheckBox") {
-        const def = child.flags.match(/\bDefault: (Enabled|Disabled)/);
+        const def = /\bDefault: (Enabled|Disabled)/.exec(child.flags);
         if (def) {
           info.push(["Default", def[1] === "Enabled" ? "1" : "0"]);
         }
 
-        const mfgDef = child.flags.match(/MfgDefault: (Enabled|Disabled)/);
+        const mfgDef = /MfgDefault: (Enabled|Disabled)/.exec(child.flags);
         if (mfgDef) {
           info.push(["MfgDefault", mfgDef[1] === "Enabled" ? "1" : "0"]);
         }

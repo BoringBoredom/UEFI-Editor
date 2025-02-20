@@ -9,7 +9,7 @@
 
 - [UEFITool NE](https://github.com/LongSoft/UEFITool/releases) (press `Show all assets`)
 - [UEFITool 0.28.0](https://github.com/LongSoft/UEFITool/releases/tag/0.28.0) ([why?](https://github.com/LongSoft/UEFITool#known-issues))
-- [IFR Extractor](https://github.com/LongSoft/IFRExtractor-RS/releases)
+- [IFRExtractor-RS](https://github.com/LongSoft/IFRExtractor-RS/releases)
 - [UEFI Editor](https://boringboredom.github.io/UEFI-Editor/)
 
 ## Extracting the necessary files

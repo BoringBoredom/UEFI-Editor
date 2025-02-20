@@ -1,14 +1,13 @@
 const fs = require("fs");
 const path = require("path");
-const process = require("process");
 
 function returnForm(currentForm) {
   return `${" ".repeat(120)}${currentForm}\n`;
 }
 
 (async function () {
-  const currentVersion = "0.1.1";
-  const wantedIFRExtractorVersion = "1.5.1";
+  const currentVersion = "0.1.2";
+  const wantedIFRExtractorVersions = ["1.5.1", "1.6.0"];
 
   let script;
   let latestVersionMatch;
@@ -54,9 +53,15 @@ function returnForm(currentForm) {
   let file = fs.readFileSync(filePath, "utf8");
   let formattedFile = "";
 
-  if (!file.includes(`Program version: ${wantedIFRExtractorVersion}`)) {
+  if (
+    !wantedIFRExtractorVersions.some((version) =>
+      file.includes(`Program version: ${version}`)
+    )
+  ) {
     return console.log(
-      `Wrong IFR-Extractor-RS version. Use version ${wantedIFRExtractorVersion}.`
+      `Wrong IFRExtractor-RS version. Compatible versions: ${wantedIFRExtractorVersions.join(
+        ", "
+      )}.`
     );
   }
 

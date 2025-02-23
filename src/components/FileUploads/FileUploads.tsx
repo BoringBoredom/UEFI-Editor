@@ -63,10 +63,10 @@ export default function FileUploads({
           ].map((file) => {
             return new Promise<string>((resolve) => {
               const worker = hexWorker();
-              worker.postMessage(file);
               worker.onmessage = (e: MessageEvent<string>) => {
                 resolve(e.data);
               };
+              worker.postMessage(file);
             });
           }),
         ]).then((values) => {

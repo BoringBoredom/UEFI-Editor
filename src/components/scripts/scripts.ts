@@ -21,12 +21,6 @@ import type {
 export const version = "0.0.8";
 const wantedIFRExtractorVersions = ["1.5.1", "1.6.0"];
 
-export async function binToHexString(file: File) {
-  return [...new Uint8Array(await file.arrayBuffer())]
-    .map((x) => x.toString(16).toUpperCase().padStart(2, "0"))
-    .join("");
-}
-
 export function validateByteInput(value: string) {
   return (
     value.length <= 2 &&

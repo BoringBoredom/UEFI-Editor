@@ -2,8 +2,10 @@ import React from "react";
 import type { Updater } from "use-immer";
 import { FileInput, Stack, LoadingOverlay } from "@mantine/core";
 import { IconUpload } from "@tabler/icons-react";
-import { parseData, binToHexString } from "../scripts/scripts";
+import { parseData } from "../scripts/scripts";
 import type { Data } from "../scripts/types";
+const hexWorker = () =>
+  new Worker(new URL("../scripts/hexWorker.ts", import.meta.url));
 
 export interface Files {
   setupSctContainer: FileContainer;
@@ -48,16 +50,25 @@ export default function FileUploads({
       !files.setupdataBinContainer.isWrongFile
     ) {
       if (
-        !files.setupSctContainer.textContent &&
-        !files.setupTxtContainer.textContent &&
-        !files.amitseSctContainer.textContent &&
-        !files.setupdataBinContainer.textContent
+        Object.values(files).every(
+          (fileContainer: FileContainer) => !fileContainer.textContent
+        )
       ) {
         void Promise.all([
           files.setupTxtContainer.file.text(),
-          binToHexString(files.setupSctContainer.file),
-          binToHexString(files.amitseSctContainer.file),
-          binToHexString(files.setupdataBinContainer.file),
+          ...[
+            files.setupSctContainer.file,
+            files.amitseSctContainer.file,
+            files.setupdataBinContainer.file,
+          ].map((file) => {
+            return new Promise<string>((resolve) => {
+              const worker = hexWorker();
+              worker.postMessage(file);
+              worker.onmessage = (e: MessageEvent<string>) => {
+                resolve(e.data);
+              };
+            });
+          }),
         ]).then((values) => {
           setFiles((draft) => {
             draft.setupTxtContainer.textContent = values[0];

@@ -29,7 +29,12 @@ const Navigation = React.memo(
         >
           Menu
         </AppShell.Section>
-        <AppShell.Section grow component={ScrollArea} type="always">
+        <AppShell.Section
+          grow
+          component={ScrollArea}
+          type="always"
+          offsetScrollbars="y" // temporary fix for mantine bug
+        >
           {data.forms.map((form, index) => (
             <NavLink
               key={index.toString() + form.formId}

@@ -699,19 +699,13 @@ export async function parseData(files: PopulatedFiles) {
         };
 
         if (currentScope.type === "Numeric") {
-          if (!currentNumeric.defaults) {
-            currentNumeric.defaults = [];
-          }
+          currentNumeric.defaults ??= [];
           currentNumeric.defaults.push(oneDefault);
         } else if (currentScope.type === "CheckBox") {
-          if (!currentCheckBox.defaults) {
-            currentCheckBox.defaults = [];
-          }
+          currentCheckBox.defaults ??= [];
           currentCheckBox.defaults.push(oneDefault);
         } else if (currentScope.type === "OneOf") {
-          if (!currentOneOf.defaults) {
-            currentOneOf.defaults = [];
-          }
+          currentOneOf.defaults ??= [];
           currentOneOf.defaults.push(oneDefault);
         }
       }

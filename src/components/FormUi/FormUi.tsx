@@ -194,7 +194,7 @@ const TableRow = React.memo(
           <Group gap="xs">
             {child.suppressIf?.map((suppressionOffset, index) => (
               <SuppressionChip
-                key={index}
+                key={index.toString() + suppressionOffset}
                 suppressionOffset={suppressionOffset}
                 data={data}
                 setData={setData}
@@ -216,14 +216,19 @@ const TableRow = React.memo(
                     .split("<br>")
                     .filter((line) => line !== "")
                     .map((line, index) => (
-                      <div key={index}>{line}</div>
+                      <div key={index.toString() + line.slice(0, 10)}>
+                        {line}
+                      </div>
                     ))}
                 </div>
               )}
               {info.length > 0 && (
                 <div>
                   {info.map((item, index) => (
-                    <div key={index} className={s.infoRow}>
+                    <div
+                      key={index.toString() + item.toString().slice(0, 10)}
+                      className={s.infoRow}
+                    >
                       {item[0] === "newline" ? (
                         <br />
                       ) : (

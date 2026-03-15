@@ -6,8 +6,8 @@ function returnForm(currentForm) {
 }
 
 (async function () {
-  const currentVersion = "0.1.2";
-  const wantedIFRExtractorVersions = ["1.5.1", "1.6.0"];
+  const currentVersion = "0.1.3";
+  const wantedIFRExtractorVersions = ["1.5.1", "1.6.0", "1.6.1"];
 
   let script;
   let latestVersionMatch;
@@ -15,7 +15,7 @@ function returnForm(currentForm) {
   try {
     script = await (
       await fetch(
-        "https://raw.githubusercontent.com/BoringBoredom/UEFI-Editor/master/IFR-Formatter/IFR-Formatter.js"
+        "https://raw.githubusercontent.com/BoringBoredom/UEFI-Editor/master/IFR-Formatter/IFR-Formatter.js",
       )
     ).text();
   } catch {
@@ -24,7 +24,7 @@ function returnForm(currentForm) {
 
   if (script) {
     latestVersionMatch = script.match(
-      /const currentVersion = "(\d).(\d).(\d)";/
+      /const currentVersion = "(\d).(\d).(\d)";/,
     );
   }
 
@@ -33,7 +33,7 @@ function returnForm(currentForm) {
       .split(".")
       .map((number) => parseInt(number, 10));
     const [, latestMajor, latestMinor, latestPatch] = latestVersionMatch.map(
-      (number) => parseInt(number, 10)
+      (number) => parseInt(number, 10),
     );
 
     if (
@@ -55,13 +55,13 @@ function returnForm(currentForm) {
 
   if (
     !wantedIFRExtractorVersions.some((version) =>
-      file.includes(`Program version: ${version}`)
+      file.includes(`Program version: ${version}`),
     )
   ) {
     return console.log(
       `Wrong IFRExtractor-RS version. Compatible versions: ${wantedIFRExtractorVersions.join(
-        ", "
-      )}.`
+        ", ",
+      )}.`,
     );
   }
 
@@ -80,20 +80,20 @@ function returnForm(currentForm) {
 
   for (const line of file.split("\n")) {
     const varStore = line.match(
-      /VarStore Guid: (.*), VarStoreId: (.*), Size: (.*), Name: "(.*)" \{/
+      /VarStore Guid: (.*), VarStoreId: (.*), Size: (.*), Name: "(.*)" \{/,
     );
     const form = line.match(/Form FormId: (.*), Title: "(.*)" \{ (.*) \}/);
     const string = line.match(
-      /String Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), MinSize: (.*), MaxSize: (.*), Flags: (.*) \{ (.*) \}/
+      /String Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), MinSize: (.*), MaxSize: (.*), Flags: (.*) \{ (.*) \}/,
     );
     const numeric = line.match(
-      /Numeric Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
+      /Numeric Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/,
     );
     const checkBox = line.match(
-      /CheckBox Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*) \{ (.*) \}/
+      /CheckBox Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*) \{ (.*) \}/,
     );
     const oneOf = line.match(
-      /OneOf Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/
+      /OneOf Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/,
     );
     const oneOfOption = line.match(/OneOfOption Option: "(.*)" Value: (.*) \{/);
 
@@ -136,7 +136,7 @@ function returnForm(currentForm) {
     if (oneOfOption) {
       formattedFile += `    ${oneOfOption[1]}: 0x${parseInt(
         oneOfOption[2].split(",")[0],
-        10
+        10,
       )
         .toString(16)
         .toUpperCase()}\n`;
@@ -145,6 +145,6 @@ function returnForm(currentForm) {
 
   fs.writeFileSync(
     path.join(path.dirname(filePath), `formatted_${path.basename(filePath)}`),
-    formattedFile
+    formattedFile,
   );
 })();

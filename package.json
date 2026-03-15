@@ -10,10 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mantine/core": "7.17.2",
-    "@mantine/hooks": "7.17.2",
+    "@mantine/core": "^7.17.2",
+    "@mantine/hooks": "^7.17.2",
     "@tabler/icons-react": "^3.0.0",
-    "crypto-js": "^4.1.1",
     "file-saver": "^2.0.5",
     "immer": "^10.0.3",
     "react": "^19",
@@ -22,7 +21,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
-    "@types/crypto-js": "^4.2.1",
     "@types/file-saver": "^2.0.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -1,25 +1,36 @@
 import { saveAs } from "file-saver";
 import type { PopulatedFiles } from "../FileUploads/FileUploads";
-import sha256 from "crypto-js/sha256";
 import type {
-  Data,
-  Forms,
-  Form,
-  RefPrompt,
-  NumericPrompt,
   CheckBoxPrompt,
-  OneOfPrompt,
-  VarStores,
-  Scopes,
-  Menu,
-  Offsets,
+  Data,
+  Form,
   FormChildren,
+  Forms,
+  Menu,
+  NumericPrompt,
+  Offsets,
+  OneOfPrompt,
+  RefPrompt,
+  Scopes,
   StringPrompt,
   Suppression,
+  VarStores,
 } from "./types";
 
-export const version = "0.0.8";
-const wantedIFRExtractorVersions = ["1.5.1", "1.6.0"];
+export const version = "0.1.0";
+const wantedIFRExtractorVersions = ["1.6.1"];
+
+async function sha256Hex(data: BufferSource) {
+  const digest = await crypto.subtle.digest("SHA-256", data);
+
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+}
+
+async function hashFile(file: File) {
+  return sha256Hex(await file.arrayBuffer());
+}
 
 export function validateByteInput(value: string) {
   return (
@@ -35,10 +46,10 @@ function hasScope(hexString: string) {
   return parseInt(header, 16).toString(2).padStart(8, "0").startsWith("1");
 }
 
-export function calculateJsonChecksum(
+export async function calculateJsonChecksum(
   menu: Menu,
   forms: Forms,
-  suppressions: Suppression[]
+  suppressions: Suppression[],
 ) {
   let offsetChecksum = "";
 
@@ -56,14 +67,14 @@ export function calculateJsonChecksum(
     offsetChecksum += suppression.offset + suppression.start + suppression.end;
   }
 
-  return sha256(offsetChecksum).toString();
+  return sha256Hex(new TextEncoder().encode(offsetChecksum));
 }
 
 function replaceAt(
   string: string,
   index: number,
   length: number,
-  replacement: string
+  replacement: string,
 ) {
   return string.slice(0, index) + replacement + string.slice(index + length);
 }
@@ -89,7 +100,7 @@ function checkSuppressions(scopes: Scopes, formChild: FormChildren) {
 function getAdditionalData(
   bytes: string,
   hexSetupdataBin: string,
-  isRef: boolean
+  isRef: boolean,
 ): {
   pageId: string | null;
   accessLevel: string | null;
@@ -108,11 +119,11 @@ function getAdditionalData(
       byteArray[2] +
       byteArray[3] +
       ".{4}(..)(..)",
-    "g"
+    "g",
   );
 
   const matches = [...hexSetupdataBin.matchAll(regex)].filter(
-    (element) => element.index % 2 === 0
+    (element) => element.index % 2 === 0,
   );
 
   if (matches.length === 1) {
@@ -167,7 +178,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
   let setupSctChangeLog = "";
 
   const suppressions = JSON.parse(
-    JSON.stringify(data.suppressions)
+    JSON.stringify(data.suppressions),
   ) as Suppression[];
 
   for (const suppression of suppressions) {
@@ -175,7 +186,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
       if (
         modifiedSetupSct.slice(
           offsetToIndex(suppression.end),
-          offsetToIndex(suppression.end) + 4
+          offsetToIndex(suppression.end) + 4,
         ) !== "2902"
       ) {
         alert("Something went wrong. Please file a bug report on Github.");
@@ -186,14 +197,14 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
         modifiedSetupSct,
         offsetToIndex(suppression.end),
         4,
-        ""
+        "",
       );
 
       modifiedSetupSct = replaceAt(
         modifiedSetupSct,
         offsetToIndex(suppression.start),
         0,
-        "2902"
+        "2902",
       );
 
       for (const suppressionToUpdate of suppressions) {
@@ -205,7 +216,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
               parseInt(suppression.end, 16)
           ) {
             suppressionToUpdate.start = decToHexString(
-              (offsetToIndex(suppressionToUpdate.start) + 8) / 2
+              (offsetToIndex(suppressionToUpdate.start) + 8) / 2,
             );
           }
 
@@ -216,7 +227,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
               parseInt(suppression.end, 16)
           ) {
             suppressionToUpdate.end = decToHexString(
-              (offsetToIndex(suppressionToUpdate.end) + 8) / 2
+              (offsetToIndex(suppressionToUpdate.end) + 8) / 2,
             );
           }
         }
@@ -241,18 +252,18 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
       modifiedAmitseSct = replaceAt(modifiedAmitseSct, index, 4, newValue);
 
       const oldFormId = decToHexString(
-        parseInt(oldValue.slice(-2) + oldValue.slice(-4, -2), 16)
+        parseInt(oldValue.slice(-2) + oldValue.slice(-4, -2), 16),
       );
 
       amitseSctChangeLog += `${
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         data.forms.find(
-          (form) => parseInt(form.formId) === parseInt(oldFormId)
+          (form) => parseInt(form.formId) === parseInt(oldFormId),
         )!.name
       } | FormId ${oldFormId} -> ${
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         data.forms.find(
-          (form) => parseInt(form.formId) === parseInt(entry.formId)
+          (form) => parseInt(form.formId) === parseInt(entry.formId),
         )!.name
       } | FormId ${entry.formId}\n`;
 
@@ -274,7 +285,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
         const accessLevelIndex = offsetToIndex(child.offsets.accessLevel);
         const oldAccessLevel = modifiedSetupdataBin.slice(
           accessLevelIndex,
-          accessLevelIndex + 2
+          accessLevelIndex + 2,
         );
         const newAccessLevel = child.accessLevel.padStart(2, "0");
         if (oldAccessLevel !== newAccessLevel) {
@@ -282,7 +293,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
             modifiedSetupdataBin,
             accessLevelIndex,
             2,
-            newAccessLevel
+            newAccessLevel,
           );
           setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
 
@@ -292,7 +303,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
         const failsafeIndex = offsetToIndex(child.offsets.failsafe);
         const oldFailsafe = modifiedSetupdataBin.slice(
           failsafeIndex,
-          failsafeIndex + 2
+          failsafeIndex + 2,
         );
         const newFailsafe = child.failsafe.padStart(2, "0");
         if (oldFailsafe !== newFailsafe) {
@@ -300,7 +311,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
             modifiedSetupdataBin,
             failsafeIndex,
             2,
-            newFailsafe
+            newFailsafe,
           );
           setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
 
@@ -310,7 +321,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
         const optimalIndex = offsetToIndex(child.offsets.optimal);
         const oldOptimal = modifiedSetupdataBin.slice(
           optimalIndex,
-          optimalIndex + 2
+          optimalIndex + 2,
         );
         const newOptimal = child.optimal.padStart(2, "0");
         if (oldOptimal !== newOptimal) {
@@ -318,7 +329,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
             modifiedSetupdataBin,
             optimalIndex,
             2,
-            newOptimal
+            newOptimal,
           );
           setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
 
@@ -335,7 +346,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
       new Blob([new Uint8Array(getUint8Array(modifiedSetupSct))], {
         type: "application/octet-stream",
       }),
-      files.setupSctContainer.file.name
+      files.setupSctContainer.file.name,
     );
   }
 
@@ -346,7 +357,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
       new Blob([new Uint8Array(getUint8Array(modifiedAmitseSct))], {
         type: "application/octet-stream",
       }),
-      files.amitseSctContainer.file.name
+      files.amitseSctContainer.file.name,
     );
   }
 
@@ -357,7 +368,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
       new Blob([new Uint8Array(getUint8Array(modifiedSetupdataBin))], {
         type: "application/octet-stream",
       }),
-      files.setupdataBinContainer.file.name
+      files.setupdataBinContainer.file.name,
     );
   }
 
@@ -366,7 +377,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
       new Blob([changeLog], {
         type: "text/plain",
       }),
-      "changelog.txt"
+      "changelog.txt",
     );
   } else {
     alert("No modifications have been done.");
@@ -404,19 +415,27 @@ function determineSuppressionStart(setupTxtArray: string[], index: number) {
 }
 
 export async function parseData(files: PopulatedFiles) {
+  const [setupTxtHash, setupSctHash, amitseSctHash, setupdataBinHash] =
+    await Promise.all([
+      hashFile(files.setupTxtContainer.file),
+      hashFile(files.setupSctContainer.file),
+      hashFile(files.amitseSctContainer.file),
+      hashFile(files.setupdataBinContainer.file),
+    ]);
+
   let setupTxt = files.setupTxtContainer.textContent;
   const amitseSct = files.amitseSctContainer.textContent;
   const setupdataBin = files.setupdataBinContainer.textContent;
 
   if (
     !wantedIFRExtractorVersions.some((version) =>
-      setupTxt.includes(`Program version: ${version}`)
+      setupTxt.includes(`Program version: ${version}`),
     )
   ) {
     alert(
       `Wrong IFRExtractor-RS version. Compatible versions: ${wantedIFRExtractorVersions.join(
-        ", "
-      )}.`
+        ", ",
+      )}.`,
     );
     window.location.reload();
     return {} as Data;
@@ -430,6 +449,12 @@ export async function parseData(files: PopulatedFiles) {
 
   if (!/\{ .* \}/.test(setupTxt)) {
     alert(`Use the "verbose" option of IFRExtractor.`);
+    window.location.reload();
+    return {} as Data;
+  }
+
+  if (!setupTxt.includes(`SHA256: ${setupSctHash}`)) {
+    alert("Setup SCT and IFR Extractor output TXT SHA256 mismatch");
     window.location.reload();
     return {} as Data;
   }
@@ -457,29 +482,29 @@ export async function parseData(files: PopulatedFiles) {
     const formSet = /FormSet Guid: (.*)-(.*)-(.*)-(.*)-(.*), Title:/.exec(line);
     const varStore =
       /VarStore Guid: (.*), VarStoreId: (.*), Size: (.*), Name: "(.*)" \{/.exec(
-        line
+        line,
       );
     const form = /Form FormId: (.*), Title: "(.*)" \{ (.*) \}/.exec(line);
     const suppressIf = /\{ 0A 82 \}/.exec(line);
     const ref =
       /Ref Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), FormId: (.*) \{ (.*) \}/.exec(
-        line
+        line,
       );
     const string =
       /String Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarStoreInfo: (.*), MinSize: (.*), MaxSize: (.*), Flags: (.*) \{ (.*) \}/.exec(
-        line
+        line,
       );
     const numeric =
       /Numeric Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/.exec(
-        line
+        line,
       );
     const checkBox =
       /CheckBox Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*) \{ (.*) \}/.exec(
-        line
+        line,
       );
     const oneOf =
       /OneOf Prompt: "(.*)", Help: "(.*)", QuestionFlags: (.*), QuestionId: (.*), VarStoreId: (.*), VarOffset: (.*), Flags: (.*), Size: (.*), Min: (.*), Max: (.*), Step: (.*) \{ (.*) \}/.exec(
-        line
+        line,
       );
     const oneOfOption = /OneOfOption Option: "(.*)" Value: (.*) \{/.exec(line);
     const defaultId = /Default DefaultId: (.*) Value: (.*) \{/.exec(line);
@@ -538,7 +563,7 @@ export async function parseData(files: PopulatedFiles) {
         questionId: ref[4],
         varStoreId: ref[5],
         varStoreName: varStores.find(
-          (varStore) => varStore.varStoreId === ref[5]
+          (varStore) => varStore.varStoreId === ref[5],
         )?.name,
         formId,
         ...getAdditionalData(ref[8], setupdataBin, true),
@@ -559,7 +584,7 @@ export async function parseData(files: PopulatedFiles) {
       const { accessLevel, failsafe, optimal, offsets } = getAdditionalData(
         string[10],
         setupdataBin,
-        false
+        false,
       );
 
       currentString = {
@@ -569,7 +594,7 @@ export async function parseData(files: PopulatedFiles) {
         questionId: string[4],
         varStoreId: string[5],
         varStoreName: varStores.find(
-          (varStore) => varStore.varStoreId === string[5]
+          (varStore) => varStore.varStoreId === string[5],
         )?.name,
         accessLevel,
         failsafe,
@@ -588,7 +613,7 @@ export async function parseData(files: PopulatedFiles) {
       const { accessLevel, failsafe, optimal, offsets } = getAdditionalData(
         numeric[12],
         setupdataBin,
-        false
+        false,
       );
 
       currentNumeric = {
@@ -598,7 +623,7 @@ export async function parseData(files: PopulatedFiles) {
         questionId: numeric[4],
         varStoreId: numeric[5],
         varStoreName: varStores.find(
-          (varStore) => varStore.varStoreId === numeric[5]
+          (varStore) => varStore.varStoreId === numeric[5],
         )?.name,
         varOffset: numeric[6],
         size: numeric[8],
@@ -622,7 +647,7 @@ export async function parseData(files: PopulatedFiles) {
       const { accessLevel, failsafe, optimal, offsets } = getAdditionalData(
         checkBox[8],
         setupdataBin,
-        false
+        false,
       );
 
       currentCheckBox = {
@@ -632,7 +657,7 @@ export async function parseData(files: PopulatedFiles) {
         questionId: checkBox[4],
         varStoreId: checkBox[5],
         varStoreName: varStores.find(
-          (varStore) => varStore.varStoreId === checkBox[5]
+          (varStore) => varStore.varStoreId === checkBox[5],
         )?.name,
         varOffset: checkBox[6],
         flags: checkBox[7],
@@ -653,7 +678,7 @@ export async function parseData(files: PopulatedFiles) {
       const { accessLevel, failsafe, optimal, offsets } = getAdditionalData(
         oneOf[12],
         setupdataBin,
-        false
+        false,
       );
 
       currentOneOf = {
@@ -663,7 +688,7 @@ export async function parseData(files: PopulatedFiles) {
         questionId: oneOf[4],
         varStoreId: oneOf[5],
         varStoreName: varStores.find(
-          (varStore) => varStore.varStoreId === oneOf[5]
+          (varStore) => varStore.varStoreId === oneOf[5],
         )?.name,
         varOffset: oneOf[6],
         size: oneOf[8],
@@ -752,7 +777,7 @@ export async function parseData(files: PopulatedFiles) {
   const menu: Menu = matches
     .map((match) => {
       const hexEntry = decToHexString(
-        parseInt(match[1].slice(2) + match[1].slice(0, 2), 16)
+        parseInt(match[1].slice(2) + match[1].slice(0, 2), 16),
       );
       return {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
@@ -777,11 +802,11 @@ export async function parseData(files: PopulatedFiles) {
     suppressions,
     version,
     hashes: {
-      setupTxt: sha256(setupTxt).toString(),
-      setupSct: sha256(files.setupSctContainer.textContent).toString(),
-      amitseSct: sha256(amitseSct).toString(),
-      setupdataBin: sha256(setupdataBin).toString(),
-      offsetChecksum: calculateJsonChecksum(menu, forms, suppressions),
+      setupTxt: setupTxtHash,
+      setupSct: setupSctHash,
+      amitseSct: amitseSctHash,
+      setupdataBin: setupdataBinHash,
+      offsetChecksum: await calculateJsonChecksum(menu, forms, suppressions),
     },
   };
 

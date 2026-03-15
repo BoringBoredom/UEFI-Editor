@@ -1,17 +1,17 @@
-import React from "react";
-import s from "./Footer.module.css";
-import { Button, Group, TextInput, FileButton } from "@mantine/core";
+import { Button, FileButton, Group, TextInput } from "@mantine/core";
 import { IconDownload, IconUpload } from "@tabler/icons-react";
 import { saveAs } from "file-saver";
+import React from "react";
 import type { Updater } from "use-immer";
+import type { PopulatedFiles } from "../FileUploads/FileUploads";
 import {
-  validateByteInput,
   calculateJsonChecksum,
   downloadModifiedFiles,
+  validateByteInput,
   version,
 } from "../scripts/scripts";
 import type { Data, Suppression } from "../scripts/types";
-import type { PopulatedFiles } from "../FileUploads/FileUploads";
+import s from "./Footer.module.css";
 
 interface FooterProps {
   files: PopulatedFiles;
@@ -38,7 +38,8 @@ export default function Footer({
             accept=".json"
             onChange={(file) => {
               if (file) {
-                void file.text().then((fileData) => {
+                void (async () => {
+                  const fileData = await file.text();
                   const jsonData = JSON.parse(fileData) as Data;
 
                   if (
@@ -47,11 +48,11 @@ export default function Footer({
                     jsonData.hashes.setupSct === data.hashes.setupSct &&
                     jsonData.hashes.amitseSct === data.hashes.amitseSct &&
                     jsonData.hashes.setupdataBin === data.hashes.setupdataBin &&
-                    calculateJsonChecksum(
+                    (await calculateJsonChecksum(
                       jsonData.menu,
                       jsonData.forms,
-                      jsonData.suppressions
-                    ) === data.hashes.offsetChecksum
+                      jsonData.suppressions,
+                    )) === data.hashes.offsetChecksum
                   ) {
                     setData(jsonData);
                   } else {
@@ -59,7 +60,7 @@ export default function Footer({
                   }
 
                   resetRef.current?.();
-                });
+                })();
               }
             }}
           >
@@ -84,7 +85,7 @@ export default function Footer({
                 new Blob([JSON.stringify(data, null, 2)], {
                   type: "text/plain",
                 }),
-                "data.json"
+                "data.json",
               );
             }}
           >
@@ -116,7 +117,7 @@ export default function Footer({
                         (
                           draft.suppressions.find(
                             (suppression) =>
-                              suppression.offset === suppressionOffset
+                              suppression.offset === suppressionOffset,
                           ) as Suppression
                         ).active = false;
                       }

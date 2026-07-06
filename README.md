@@ -1,3 +1,16 @@
+Modern BIOS Setup is often split across multiple DXE modules, so a single workflow may touch several related binaries in sequence. The defect was caused by FileUpload reusing a stale `setupdata` cache: a newly uploaded `setupdata-A.bin` could be ignored, and when `setupdata-B.bin` was later generated after modifying another Setup module, only the latest module changes remained while earlier Setup edits were silently lost. The fix removes cache reuse and forces every upload to be re-read and re-parsed, ensuring multi-module changes remain consistent across successive uploads.
+
+Modern BIOS setups are typically not implemented as a single monolithic module, but are instead distributed across multiple DXE drivers. Each module—such as Setup, SocketSetup, Platform, ServerMgmtSetup, NvmeDynamicSetup, PciOutOfResourceSetupPage, and ReFlash—owns its own PE32 image and IFR description, and contributes a portion of the overall configuration UI and variable logic. Although these modules appear independent, they are tightly coupled through shared NVRAM variables, form/question references, and a unified setupdata generation pipeline.
+
+
+
+> 现代 BIOS 的 Setup 逻辑常分散于多个 DXE 模块，导致同一轮交互中会先后处理多个相关二进制。当前缺陷在于 FileUpload 复用了旧的 `setupdata` 缓存，新上传的 `setupdata-A.bin` 未被重新解析，后续再传入其他 Setup 组件时，生成的 `setupdata-B.bin` 只反映最新组件变更，先前对 Setup 的修改被静默覆盖。修复方式是取消缓存复用，强制每次以上传文件重新构建解析输入，确保多模块修改在跨轮上传后仍保持一致生效。
+>
+> 现代 BIOS 的 Setup 逻辑通常并非集中实现，而是按功能拆分到多个 DXE 模块中分别维护，例如 Setup、SocketSetup、Platform、FpgaSocketSetup、ServerMgmtSetup、NvmeDynamicSetup、PciOutOfResourceSetupPage、ReFlash、FboGroupForm等。每个模块往往对应独立的 PE32/IFR 资源和变量布局，分别承载不同硬件域、策略域和平台特性，因此表面上是多个独立的配置页面，底层却共享同一套 NVRAM 变量、Form/Question 关联关系以及 setupdata 生成链路。
+
+------
+
+
 # [Aptio V UEFI Editor](https://boringboredom.github.io/UEFI-Editor/)
 
 ![](./images/showcase/1.png)

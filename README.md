@@ -40,7 +40,7 @@
   ![](./images/extraction/5.png)
   ![](./images/extraction/6.png)
 
-- Upload the 4 files to the `UEFI Editor` page.
+- Select the 4 files on the `UEFI Editor` page and press `Load` (files are only read locally in your browser, nothing is uploaded anywhere). If `Failsafe`/`Optimal` changes have no effect on your board, see [Failsafe / Optimal defaults stored in NVRAM](#failsafe--optimal-defaults-stored-in-nvram-optional).
 
   ![](./images/extraction/7.png)
 
@@ -93,6 +93,19 @@
 - Save the modifications.
 
   ![](./images/insertion/4.png)
+
+## Failsafe / Optimal defaults stored in NVRAM (optional)
+
+On many boards (e.g. Gigabyte Z690, ASUS H470/H610/X670E, B760, HP laptops) changing `Failsafe`/`Optimal` in `setupdata` has no effect, because `Load Optimized Defaults` reads the defaults from the NVRAM variables `StdDefaults` (= Optimal) and `MfgDefaults` (= Failsafe). These variables contain a copy of every `VarStore` (`Setup`, `PchSetup`, `CpuSetup`, ...).
+
+- In `UEFITool NE`, search (`CTRL + F`, `Text`) for `StdDefaults`. Double-click the result and find the enclosing NVRAM volume (usually `AmiNvramMainRomAreaGuid`). Extract that volume `as is`.
+- Select it as the optional 5th file (`NVRAM volume / BIOS image`) together with the 4 required files and press `Load`.
+- Two additional columns `Failsafe (NVRAM MfgDefaults)` and `Optimal (NVRAM StdDefaults)` appear. The values are shown as hexadecimal numbers with the size of the setting (e.g. `0001` for a 16-bit setting).
+- After pressing the `UEFI Files` download button, the modified NVRAM file is saved under its original name. Replace the volume `as is` in `UEFITool 0.28.0`. The checksums of the NVRAM entries are fixed automatically.
+- Alternatively, you can select a full (uncompressed) BIOS image instead of the extracted volume and flash the downloaded image directly, if your board/flashing tool accepts it.
+- On some boards (e.g. HP) the defaults exist in several copies (e.g. in backup/padding areas). All copies found are patched. The change log lists how many copies were patched.
+- After flashing, use `Load Optimized Defaults` (or reset CMOS) so that the new defaults are applied.
+- If no `StdDefaults`/`MfgDefaults` store is found in the selected file, a warning is shown and the editor continues without it.
 
 ---
 

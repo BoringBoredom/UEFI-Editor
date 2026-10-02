@@ -1,5 +1,5 @@
 import { Button, FileButton, Group, TextInput } from "@mantine/core";
-import { IconDownload, IconUpload } from "@tabler/icons-react";
+import { IconDownload, IconFolderOpen } from "@tabler/icons-react";
 import { saveAs } from "file-saver";
 import React from "react";
 import type { Updater } from "use-immer";
@@ -48,6 +48,7 @@ export default function Footer({
                     jsonData.hashes.setupSct === data.hashes.setupSct &&
                     jsonData.hashes.amitseSct === data.hashes.amitseSct &&
                     jsonData.hashes.setupdataBin === data.hashes.setupdataBin &&
+                    jsonData.hashes.nvramBin === data.hashes.nvramBin &&
                     (await calculateJsonChecksum(
                       jsonData.menu,
                       jsonData.forms,
@@ -68,7 +69,7 @@ export default function Footer({
               <Button
                 {...props}
                 size="xs"
-                leftSection={<IconUpload />}
+                leftSection={<IconFolderOpen />}
                 variant="default"
               >
                 data.json

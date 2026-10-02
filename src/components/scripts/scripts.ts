@@ -16,8 +16,17 @@ import type {
   Suppression,
   VarStores,
 } from "./types";
+import {
+  findVariables,
+  fitsInVariable,
+  formatValue,
+  parseNvramDefaults,
+  readValue,
+  writeValue,
+  type NvramDefaultsStore,
+} from "./nvram";
 
-export const version = "0.1.0";
+export const version = "0.2.0";
 const wantedIFRExtractorVersions = ["1.6.1"];
 
 async function sha256Hex(data: BufferSource) {
@@ -32,9 +41,9 @@ async function hashFile(file: File) {
   return sha256Hex(await file.arrayBuffer());
 }
 
-export function validateByteInput(value: string) {
+export function validateByteInput(value: string, maxLength = 2) {
   return (
-    value.length <= 2 &&
+    value.length <= maxLength &&
     (value.length === 0 ||
       value.split("").every((char) => /[a-fA-F0-9]/.test(char)))
   );
@@ -60,6 +69,14 @@ export async function calculateJsonChecksum(
   for (const form of forms) {
     for (const child of form.children) {
       offsetChecksum += JSON.stringify(child.offsets);
+
+      if (child.stdDefault !== null) {
+        offsetChecksum += "S";
+      }
+
+      if (child.mfgDefault !== null) {
+        offsetChecksum += "M";
+      }
     }
   }
 
@@ -158,6 +175,81 @@ function getAdditionalData(
   };
 }
 
+export interface NvramTarget {
+  varStoreName: string;
+  varStoreGuid: string;
+  /** Offset inside the variable in bytes */
+  offset: number;
+  /** Size in bytes */
+  size: number;
+}
+
+export function getNvramTarget(
+  child: FormChildren,
+  varStores: VarStores,
+): NvramTarget | null {
+  if (
+    child.type !== "CheckBox" &&
+    child.type !== "OneOf" &&
+    child.type !== "Numeric"
+  ) {
+    return null;
+  }
+
+  const varStore = varStores.find(
+    (varStore) => varStore.varStoreId === child.varStoreId,
+  );
+
+  if (!varStore?.name) {
+    return null;
+  }
+
+  const offset = parseInt(child.varOffset, 16);
+  const size = child.type === "CheckBox" ? 1 : parseInt(child.size, 10) / 8;
+
+  if (
+    !Number.isInteger(offset) ||
+    !Number.isInteger(size) ||
+    offset < 0 ||
+    size <= 0
+  ) {
+    return null;
+  }
+
+  return {
+    varStoreName: varStore.name,
+    varStoreGuid: varStore.guid,
+    offset,
+    size,
+  };
+}
+
+function getNvramVariables(stores: NvramDefaultsStore[], target: NvramTarget) {
+  return findVariables(stores, target.varStoreName, target.varStoreGuid).filter(
+    (variable) => fitsInVariable(variable, target.offset, target.size),
+  );
+}
+
+function readNvramDefault(
+  bytes: Uint8Array,
+  stores: NvramDefaultsStore[],
+  target: NvramTarget | null,
+) {
+  if (!target) {
+    return null;
+  }
+
+  const variables = getNvramVariables(stores, target);
+
+  if (variables.length === 0) {
+    return null;
+  }
+
+  const value = readValue(bytes, variables[0], target.offset, target.size);
+
+  return value === null ? null : formatValue(value, target.size);
+}
+
 function getUint8Array(string: string) {
   const array = [];
   for (let i = 0, len = string.length; i < len; i += 2) {
@@ -171,6 +263,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
   let wasSetupSctModified = false;
   let wasAmitseSctModified = false;
   let wasSetupdataBinModified = false;
+  let wasNvramModified = false;
 
   let changeLog = "";
 
@@ -216,7 +309,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
               parseInt(suppression.end, 16)
           ) {
             suppressionToUpdate.start = decToHexString(
-              (offsetToIndex(suppressionToUpdate.start) + 8) / 2,
+              (offsetToIndex(suppressionToUpdate.start) + 4) / 2,
             );
           }
 
@@ -227,7 +320,7 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
               parseInt(suppression.end, 16)
           ) {
             suppressionToUpdate.end = decToHexString(
-              (offsetToIndex(suppressionToUpdate.end) + 8) / 2,
+              (offsetToIndex(suppressionToUpdate.end) + 4) / 2,
             );
           }
         }
@@ -274,6 +367,14 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
   let modifiedSetupdataBin = files.setupdataBinContainer.textContent;
   let setupdataBinChangeLog = "";
 
+  // Decide per location against the ORIGINAL content, so that unedited
+  // duplicates (same question in several forms) cannot revert an edit.
+  const originalSetupdataBin = files.setupdataBinContainer.textContent;
+  const setupdataPatches = new Map<
+    number,
+    { oldValue: string; newValue: string; text: string }
+  >();
+
   for (const form of data.forms) {
     for (const child of form.children) {
       if (
@@ -282,60 +383,158 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
         child.failsafe &&
         child.optimal
       ) {
-        const accessLevelIndex = offsetToIndex(child.offsets.accessLevel);
-        const oldAccessLevel = modifiedSetupdataBin.slice(
-          accessLevelIndex,
-          accessLevelIndex + 2,
-        );
-        const newAccessLevel = child.accessLevel.padStart(2, "0");
-        if (oldAccessLevel !== newAccessLevel) {
-          modifiedSetupdataBin = replaceAt(
-            modifiedSetupdataBin,
-            accessLevelIndex,
-            2,
-            newAccessLevel,
-          );
-          setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Access Level ${oldAccessLevel} -> ${newAccessLevel}\n`;
+        const fields: [string, string, string][] = [
+          ["Access Level", child.offsets.accessLevel, child.accessLevel],
+          ["Failsafe", child.offsets.failsafe, child.failsafe],
+          ["Optimal", child.offsets.optimal, child.optimal],
+        ];
 
-          wasSetupdataBinModified = true;
-        }
+        for (const [label, offset, value] of fields) {
+          const index = offsetToIndex(offset);
+          const oldValue = originalSetupdataBin.slice(index, index + 2);
+          const newValue = value.padStart(2, "0");
 
-        const failsafeIndex = offsetToIndex(child.offsets.failsafe);
-        const oldFailsafe = modifiedSetupdataBin.slice(
-          failsafeIndex,
-          failsafeIndex + 2,
-        );
-        const newFailsafe = child.failsafe.padStart(2, "0");
-        if (oldFailsafe !== newFailsafe) {
-          modifiedSetupdataBin = replaceAt(
-            modifiedSetupdataBin,
-            failsafeIndex,
-            2,
-            newFailsafe,
-          );
-          setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Failsafe ${oldFailsafe} -> ${newFailsafe}\n`;
+          if (oldValue === newValue) {
+            continue;
+          }
 
-          wasSetupdataBinModified = true;
-        }
+          const text = `${child.name} | QuestionId ${child.questionId}: ${label} ${oldValue} -> ${newValue}`;
+          const existing = setupdataPatches.get(index);
 
-        const optimalIndex = offsetToIndex(child.offsets.optimal);
-        const oldOptimal = modifiedSetupdataBin.slice(
-          optimalIndex,
-          optimalIndex + 2,
-        );
-        const newOptimal = child.optimal.padStart(2, "0");
-        if (oldOptimal !== newOptimal) {
-          modifiedSetupdataBin = replaceAt(
-            modifiedSetupdataBin,
-            optimalIndex,
-            2,
-            newOptimal,
-          );
-          setupdataBinChangeLog += `${child.name} | QuestionId ${child.questionId}: Optimal ${oldOptimal} -> ${newOptimal}\n`;
-
-          wasSetupdataBinModified = true;
+          if (existing && existing.newValue !== newValue) {
+            setupdataBinChangeLog += `CONFLICT at Setupdata ${offset}: ${existing.oldValue} -> ${existing.newValue} and ${newValue} requested by different entries; applying the last one (${child.name} | QuestionId ${child.questionId}: ${label})\n`;
+            setupdataPatches.set(index, { oldValue, newValue, text });
+          } else if (!existing) {
+            setupdataPatches.set(index, { oldValue, newValue, text });
+          }
         }
       }
+    }
+  }
+
+  for (const [index, patch] of setupdataPatches) {
+    modifiedSetupdataBin = replaceAt(
+      modifiedSetupdataBin,
+      index,
+      2,
+      patch.newValue,
+    );
+    setupdataBinChangeLog += `${patch.text}\n`;
+    wasSetupdataBinModified = true;
+  }
+
+  let modifiedNvram: Uint8Array | null = null;
+  let nvramChangeLog = "";
+
+  if (files.nvramContainer.file && files.nvramContainer.bytes) {
+    const original = files.nvramContainer.bytes;
+    const nvram = original.slice();
+    const defaults = parseNvramDefaults(nvram);
+    modifiedNvram = nvram;
+
+    // Decide per location against the ORIGINAL bytes (see setupdata above).
+    const nvramPatches = new Map<
+      string,
+      {
+        variables: ReturnType<typeof getNvramVariables>;
+        target: NvramTarget;
+        newValue: bigint;
+        oldValue: bigint | null;
+        patchedCopies: number;
+        label: string;
+        child: Data["forms"][number]["children"][number];
+      }
+    >();
+
+    for (const form of data.forms) {
+      for (const child of form.children) {
+        const target = getNvramTarget(child, data.varStores);
+
+        if (!target) {
+          continue;
+        }
+
+        const entries: [string, NvramDefaultsStore[], string | null][] = [
+          ["Failsafe (MfgDefaults)", defaults.mfg, child.mfgDefault],
+          ["Optimal (StdDefaults)", defaults.std, child.stdDefault],
+        ];
+
+        for (const [label, stores, value] of entries) {
+          if (!value) {
+            continue;
+          }
+
+          const variables = getNvramVariables(stores, target);
+
+          if (variables.length === 0) {
+            continue;
+          }
+
+          const newValue = BigInt(`0x${value}`);
+          const oldValue = readValue(
+            original,
+            variables[0],
+            target.offset,
+            target.size,
+          );
+          let patchedCopies = 0;
+
+          for (const variable of variables) {
+            if (
+              readValue(original, variable, target.offset, target.size) !==
+              newValue
+            ) {
+              patchedCopies++;
+            }
+          }
+
+          if (patchedCopies === 0) {
+            continue;
+          }
+
+          const key = `${label}|${target.varStoreName}|${String(target.offset)}|${String(target.size)}`;
+          const existing = nvramPatches.get(key);
+
+          if (existing && existing.newValue !== newValue) {
+            nvramChangeLog += `CONFLICT at ${target.varStoreName} ${decToHexString(
+              target.offset,
+            )} (${label}): ${formatValue(existing.newValue, target.size)} and ${formatValue(
+              newValue,
+              target.size,
+            )} requested by different entries; applying the last one (${child.name} | QuestionId ${child.questionId})\n`;
+          }
+
+          if (existing?.newValue !== newValue) {
+            nvramPatches.set(key, {
+              variables,
+              target,
+              newValue,
+              oldValue,
+              patchedCopies,
+              label,
+              child,
+            });
+          }
+        }
+      }
+    }
+
+    for (const patch of nvramPatches.values()) {
+      const { target, child, label, newValue, oldValue } = patch;
+
+      for (const variable of patch.variables) {
+        writeValue(nvram, variable, target.offset, target.size, newValue);
+      }
+
+      nvramChangeLog += `${child.name} | QuestionId ${
+        child.questionId
+      } | ${target.varStoreName} ${decToHexString(target.offset)}: ${label} ${
+        oldValue === null ? "?" : formatValue(oldValue, target.size)
+      } -> ${formatValue(newValue, target.size)} (${String(
+        patch.patchedCopies,
+      )} of ${String(patch.variables.length)} copies patched)\n`;
+
+      wasNvramModified = true;
     }
   }
 
@@ -372,7 +571,23 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
     );
   }
 
-  if (wasSetupSctModified || wasAmitseSctModified || wasSetupdataBinModified) {
+  if (wasNvramModified && modifiedNvram && files.nvramContainer.file) {
+    changeLog += `========== ${files.nvramContainer.file.name} ==========\n\n${nvramChangeLog}\n\n\n`;
+
+    saveAs(
+      new Blob([modifiedNvram], {
+        type: "application/octet-stream",
+      }),
+      files.nvramContainer.file.name,
+    );
+  }
+
+  if (
+    wasSetupSctModified ||
+    wasAmitseSctModified ||
+    wasSetupdataBinModified ||
+    wasNvramModified
+  ) {
     saveAs(
       new Blob([changeLog], {
         type: "text/plain",
@@ -386,42 +601,126 @@ export async function downloadModifiedFiles(data: Data, files: PopulatedFiles) {
   return Promise.resolve();
 }
 
+// Opcodes (as printed by IFRExtractor-RS) that can be part of a SuppressIf condition expression.
+const expressionOpcodes = new Set([
+  "EqIdVal",
+  "EqIdValList",
+  "EqIdId",
+  "Not",
+  "And",
+  "Or",
+  "QuestionRef1",
+  "QuestionRef2",
+  "QuestionRef3",
+  "StringRef1",
+  "StringRef2",
+  "Uint8",
+  "Uint16",
+  "Uint32",
+  "Uint64",
+  "Equal",
+  "NotEqual",
+  "True",
+  "False",
+  "Ones",
+  "Zero",
+  "One",
+  "Undefined",
+  "Version",
+  "BitwiseAnd",
+  "BitwiseOr",
+  "BitwiseNot",
+  "GreaterThan",
+  "GreaterEqual",
+  "LessThan",
+  "LessEqual",
+  "Dup",
+  "Length",
+  "Add",
+  "Subtract",
+  "Multiply",
+  "Divide",
+  "Modulo",
+  "ShiftLeft",
+  "ShiftRight",
+  "ToBoolean",
+  "ToUint",
+  "ToString",
+  "ToLower",
+  "ToUpper",
+  "Catenate",
+  "Match",
+  "Match2",
+  "Mid",
+  "Find",
+  "Token",
+  "Span",
+  "Conditional",
+  "Get",
+  "Set",
+  "Map",
+  "RuleRef",
+  "Security",
+  "This",
+  "ThisVariableName",
+  "DupName",
+]);
+
 function determineSuppressionStart(setupTxtArray: string[], index: number) {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  if (!hasScope(/\{ (.*) \}/.exec(setupTxtArray[index + 1])![1])) {
-    return setupTxtArray[index + 2].split(" ")[0].slice(0, -1);
-  }
+  const opcodeName = (line: string) => /^0x\w+:\s*(\w+)/.exec(line)?.[1];
 
-  let openScopes = 1;
-  let currentIndex = index + 2;
-  while (openScopes !== 0) {
-    const line = setupTxtArray[currentIndex];
+  // The condition is a sequence of expression opcodes, each possibly scoped
+  // (terminated by a matching End). The body starts at the first line after it.
+  let currentIndex = index + 1;
+  while (
+    currentIndex < setupTxtArray.length &&
+    expressionOpcodes.has(opcodeName(setupTxtArray[currentIndex]) ?? "")
+  ) {
+    const bytes = /\{ (.*) \}/.exec(setupTxtArray[currentIndex]);
 
-    const anyOpcode = /\{ (.*) \}/.exec(line);
-    const end = /\{ 29 02 \}/.exec(line);
+    if (bytes && hasScope(bytes[1])) {
+      let openScopes = 1;
+      currentIndex++;
 
-    if (anyOpcode && hasScope(anyOpcode[1])) {
-      openScopes++;
+      while (openScopes !== 0 && currentIndex < setupTxtArray.length) {
+        const line = setupTxtArray[currentIndex];
+
+        if (line.includes("{ 29 02 }")) {
+          openScopes--;
+        } else {
+          const anyOpcode = /\{ (.*) \}/.exec(line);
+
+          if (anyOpcode && hasScope(anyOpcode[1])) {
+            openScopes++;
+          }
+        }
+
+        currentIndex++;
+      }
+    } else {
+      currentIndex++;
     }
-
-    if (end) {
-      openScopes--;
-    }
-
-    currentIndex++;
   }
 
   return setupTxtArray[currentIndex].split(" ")[0].slice(0, -1);
 }
 
 export async function parseData(files: PopulatedFiles) {
-  const [setupTxtHash, setupSctHash, amitseSctHash, setupdataBinHash] =
-    await Promise.all([
-      hashFile(files.setupTxtContainer.file),
-      hashFile(files.setupSctContainer.file),
-      hashFile(files.amitseSctContainer.file),
-      hashFile(files.setupdataBinContainer.file),
-    ]);
+  const [
+    setupTxtHash,
+    setupSctHash,
+    amitseSctHash,
+    setupdataBinHash,
+    nvramBinHash,
+  ] = await Promise.all([
+    hashFile(files.setupTxtContainer.file),
+    hashFile(files.setupSctContainer.file),
+    hashFile(files.amitseSctContainer.file),
+    hashFile(files.setupdataBinContainer.file),
+    files.nvramContainer.bytes
+      ? sha256Hex(files.nvramContainer.bytes)
+      : Promise.resolve(""),
+  ]);
 
   let setupTxt = files.setupTxtContainer.textContent;
   const amitseSct = files.amitseSctContainer.textContent;
@@ -484,6 +783,10 @@ export async function parseData(files: PopulatedFiles) {
       /VarStore Guid: (.*), VarStoreId: (.*), Size: (.*), Name: "(.*)" \{/.exec(
         line,
       );
+    const varStoreEfi =
+      /VarStoreEfi Guid: ([^,]*), VarStoreId: ([^,]*), Attributes: ([^,{]*?)(?:, Size: ([^,{]*?))?(?:, Name: "(.*)")? \{/.exec(
+        line,
+      );
     const form = /Form FormId: (.*), Title: "(.*)" \{ (.*) \}/.exec(line);
     const suppressIf = /\{ 0A 82 \}/.exec(line);
     const ref =
@@ -520,8 +823,18 @@ export async function parseData(files: PopulatedFiles) {
     if (varStore) {
       varStores.push({
         varStoreId: varStore[2],
+        guid: varStore[1],
         size: varStore[3],
         name: varStore[4],
+      });
+    }
+
+    if (varStoreEfi?.[5]) {
+      varStores.push({
+        varStoreId: varStoreEfi[2],
+        guid: varStoreEfi[1],
+        size: (varStoreEfi[4] as string | undefined) ?? "",
+        name: varStoreEfi[5],
       });
     }
 
@@ -567,6 +880,8 @@ export async function parseData(files: PopulatedFiles) {
         )?.name,
         formId,
         ...getAdditionalData(ref[8], setupdataBin, true),
+        stdDefault: null,
+        mfgDefault: null,
       };
 
       checkSuppressions(scopes, currentRef);
@@ -600,6 +915,8 @@ export async function parseData(files: PopulatedFiles) {
         failsafe,
         optimal,
         offsets,
+        stdDefault: null,
+        mfgDefault: null,
       };
 
       checkSuppressions(scopes, currentString);
@@ -634,6 +951,8 @@ export async function parseData(files: PopulatedFiles) {
         failsafe,
         optimal,
         offsets,
+        stdDefault: null,
+        mfgDefault: null,
       };
 
       checkSuppressions(scopes, currentNumeric);
@@ -665,6 +984,8 @@ export async function parseData(files: PopulatedFiles) {
         failsafe,
         optimal,
         offsets,
+        stdDefault: null,
+        mfgDefault: null,
       };
 
       checkSuppressions(scopes, currentCheckBox);
@@ -697,6 +1018,8 @@ export async function parseData(files: PopulatedFiles) {
         failsafe,
         optimal,
         offsets,
+        stdDefault: null,
+        mfgDefault: null,
       };
 
       checkSuppressions(scopes, currentOneOf);
@@ -752,7 +1075,9 @@ export async function parseData(files: PopulatedFiles) {
           const latestSuppression = currentSuppressions.pop();
 
           if (!latestSuppression) {
-            alert("Something went wrong. Please file a bug report on Github.");
+            alert(
+              `Something went wrong (suppression ${offset}). Please file a bug report on Github.`,
+            );
             window.location.reload();
             return {} as Data;
           }
@@ -795,6 +1120,21 @@ export async function parseData(files: PopulatedFiles) {
     }
   }
 
+  const nvramBytes = files.nvramContainer.bytes;
+
+  if (nvramBytes) {
+    const defaults = parseNvramDefaults(nvramBytes);
+
+    for (const form of forms) {
+      for (const child of form.children) {
+        const target = getNvramTarget(child, varStores);
+
+        child.stdDefault = readNvramDefault(nvramBytes, defaults.std, target);
+        child.mfgDefault = readNvramDefault(nvramBytes, defaults.mfg, target);
+      }
+    }
+  }
+
   const dataJson: Data = {
     menu,
     forms,
@@ -806,6 +1146,7 @@ export async function parseData(files: PopulatedFiles) {
       setupSct: setupSctHash,
       amitseSct: amitseSctHash,
       setupdataBin: setupdataBinHash,
+      nvramBin: nvramBinHash,
       offsetChecksum: await calculateJsonChecksum(menu, forms, suppressions),
     },
   };

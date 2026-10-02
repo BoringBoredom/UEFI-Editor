@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { useDebouncedState } from "@mantine/hooks";
 import type { Data, FormChildren } from "../scripts/types";
-import { validateByteInput } from "../scripts/scripts";
+import { getNvramTarget, validateByteInput } from "../scripts/scripts";
 import SearchUi from "./SearchUi/SearchUi";
 
 interface SuppressionChipProps {
@@ -56,6 +56,7 @@ interface TableRowProps {
   data: Data;
   setData: Updater<Data>;
   currentFormIndex: number;
+  hasNvram: boolean;
 }
 
 const TableRow = React.memo(
@@ -66,8 +67,11 @@ const TableRow = React.memo(
     data,
     setData,
     currentFormIndex,
+    hasNvram,
   }: TableRowProps) {
     const type = child.type;
+    const nvramMaxLength =
+      (getNvramTarget(child, data.varStores)?.size ?? 1) * 2;
     const info = [];
 
     if (type === "CheckBox" || type === "OneOf" || type === "Numeric") {
@@ -190,6 +194,46 @@ const TableRow = React.memo(
             />
           )}
         </td>
+        {hasNvram && (
+          <>
+            <td className={s.nvramWidth}>
+              {child.mfgDefault !== null && (
+                <TextInput
+                  value={child.mfgDefault}
+                  onChange={(ev) => {
+                    const value = ev.target.value.toUpperCase();
+
+                    if (validateByteInput(value, nvramMaxLength)) {
+                      setData((draft) => {
+                        draft.forms[currentFormIndex].children[
+                          index
+                        ].mfgDefault = value;
+                      });
+                    }
+                  }}
+                />
+              )}
+            </td>
+            <td className={s.nvramWidth}>
+              {child.stdDefault !== null && (
+                <TextInput
+                  value={child.stdDefault}
+                  onChange={(ev) => {
+                    const value = ev.target.value.toUpperCase();
+
+                    if (validateByteInput(value, nvramMaxLength)) {
+                      setData((draft) => {
+                        draft.forms[currentFormIndex].children[
+                          index
+                        ].stdDefault = value;
+                      });
+                    }
+                  }}
+                />
+              )}
+            </td>
+          </>
+        )}
         <td>
           <Group gap="xs">
             {child.suppressIf?.map((suppressionOffset, index) => (
@@ -257,6 +301,9 @@ const TableRow = React.memo(
       oldChild.accessLevel === newChild.accessLevel &&
       oldChild.failsafe === newChild.failsafe &&
       oldChild.optimal === newChild.optimal &&
+      oldChild.stdDefault === newChild.stdDefault &&
+      oldChild.mfgDefault === newChild.mfgDefault &&
+      oldProps.hasNvram === newProps.hasNvram &&
       JSON.stringify(
         oldChild.suppressIf?.map(
           (offset) =>
@@ -315,6 +362,8 @@ export default function FormUi({
     );
   }
 
+  const hasNvram = !!data.hashes.nvramBin;
+
   if (currentFormIndex === -1) {
     return (
       <Table striped withColumnBorders>
@@ -369,6 +418,12 @@ export default function FormUi({
           <Table.Th>Access Level</Table.Th>
           <Table.Th>Failsafe</Table.Th>
           <Table.Th>Optimal</Table.Th>
+          {hasNvram && (
+            <>
+              <Table.Th>Failsafe (NVRAM MfgDefaults)</Table.Th>
+              <Table.Th>Optimal (NVRAM StdDefaults)</Table.Th>
+            </>
+          )}
           <Table.Th>Suppress If</Table.Th>
           <Table.Th>Info</Table.Th>
         </Table.Tr>
@@ -383,6 +438,7 @@ export default function FormUi({
             data={data}
             setData={setData}
             currentFormIndex={currentFormIndex}
+            hasNvram={hasNvram}
           />
         ))}
       </Table.Tbody>

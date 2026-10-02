@@ -19,6 +19,7 @@ export default function App() {
     setupTxtContainer: { isWrongFile: false },
     amitseSctContainer: { isWrongFile: false },
     setupdataBinContainer: { isWrongFile: false },
+    nvramContainer: {},
   });
 
   const [data, setData] = useImmer<Data>({} as Data);

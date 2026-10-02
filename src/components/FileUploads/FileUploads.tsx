@@ -1,8 +1,9 @@
 import React from "react";
 import type { Updater } from "use-immer";
-import { FileInput, Stack, LoadingOverlay } from "@mantine/core";
-import { IconUpload } from "@tabler/icons-react";
+import { Button, FileInput, Stack, LoadingOverlay } from "@mantine/core";
+import { IconFolderOpen } from "@tabler/icons-react";
 import { parseData } from "../scripts/scripts";
+import { parseNvramDefaults } from "../scripts/nvram";
 import type { Data } from "../scripts/types";
 const hexWorker = () =>
   new Worker(new URL("../scripts/hexWorker.ts", import.meta.url));
@@ -12,6 +13,7 @@ export interface Files {
   setupTxtContainer: FileContainer;
   amitseSctContainer: FileContainer;
   setupdataBinContainer: FileContainer;
+  nvramContainer: NvramFileContainer;
 }
 
 export interface PopulatedFiles {
@@ -19,6 +21,7 @@ export interface PopulatedFiles {
   setupTxtContainer: Required<FileContainer>;
   amitseSctContainer: Required<FileContainer>;
   setupdataBinContainer: Required<FileContainer>;
+  nvramContainer: NvramFileContainer;
 }
 
 export interface FileContainer {
@@ -27,10 +30,27 @@ export interface FileContainer {
   isWrongFile: boolean;
 }
 
+/** Optional NVRAM volume or BIOS image containing StdDefaults/MfgDefaults */
+export interface NvramFileContainer {
+  file?: File;
+  bytes?: Uint8Array;
+}
+
 export interface FileUploadsProps {
   files: Files;
   setFiles: Updater<Files>;
   setData: Updater<Data>;
+}
+
+function readHex(file: File) {
+  return new Promise<string>((resolve) => {
+    const worker = hexWorker();
+    worker.onmessage = (e: MessageEvent<string>) => {
+      resolve(e.data);
+      worker.terminate();
+    };
+    worker.postMessage(file);
+  });
 }
 
 export default function FileUploads({
@@ -38,73 +58,96 @@ export default function FileUploads({
   setFiles,
   setData,
 }: FileUploadsProps) {
-  React.useEffect(() => {
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const requiredFilesValid = !!(
+    files.setupSctContainer.file &&
+    !files.setupSctContainer.isWrongFile &&
+    files.setupTxtContainer.file &&
+    !files.setupTxtContainer.isWrongFile &&
+    files.amitseSctContainer.file &&
+    !files.amitseSctContainer.isWrongFile &&
+    files.setupdataBinContainer.file &&
+    !files.setupdataBinContainer.isWrongFile
+  );
+
+  async function load() {
     if (
-      files.setupSctContainer.file &&
-      !files.setupSctContainer.isWrongFile &&
-      files.setupTxtContainer.file &&
-      !files.setupTxtContainer.isWrongFile &&
-      files.amitseSctContainer.file &&
-      !files.amitseSctContainer.isWrongFile &&
-      files.setupdataBinContainer.file &&
-      !files.setupdataBinContainer.isWrongFile
+      !files.setupSctContainer.file ||
+      !files.setupTxtContainer.file ||
+      !files.amitseSctContainer.file ||
+      !files.setupdataBinContainer.file
     ) {
-      if (
-        Object.values(files).every(
-          (fileContainer: FileContainer) => !fileContainer.textContent
-        )
-      ) {
-        void Promise.all([
-          files.setupTxtContainer.file.text(),
-          ...[
-            files.setupSctContainer.file,
-            files.amitseSctContainer.file,
-            files.setupdataBinContainer.file,
-          ].map((file) => {
-            return new Promise<string>((resolve) => {
-              const worker = hexWorker();
-              worker.onmessage = (e: MessageEvent<string>) => {
-                resolve(e.data);
-              };
-              worker.postMessage(file);
-            });
-          }),
-        ]).then((values) => {
-          setFiles((draft) => {
-            draft.setupTxtContainer.textContent = values[0];
-            draft.setupSctContainer.textContent = values[1];
-            draft.amitseSctContainer.textContent = values[2];
-            draft.setupdataBinContainer.textContent = values[3];
-          });
-        });
+      return;
+    }
+
+    setIsLoading(true);
+
+    const [setupTxt, setupSct, amitseSct, setupdataBin, nvramBuffer] =
+      await Promise.all([
+        files.setupTxtContainer.file.text(),
+        readHex(files.setupSctContainer.file),
+        readHex(files.amitseSctContainer.file),
+        readHex(files.setupdataBinContainer.file),
+        files.nvramContainer.file?.arrayBuffer(),
+      ]);
+
+    let nvramContainer: NvramFileContainer = {};
+
+    if (files.nvramContainer.file && nvramBuffer) {
+      const bytes = new Uint8Array(nvramBuffer);
+      const defaults = parseNvramDefaults(bytes);
+
+      if (defaults.std.length === 0 && defaults.mfg.length === 0) {
+        alert(
+          `No "StdDefaults"/"MfgDefaults" NVRAM store found in ${files.nvramContainer.file.name}. Continuing without it.`,
+        );
       } else {
-        void parseData(files as PopulatedFiles).then((data) => {
-          setData(data);
-        });
+        nvramContainer = { file: files.nvramContainer.file, bytes };
       }
     }
-  }, [files, setFiles, setData]);
+
+    const populatedFiles: PopulatedFiles = {
+      setupSctContainer: {
+        file: files.setupSctContainer.file,
+        textContent: setupSct,
+        isWrongFile: false,
+      },
+      setupTxtContainer: {
+        file: files.setupTxtContainer.file,
+        textContent: setupTxt,
+        isWrongFile: false,
+      },
+      amitseSctContainer: {
+        file: files.amitseSctContainer.file,
+        textContent: amitseSct,
+        isWrongFile: false,
+      },
+      setupdataBinContainer: {
+        file: files.setupdataBinContainer.file,
+        textContent: setupdataBin,
+        isWrongFile: false,
+      },
+      nvramContainer,
+    };
+
+    setFiles(populatedFiles);
+
+    const data = await parseData(populatedFiles);
+
+    if (Object.keys(data).length === 0) {
+      setIsLoading(false);
+    }
+
+    setData(data);
+  }
 
   return (
     <>
-      <LoadingOverlay
-        visible={
-          !!(
-            files.setupSctContainer.file &&
-            !files.setupSctContainer.isWrongFile &&
-            files.setupTxtContainer.file &&
-            !files.setupTxtContainer.isWrongFile &&
-            files.amitseSctContainer.file &&
-            !files.amitseSctContainer.isWrongFile &&
-            files.setupdataBinContainer.file &&
-            !files.setupdataBinContainer.isWrongFile
-          )
-        }
-        loaderProps={{ size: "xl" }}
-      />
+      <LoadingOverlay visible={isLoading} loaderProps={{ size: "xl" }} />
       <Stack>
         <FileInput
-          leftSection={<IconUpload />}
+          leftSection={<IconFolderOpen />}
           size="lg"
           placeholder="Setup SCT"
           accept=".sct"
@@ -127,7 +170,7 @@ export default function FileUploads({
         />
 
         <FileInput
-          leftSection={<IconUpload />}
+          leftSection={<IconFolderOpen />}
           size="lg"
           placeholder="IFR Extractor output TXT"
           accept=".txt"
@@ -148,7 +191,7 @@ export default function FileUploads({
         />
 
         <FileInput
-          leftSection={<IconUpload />}
+          leftSection={<IconFolderOpen />}
           size="lg"
           placeholder="AMITSE SCT"
           accept=".sct"
@@ -171,7 +214,7 @@ export default function FileUploads({
         />
 
         <FileInput
-          leftSection={<IconUpload />}
+          leftSection={<IconFolderOpen />}
           size="lg"
           placeholder="Setupdata BIN"
           accept=".bin"
@@ -192,6 +235,29 @@ export default function FileUploads({
             }
           }}
         />
+
+        <FileInput
+          leftSection={<IconFolderOpen />}
+          size="lg"
+          placeholder="NVRAM volume / BIOS image (optional)"
+          clearable
+          value={files.nvramContainer.file ?? null}
+          onChange={(file) => {
+            setFiles((draft) => {
+              draft.nvramContainer = file ? { file } : {};
+            });
+          }}
+        />
+
+        <Button
+          size="lg"
+          disabled={!requiredFilesValid || isLoading}
+          onClick={() => {
+            void load();
+          }}
+        >
+          Load
+        </Button>
       </Stack>
     </>
   );

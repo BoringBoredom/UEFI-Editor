@@ -9,6 +9,7 @@ export interface Data {
     setupSct: string;
     amitseSct: string;
     setupdataBin: string;
+    nvramBin: string;
     offsetChecksum: string;
   };
 }
@@ -53,6 +54,10 @@ export interface FormChild {
   failsafe: string | null;
   optimal: string | null;
   offsets: Offsets | null;
+  /** Optimal default stored in the NVRAM "StdDefaults" variable (hex, big-endian) */
+  stdDefault: string | null;
+  /** Failsafe default stored in the NVRAM "MfgDefaults" variable (hex, big-endian) */
+  mfgDefault: string | null;
   suppressIf?: string[];
 }
 
@@ -100,6 +105,7 @@ export interface StringPrompt extends FormChild {
 
 export type VarStores = {
   varStoreId: string;
+  guid: string;
   size: string;
   name: string;
 }[];
